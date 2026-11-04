@@ -3,7 +3,7 @@ on:
   push:
     branches: [main]
     paths:
-      - '_bootstrap/site.tar.xz'
+      - '_bootstrap/site.tar.xz.b64'
       - '.github/workflows/unpack.yml'
   workflow_dispatch:
 permissions:
@@ -16,11 +16,11 @@ jobs:
       - name: Install static website files
         shell: bash
         run: |
-          if [ ! -f _bootstrap/site.tar.xz ]; then
-            echo "Archive not uploaded yet"
+          if [ ! -f _bootstrap/site.tar.xz.b64 ]; then
+            echo "Archive is already unpacked"
             exit 0
           fi
-          tar -xJf _bootstrap/site.tar.xz -C .
+          base64 --decode _bootstrap/site.tar.xz.b64 | tar -xJ -C .
           rm -rf _bootstrap
           git add -A
           if git diff --cached --quiet; then
