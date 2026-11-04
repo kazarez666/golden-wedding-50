@@ -1,0 +1,31 @@
+name: Unpack the initial website
+on:
+  push:
+    branches: [main]
+    paths:
+      - '_bootstrap/site.tar.xz'
+      - '.github/workflows/unpack.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install static website files
+        shell: bash
+        run: |
+          if [ ! -f _bootstrap/site.tar.xz ]; then
+            echo "Archive not uploaded yet"
+            exit 0
+          fi
+          tar -xJf _bootstrap/site.tar.xz -C .
+          rm -rf _bootstrap
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Install golden wedding website v0.1'
+          git push
