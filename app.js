@@ -58,7 +58,7 @@
     return `<section class="stage-content">${confetti()}<div class="ring-set" aria-hidden="true"><i></i><i></i></div><p class="eyebrow">ПЕРВЫЙ АККОРД ЭТОГО ВЕЧЕРА</p><h1 class="stage-h1 entrance-h1">Торжественная<br><em>встреча</em></h1><div class="ornament-line">✦</div><p class="stage-subtitle">Встречаем наших главных героев. Пусть вечер начнётся с музыки.</p><div class="stage-actions">${button(playing ? '❚❚ &nbsp; Пауза' : '▶ &nbsp; Марш Мендельсона', 'march-toggle')}${pick('march','Загрузить музыку','audio/*')}</div><p class="intro-note">Звук запускается только по нажатию. Добавьте свой аудиофайл MP3.</p><div class="stage-bottom-fine">ЗОЛОТАЯ СВАДЬБА · 50 ЛЕТ ВМЕСТЕ</div></section>`;
   }
   function viewWelcome() {
-    return `<section class="stage-content">${confetti()}<p class="eyebrow">ПРАЗДНИК ЛЮБВИ И СЕМЬИ</p><div class="number-hero">50</div><div class="welcome-title">ЛЕТ ВМЕСТЕ</div><div class="ornament-line">✦</div><div class="welcome-names">${safe(D.names.first)}<br><span style="color:var(--gold2);font-style:italic">и</span> ${safe(D.names.second)}</div><div class="hero-rule"></div><p class="stage-subtitle">Сегодня мы собрались, чтобы отметить историю длиною в полвека.<br>Спасибо, что вы разделяете этот вечер с нами.</p></section>`;
+    return `<section class="stage-content">${confetti()}<p class="eyebrow">ПРАЗДНИК ЛЮБВИ И СЕМЬИ</p><div class="number-hero">50</div><div class="welcome-title">ЛЕТ ВМЕСТЕ</div><div class="ornament-line">✦</div><div class="welcome-names">${safe(D.names.first)}<br><span style="color:#AC7B2C;font-style:italic">и</span> ${safe(D.names.second)}</div><div class="hero-rule"></div><p class="stage-subtitle">Сегодня мы собрались, чтобы отметить историю длиною в полвека.<br>Спасибо, что вы разделяете этот вечер с нами.</p></section>`;
   }
   function videoPlayer(key, path) {
     return `<div class="media-window"><video controls playsinline preload="metadata" src="${safe(fileURL(key,path))}" data-player="${safe(key)}"></video><div class="media-prompt" data-video-prompt="${safe(key)}"><div class="prompt-symbol">▶</div><strong>Здесь будет ваше видео</strong><small>Добавьте файл или выберите его с ноутбука</small></div></div>`;
@@ -84,7 +84,7 @@
   }
   function viewSalads() {
     const item = D.salads[state.salad];
-    return `<section class="stage-content wide compact">${episode('КУЛИНАРНАЯ ВИКТОРИНА', 'Салаты и закуски', `ЗАДАНИЕ ${fmt(state.salad+1)} / ${fmt(D.salads.length)}`)}<div class="salad-display"><div class="salad-frame">${state.saladAnswer?`<img src="${safe(item.photo)}" alt="${safe(item.title)}" data-salad-photo><div class="salad-placeholder" data-photo-placeholder hidden><span>❀</span>Фото блюда добавим позже<small>${safe(item.photo)}</small></div>`:`<div class="salad-placeholder"><span>?</span>Что это за блюдо?<small>Дарья Павловна зачитывает описание вслух</small></div>`}</div><div><p class="eyebrow">УГАДАЙТЕ БЛЮДО</p>${state.saladAnswer?`<div class="salad-reveal-title">${safe(item.title)}</div><p class="salad-lead">Правильный ответ!</p>`:`<div class="salad-reveal-title" style="color:#e7dac2">Слушаем<br>описание...</div><p class="salad-lead">Ответ появится только после нажатия кнопки ведущим.</p>`}<div class="stage-actions" style="justify-content:flex-start">${button(state.saladAnswer?'Скрыть ответ':'Показать блюдо','salad-reveal')}${button('Следующее →','salad-next','secondary-button',state.salad===D.salads.length-1?'disabled':'')}</div></div></div>${stepper('salad-prev','salad-next',state.salad,D.salads.length)}<p class="fine-print">Пять примерных блюд. Фото и окончательный список добавим после согласования.</p></section>`;
+    return `<section class="stage-content wide compact">${episode('КУЛИНАРНАЯ ВИКТОРИНА', 'Салаты и закуски', `ЗАДАНИЕ ${fmt(state.salad+1)} / ${fmt(D.salads.length)}`)}<div class="salad-display"><div class="salad-frame">${state.saladAnswer?`<img src="${safe(item.photo)}" alt="${safe(item.title)}" data-salad-photo><div class="salad-placeholder" data-photo-placeholder hidden><span>❀</span>Фото блюда добавим позже<small>${safe(item.photo)}</small></div>`:`<div class="salad-placeholder"><span>?</span>Что это за блюдо?<small>Дарья Павловна зачитывает описание вслух</small></div>`}</div><div><p class="eyebrow">УГАДАЙТЕ БЛЮДО</p>${state.saladAnswer?`<div class="salad-reveal-title">${safe(item.title)}</div><p class="salad-lead">Правильный ответ!</p>`:`<div class="salad-reveal-title" style="color:#69323B">Слушаем<br>описание...</div><p class="salad-lead">Ответ появится только после нажатия кнопки ведущим.</p>`}<div class="stage-actions" style="justify-content:flex-start">${button(state.saladAnswer?'Скрыть ответ':'Показать блюдо','salad-reveal')}${button('Следующее →','salad-next','secondary-button',state.salad===D.salads.length-1?'disabled':'')}</div></div></div>${stepper('salad-prev','salad-next',state.salad,D.salads.length)}<p class="fine-print">Пять примерных блюд. Фото и окончательный список добавим после согласования.</p></section>`;
   }
   function viewWord() {
     return `<section class="stage-content">${lead('ЕЩЁ ОДИН СЮРПРИЗ', 'Загаданное <em>слово</em>', 'Здесь появится следующий конкурс, когда согласуем его правила.')}<div class="callout-panel"><div class="ornament-line">?</div><p>Этот раздел уже есть в программе. Когда узнаем механику, добавим подсказки, таймер, буквы или другую нужную интерактивность.</p></div><p class="fine-print">Заглушка черновой версии — конкурс пока не реализован.</p></section>`;
@@ -102,6 +102,8 @@
   }
   const views = { entrance:viewEntrance,welcome:viewWelcome,wedding:viewWedding,interviews:viewInterviews,movies:viewMovies,melodies:viewMelodies,pairs:viewPairs,salads:viewSalads,word:viewWord,silhouettes:viewSilhouettes,credits:viewCredits };
   function updateNavigation() {
+    const mobileSelect = document.getElementById('mobile-stage-select');
+    if (mobileSelect) { mobileSelect.innerHTML = D.sections.map((s,i)=>`<option value="${i}">${fmt(i+1)} · ${safe(s.title)}</option>`).join(''); mobileSelect.value=String(state.section); }
     nav.innerHTML = D.sections.map((s,i)=>`<button type="button" class="section-item ${state.section===i?'active':''}" data-action="jump" data-value="${i}" ${state.section===i?'aria-current="step"':''}><span class="section-number">${fmt(i+1)}</span><span class="section-icon">${safe(s.icon)}</span><span class="section-text"><strong>${safe(s.title)}</strong><small>${safe(s.subtitle)}</small></span></button>`).join('');
     nav.querySelector('.active')?.scrollIntoView({block:'nearest'});
     document.getElementById('header-stage-name').textContent = D.sections[state.section].title;
@@ -113,7 +115,7 @@
     document.querySelector('.controlbar [data-action="previous"]').disabled = state.section===0;
     const nextBtn = document.querySelector('.controlbar [data-action="next"]');
     nextBtn.disabled = state.section===D.sections.length-1;
-    nextBtn.innerHTML = state.section===D.sections.length-1?'Конец вечера':'Следующий этап <span>→</span>';
+    nextBtn.innerHTML = state.section===D.sections.length-1?'Конец вечера':'<span class="next-label-desktop">Следующий этап</span><span class="next-label-mobile">Далее</span><span aria-hidden="true">→</span>';
   }
   function syncVideoPrompts() {
     stage.querySelectorAll('video[data-player]').forEach(video => {
@@ -213,6 +215,7 @@
     if(key===state.audioKey)stopAudio();
     render();toast(`Файл «${input.files[0].name}» выбран для просмотра. Для постоянной работы добавьте его в папку media/.`);
   });
+  document.getElementById('mobile-stage-select')?.addEventListener('change',e=>goTo(Number(e.target.value)));
   document.addEventListener('keydown',e=>{
     if(e.target.closest('input,textarea,select')||helpDialog.open)return;
     if(e.key==='ArrowRight'){e.preventDefault();goTo(state.section+1);}
