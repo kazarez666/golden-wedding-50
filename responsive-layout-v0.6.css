@@ -1,0 +1,144 @@
+/* Golden wedding | mobile & layout fixes v0.6 */
+.number-hero{
+  display:block;
+  line-height:1;
+  padding:.08em .03em .14em;
+  margin:0 auto 18px;
+  overflow:visible;
+}
+
+@media (max-width: 900px){
+  .episode-meta{flex-direction:column;align-items:flex-start;gap:10px;margin-bottom:16px}
+  .episode-meta h1{text-align:left}
+}
+
+@media (max-width: 800px){
+  body{overflow:auto}
+  .topbar{
+    height:auto;
+    min-height:58px;
+    padding:10px 12px;
+    flex-wrap:wrap;
+    gap:8px;
+    align-items:center;
+  }
+  .breadcrumb{
+    width:100%;
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .toolbar-actions{width:100%;justify-content:flex-end;gap:8px}
+  .icon-button{width:34px;height:34px}
+  .top-show-button{padding:8px 10px}
+
+  .stage{min-height:calc(100dvh - 135px);overflow:auto}
+  .stage-content,
+  .stage-content.compact,
+  .stage-content.wide{
+    min-height:auto;
+    padding:22px 16px 24px;
+    justify-content:flex-start;
+  }
+
+  .stage-h1{font-size:clamp(31px,8.5vw,58px);line-height:1.08;margin:12px auto}
+  .stage-subtitle{font-size:13px;line-height:1.5;margin:6px auto 14px}
+  .welcome-title{font-size:11px;letter-spacing:3px}
+  .welcome-names{font-size:clamp(24px,7vw,38px);line-height:1.16;margin:4px 0 10px}
+
+  .number-hero{
+    font-size:clamp(84px,24vw,140px);
+    line-height:1;
+    letter-spacing:-4px;
+    padding:.08em .03em .14em;
+    margin:2px auto 12px;
+  }
+
+  .ornament-line{gap:12px;font-size:20px;margin:6px auto 8px}
+  .ornament-line:before,.ornament-line:after{width:44px}
+  .hero-rule{width:110px;margin:14px auto}
+  .ring-set{transform:scale(.88);margin:0 auto 2px}
+
+  .stage-actions{gap:10px;margin-top:12px}
+  .primary-button,.secondary-button,.next-button,.small-button{padding:11px 14px;font-size:12px}
+
+  .media-layout,.salad-display{grid-template-columns:1fr;gap:16px}
+  .media-side{align-items:center;text-align:center}
+  .media-window{border-radius:10px}
+  .video-switcher{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .clip-button{height:40px}
+
+  .question-card{padding:26px 14px}
+  .emojis{font-size:clamp(36px,12vw,72px);line-height:1.12;white-space:normal}
+
+  .callout-panel,.workspace-card,.melody-layout{padding:18px}
+  .melody-art{width:150px;height:150px}
+
+  .silhouette-board{width:100%;aspect-ratio:1.3/1;border-width:5px}
+  .counts-grid{gap:8px}
+  .count-chip{font-size:12px;padding:8px 11px}
+
+  .credits-viewport{height:54vh}
+
+  .controlbar{
+    height:auto;
+    min-height:68px;
+    padding:10px 12px;
+    gap:10px;
+    position:sticky;
+    bottom:0;
+    z-index:8;
+  }
+  .footer-title{display:none}
+  .step-progress{width:auto;min-width:0;flex:1}
+  .step-progress>span{font-size:9px}
+  .nav-arrow{width:40px;height:40px}
+  .next-button{padding:11px 13px;font-size:11px}
+}
+
+@media (max-width: 480px){
+  .stage-content,
+  .stage-content.compact,
+  .stage-content.wide{padding:18px 12px 20px}
+  .stage-h1{font-size:clamp(28px,9vw,44px)}
+  .welcome-names{font-size:clamp(22px,7.2vw,32px)}
+  .number-hero{font-size:clamp(72px,26vw,112px);letter-spacing:-3px;padding:.09em .03em .14em}
+  .video-switcher{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .small-button,.primary-button,.secondary-button,.next-button{width:100%}
+  .stage-actions{width:100%}
+  .salad-reveal-title{font-size:clamp(28px,8vw,42px)}
+}
+/* Responsive controls and short-screen refinements */
+@media (max-width:800px){
+  .app-shell{height:auto;min-height:100dvh;overflow:visible}
+  .workspace{min-height:100dvh;overflow:visible}
+  .stage{flex:1 0 auto;overflow:visible}
+  .stage-content{max-width:100%;overflow:visible}
+  .stage::before{inset:8px}
+  .episode-meta h1{font-size:clamp(28px,8vw,42px)}
+  .episode-meta .counter-pill{padding:7px 12px}
+  .salad-display{gap:14px}
+  .salad-frame{min-height:190px}
+  .salad-reveal-title{overflow-wrap:anywhere}
+  .question-card{max-width:100%}
+  .controlbar .next-button{width:auto;flex:0 0 auto;max-width:40vw}
+  .controlbar .nav-arrow{flex:0 0 40px}
+  .controlbar .step-progress{min-width:40px}
+  .stage-actions>button{max-width:100%}
+  .help-dialog{max-width:calc(100vw - 24px)}
+  .modal-inner{padding:22px 16px}
+  .modal-inner h2{font-size:30px}
+  .help-grid{grid-template-columns:80px 1fr;gap:8px}
+}
+@media (max-width:480px){
+  .stage-actions{flex-direction:column}
+  .stage-actions>button{width:100%}
+  .controlbar .next-button{width:auto;padding:10px 12px;font-size:11px}
+  .salad-placeholder span{font-size:48px}
+  .timer-display{font-size:clamp(36px,11vw,52px)}
+  .presentation-control{bottom:10px}
+}
+@media (max-width:800px) and (max-height:650px){
+  .number-hero{font-size:clamp(60px,19vw,100px)}
+  .stage-content{padding-top:12px;padding-bottom:12px}
+}
