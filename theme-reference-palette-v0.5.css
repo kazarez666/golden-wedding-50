@@ -1,0 +1,175 @@
+/* Golden wedding | Palette v0.5 — matched to the three reference images
+   BURGUNDY #3F010D  /  CREAM #FEF4DC  /  GOLD #D7B052
+   Intentional contrast: burgundy chrome, creamy stage, metallic-gold detailing.
+*/
+:root{
+  --bg:#FEF4DC;--panel:#FEF4DC;--panel2:#f2e3bf;--border:#D7B052;
+  --muted:#856350;--cream:#FEF4DC;--white:#FEF4DC;
+  --gold:#D7B052;--gold2:#F4D990;--gold-dim:#B98B34;--red:#3F010D;
+}
+html{background:#FEF4DC;color-scheme:light}
+body{
+  color:#3F010D;
+  background:
+    radial-gradient(ellipse at 82% 17%,rgba(215,176,82,.18),transparent 42%),
+    radial-gradient(ellipse at 12% 87%,rgba(63,1,13,.065),transparent 45%),
+    linear-gradient(135deg,#FEF4DC 0%,#f9eccf 52%,#f4e0b8 100%);
+}
+.ambient-one{background:#D7B052;opacity:.15}
+.ambient-two{background:#3F010D;opacity:.10}
+.grain{opacity:.055}
+.sidebar{
+  background:
+    radial-gradient(ellipse at 13% 15%,rgba(187,84,89,.17),transparent 55%),
+    linear-gradient(180deg,#500918 0%,#3F010D 49%,#310009 100%);
+  border-right:1px solid #D7B052;
+  box-shadow:10px 0 32px rgba(63,1,13,.16),inset -1px 0 rgba(215,176,82,.15);
+}
+.sidebar-top{background:none}
+.brand-number{
+  background:linear-gradient(140deg,#f9e6ab 0%,#D7B052 45%,#b98b34 100%);
+  color:#3F010D;border:1px solid #f2d892;
+  box-shadow:0 10px 30px rgba(0,0,0,.2),inset 0 1px rgba(255,255,255,.55);
+}
+.brand-copy strong,.side-heading,.section-icon{color:#F0CF85}
+.brand-copy small,.side-heading span,.section-number,.section-text small,.sidebar-bottom{color:#e2c4ad}
+.nav-separator{border-top-color:rgba(215,176,82,.38)}
+.section-nav{scrollbar-color:#c49a5b transparent}
+.section-item{color:#FEF4DC}
+.section-item:hover{
+  background:rgba(255,237,196,.09);border-color:rgba(215,176,82,.26);
+  color:#fff8e8;
+}
+.section-item.active{
+  color:#fff6db;
+  background:linear-gradient(95deg,rgba(215,176,82,.27),rgba(215,176,82,.06));
+  border:1px solid rgba(215,176,82,.78);
+  box-shadow:inset 3px 0 #D7B052,0 8px 19px rgba(0,0,0,.13);
+}
+.section-item.active .section-text small{color:#F0D59D}
+.sidebar-bottom{border-top:1px solid rgba(215,176,82,.30)}
+.pilot-light{background:#D7B052;box-shadow:0 0 11px #D7B052}
+.topbar{
+  background:linear-gradient(90deg,#3F010D,#510b19);
+  border-bottom:1px solid #D7B052;backdrop-filter:none;
+}
+.breadcrumb{color:#FEF4DC}
+.breadcrumb-gold{color:#EAC677}
+.crumb-slash{color:#D7B052}
+.draft-indicator{
+  background:rgba(254,244,220,.07);color:#F0D8A4;
+  border-color:rgba(215,176,82,.53);
+}
+.icon-button{
+  background:rgba(254,244,220,.07);color:#F0D58E;
+  border-color:rgba(215,176,82,.62);box-shadow:none;
+}
+.icon-button:hover{background:rgba(254,244,220,.16)}
+.top-show-button,.primary-button,.next-button{
+  color:#3F010D;
+  background:linear-gradient(125deg,#F8E4A9 0%,#D7B052 48%,#BC9137 100%);
+  border:1px solid #c99d46;
+  box-shadow:0 7px 20px rgba(63,1,13,.14),inset 0 1px rgba(255,255,255,.35);
+}
+.top-show-button:hover,.primary-button:hover,.next-button:hover{filter:brightness(1.055)}
+.secondary-button,.small-button{
+  color:#3F010D;
+  background:linear-gradient(180deg,#fff8e8,#efddb7);
+  border-color:#cba35a;
+}
+.secondary-button:hover,.small-button:hover{background:#f4e7c9;color:#3F010D}
+.stage::before{border:1px solid rgba(128,51,49,.17)}
+.eyebrow,.section-kicker,.welcome-title,.question-label{color:#977027}
+.stage-h1,.welcome-names,.episode-meta h1{color:#3F010D}
+.stage-h1 em{color:#B98B34}
+.stage-subtitle,.fine-print,.intro-note,.stage-bottom-fine,.salad-lead{color:#78504a}
+.ornament-line{color:#B98B34}
+.ornament-line:before,.ornament-line:after,.hero-rule{
+  background:linear-gradient(to right,transparent,#D7B052,transparent);
+}
+.number-hero{
+  background:linear-gradient(155deg,#fff1be 2%,#E8C673 28%,#D7B052 48%,#AA7A25 77%,#E9CF82 98%);
+  color:transparent;-webkit-background-clip:text;background-clip:text;
+  filter:drop-shadow(0 8px 20px rgba(116,65,17,.18));
+}
+.stage-num-watermark{color:rgba(63,1,13,.095)}
+.ring-set i{border-color:#D7B052;box-shadow:inset 0 0 12px #fff7,0 8px 22px #b98b343e}
+.ring-set i+i{border-color:#b58b35}
+.media-window{background:#e4d4b5;border:1px solid #c79c47;box-shadow:0 15px 45px rgba(63,1,13,.14)}
+.media-window video{background:#211a19}
+.media-prompt{background:radial-gradient(circle,#FEF4DC,#ead9af);color:#3F010D}
+.media-prompt .prompt-symbol{color:#9d732e;border-color:#c49b4c}
+.media-prompt strong,.media-side h3{color:#3F010D}
+.media-prompt small,.media-side p,.media-side .small-note{color:#78564d}
+.marker-line{background:linear-gradient(90deg,#D7B052,transparent)}
+.question-card{
+  color:#FEF4DC;
+  background:
+    radial-gradient(circle at 68% 20%,rgba(215,176,82,.085),transparent 52%),
+    linear-gradient(140deg,#5a1121,#3F010D 65%,#34000a);
+  border:1px solid #D7B052;
+  box-shadow:0 19px 55px rgba(63,1,13,.20),inset 0 0 70px rgba(215,176,82,.05);
+}
+.question-card .question-label{color:#F0CE83}
+.question-card:before,.question-card:after{color:#D7B05290}
+.question-card .answer-panel{background:none;border-top:1px solid #D7B052}
+.question-card .answer-panel p{color:#edce94}
+.question-card .answer-panel strong{color:#fff0bd}
+.question-card .answer-hidden{color:#f2dfbf}
+.question-card .demo-tag{color:#ecd4ac;border-color:#b58c58}
+.counter-pill,.episode-meta .counter-pill{
+  color:#3F010D;border-color:#D7B052;background:#fff0ce;
+}
+.video-switcher button,.clip-button,.section-chip,.count-chip,.number-stepper button{
+  background:#fff2d3;color:#3F010D;border:1px solid #ccab71;
+}
+.video-switcher button.active,.clip-button.active,.section-chip.selected,
+.video-switcher button:hover,.clip-button:hover{
+  background:#3F010D;color:#FEF4DC;border-color:#D7B052;
+}
+.number-stepper .step-current{color:#6d4d43}
+.number-stepper button:hover:not(:disabled){background:#eddbb4;color:#3F010D}
+.callout-panel,.workspace-card,.melody-layout{
+  color:#3F010D;background:linear-gradient(140deg,#fff7e6,#f1e1bd);
+  border:1px solid #d0ad6e;
+  box-shadow:0 16px 40px rgba(63,1,13,.095);
+}
+.callout-panel p{color:#77594d}
+.melody-art{
+  background:radial-gradient(circle at 35% 28%,#fff5dc,#e7cf9b 67%,#d5af65);
+  box-shadow:0 0 0 10px rgba(215,176,82,.13),0 12px 37px rgba(63,1,13,.13);
+}
+.salad-frame{
+  border:1px solid #D7B052;
+  background:radial-gradient(circle at 60% 35%,#fff5df,#e5cda3);
+  box-shadow:0 13px 36px rgba(63,1,13,.12);
+}
+.salad-placeholder,.salad-reveal-title{color:#630d20}
+.salad-placeholder small{color:#8d6b54}
+.silhouette-board{background:#FEF4DC;border:9px solid #D7B052;box-shadow:0 16px 45px rgba(63,1,13,.17)}
+.silhouette-covered{color:#D7B052;background:linear-gradient(145deg,#571022,#3F010D);border-color:#D7B052}
+.silhouette-covered strong,.timer-display{color:#F3D78E}
+.timer-track{background:#e9d9b4}
+.timer-track>div{background:linear-gradient(90deg,#b98b34,#F3D78E)}
+.count-chip{background:#fff0cd;color:#3F010D}
+.credits-block span{color:#9e752b}
+.credits-block h3,.credits-final{color:#3F010D}
+.controlbar{
+  background:linear-gradient(90deg,#3F010D,#510b19);
+  border-top:1px solid #D7B052;backdrop-filter:none;
+}
+.nav-arrow{color:#F3D78E;background:rgba(254,244,220,.06);border:1px solid #D7B052}
+.nav-arrow:hover{background:rgba(254,244,220,.16)}
+.step-progress>span{color:#F2D68B}
+.progress-track{background:rgba(215,176,82,.24)}
+.progress-bar{background:linear-gradient(90deg,#B98B34,#F3D78E)}
+.footer-title{color:#FEF4DC}
+.presentation-control{background:#3F010D;border-color:#D7B052}
+.presentation-control button,.presentation-control span{color:#FEF4DC}
+.presentation-control button:hover{background:#671329}
+.toast,.help-dialog{background:linear-gradient(140deg,#FEF4DC,#f1dfbc);color:#3F010D;border:1px solid #D7B052}
+.toast{box-shadow:0 14px 35px rgba(63,1,13,.22)}
+.help-grid span{color:#3F010D;background:#f3dfb6;border-color:#c29a53}
+.help-grid p{color:#553d35}
+.help-note{color:#78594d}
+@media(max-width:800px){.topbar,.controlbar{background:#3F010D}}
