@@ -1,0 +1,9 @@
+# Личные видео, фото и музыка остаются на ноутбуке, а не в публичном GitHub.
+media/*.mp3
+media/*.mp4
+media/interviews/*.mp4
+media/melodies/*.mp3
+media/salads/*.jpg
+media/salads/*.jpeg
+media/salads/*.png
+.DS_Store
