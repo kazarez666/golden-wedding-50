@@ -1,0 +1,94 @@
+name: Browser UI smoke test
+on:
+  push:
+    paths:
+      - 'index.html'
+      - 'app.js'
+      - 'editorial-design-v1.2.css'
+      - '.github/workflows/browser-ui.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test runtime
+        run: |
+          npm install --no-save playwright@1.56.0
+          npx playwright install --with-deps chromium
+      - name: Check desktop / mobile UI
+        shell: bash
+        run: |
+          python3 -m http.server 8765 >/tmp/wedding-server.log 2>&1 &
+          sleep 2
+          node <<'EOF'
+          const {chromium} = require('playwright');
+          const assert = require('node:assert/strict');
+          (async()=>{
+            const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+            try {
+              for(const viewport of [{width:1440,height:900},{width:390,height:844},{width:320,height:700}]){
+                const page=await browser.newPage({viewport,deviceScaleFactor:1});
+                const errors=[];
+                page.on('pageerror',e=>errors.push(e.message));
+                await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
+                await page.locator('.stage-content').waitFor();
+                await page.keyboard.press('ArrowRight');
+                await page.locator('.welcome-editorial').waitFor();
+                const screen=await page.evaluate(()=>{
+                  const panel=document.querySelector('.welcome-editorial');
+                  return {width:document.documentElement.scrollWidth,
+                    panelWidth:panel.getBoundingClientRect().width,
+                    bg:getComputedStyle(panel).backgroundColor,
+                    fonts:getComputedStyle(panel.querySelector('.welcome-person')).color};
+                });
+                assert(screen.width <= viewport.width+2,`Horizontal page overflow at ${viewport.width}: ${screen.width}`);
+                assert.equal(screen.bg,'rgb(254, 244, 220)');
+                assert.equal(screen.fonts,'rgb(63, 1, 13)');
+                await page.keyboard.press('b');
+                await page.locator('#ambient-screen:not([hidden])').waitFor();
+                const ambient=await page.evaluate(()=>{
+                  const overlay=document.getElementById('ambient-screen');
+                  const inner=overlay.querySelector('.ambient-screen-content');
+                  return {outer:getComputedStyle(overlay).backgroundColor,
+                    inner:getComputedStyle(inner).backgroundColor,
+                    name:getComputedStyle(inner.querySelector('.ambient-persons')).color,
+                    border:getComputedStyle(inner).borderTopColor,
+                    width:document.documentElement.scrollWidth};
+                });
+                assert.deepEqual([ambient.outer,ambient.inner,ambient.name,ambient.border],
+                  ['rgb(63, 1, 13)','rgb(254, 244, 220)','rgb(63, 1, 13)','rgb(215, 176, 82)']);
+                assert(ambient.width <= viewport.width+2,`Ambient overflow at ${viewport.width}`);
+                await page.keyboard.press('Escape');
+                assert(await page.locator('#ambient-screen').evaluate(el=>el.hidden));
+                if(viewport.width>800){
+                  await page.locator('.topbar [data-action="menu-toggle"]').click();
+                } else {
+                  await page.locator('.topbar [data-action="menu-toggle"]').click();
+                }
+                assert(!(await page.locator('#host-menu').evaluate(el=>el.hidden)));
+                await page.keyboard.press('Escape');
+                assert(await page.locator('#host-menu').evaluate(el=>el.hidden));
+                if(viewport.width<=800){
+                  await page.locator('#mobile-stage-select').selectOption('4');
+                } else {
+                  await page.keyboard.press('ArrowRight');
+                  await page.keyboard.press('ArrowRight');
+                  await page.keyboard.press('ArrowRight');
+                }
+                await page.locator('.question-card').waitFor();
+                await page.locator('[data-action="movie-reveal"]').click();
+                await page.locator('.question-card .answer-panel').waitFor();
+                assert.deepEqual(errors,[],`Page errors on viewport ${viewport.width}`);
+                console.log(`PASS ${viewport.width}x${viewport.height}: panel, colours, backdrop, menu, quiz; overflow <= 2px`);
+                await page.close();
+              }
+            }finally {await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          EOF
