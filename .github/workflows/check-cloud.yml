@@ -68,7 +68,7 @@ jobs:
           assert(!app.includes('function silhouetteSVG'),'Obsolete demo silhouettes still present');
           assert(index.includes('id="host-menu"'),'Unified controls menu missing');
           assert(index.includes('final-layout-v1.1.css'),'Final backdrop layout missing');
-          assert(cloud.includes('/video/list/'),'cross-device manifest endpoint missing');
+          assert(cloud.includes("'/' + kind + '/list/'"),'Dynamic video/image manifests missing');
           assert(cloud.includes('XMLHttpRequest'),'upload progress client missing');
           assert(!cloud.includes("workerUrl"),'old Cloudflare Worker integration remains active');
           // Simulate a second device reading a shared MP3 from Cloudinary's public asset list.
