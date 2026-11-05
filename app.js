@@ -17,13 +17,13 @@
   let mouseTimeout = null;
   const safe = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const fmt = (n) => String(n).padStart(2, '0');
-  const fileURL = (key, fallback) => state.uploads[key] || fallback;
+  const fileURL = (key, fallback) => window.WeddingCloud?.fileURL(key, state.uploads[key] || fallback) || state.uploads[key] || fallback;
   function toast(message) {
     const node = document.getElementById('toast'); node.textContent = message; node.classList.add('show');
     clearTimeout(toastTimeout); toastTimeout = setTimeout(() => node.classList.remove('show'), 3600);
   }
   const button = (label, action, klass = 'primary-button', extra = '') => `<button class="${klass}" type="button" data-action="${action}" ${extra}>${label}</button>`;
-  const pick = (key, label = 'Выбрать файл', accept = 'video/*') => `<label class="secondary-button file-picker" tabindex="0">${label} <input class="file-input" data-file-key="${safe(key)}" type="file" accept="${accept}"></label>`;
+  const pick = (key, label = 'Выбрать файл', accept = 'video/*') => `<label class="secondary-button file-picker" tabindex="0">${label} <input class="file-input" data-file-key="${safe(key)}" type="file" accept="${accept}"></label>${window.WeddingCloud?.isVideo(key) ? `<span class="cloud-sync-note">${safe(window.WeddingCloud.statusLabel())}</span>` : ''}`;
   const lead = (eyebrow, heading, subtitle = '') => `<p class="eyebrow">${eyebrow}</p><h1 class="stage-h1">${heading}</h1>${subtitle ? `<p class="stage-subtitle">${subtitle}</p>` : ''}`;
   const stepper = (prev, next, current, total) => `<div class="number-stepper">${button('←', prev, '', `aria-label="Предыдущее задание" ${current <= 0 ? 'disabled' : ''}`)}<span class="step-current">${fmt(current+1)} / ${fmt(total)}</span>${button('→', next, '', `aria-label="Следующее задание" ${current >= total-1 ? 'disabled' : ''}`)}</div>`;
   const confetti = () => `<div class="confetti" aria-hidden="true">${Array.from({ length: 26 }, (_, i) => `<i style="left:${(i * 53) % 101}%;animation-delay:${-(i * 0.63)}s;animation-duration:${6 + i % 5}s"></i>`).join('')}</div>`;
@@ -207,13 +207,24 @@
     const target=e.target.closest('[data-action]');
     if(target){handleAction(target.dataset.action,target.dataset.value);}
   });
-  document.addEventListener('change',e=>{
+  document.addEventListener('change',async e=>{
     const input=e.target.closest('[data-file-key]');if(!input?.files?.length)return;
-    const key=input.dataset.fileKey;const previous=state.uploads[key];
+    const file=input.files[0],key=input.dataset.fileKey;
+    if(window.WeddingCloud?.isVideo(key) && window.WeddingCloud.ready()){
+      try{
+        await window.WeddingCloud.upload(key,file);
+        if(state.uploads[key]){URL.revokeObjectURL(state.uploads[key]);delete state.uploads[key];}
+        render();
+        toast('Видео сохранено в облаке. На остальных устройствах оно появится автоматически.');
+      }catch(err){toast('Не удалось загрузить видео: '+err.message)}
+      return;
+    }
+    const previous=state.uploads[key];
     if(previous)URL.revokeObjectURL(previous);
-    state.uploads[key]=URL.createObjectURL(input.files[0]);
+    state.uploads[key]=URL.createObjectURL(file);
     if(key===state.audioKey)stopAudio();
-    render();toast(`Файл «${input.files[0].name}» выбран для просмотра. Для постоянной работы добавьте его в папку media/.`);
+    render();
+    toast('Файл выбран только для просмотра на этом устройстве. Чтобы видео появилось везде, сначала подключите облачное хранилище.');
   });
   document.getElementById('mobile-stage-select')?.addEventListener('change',e=>goTo(Number(e.target.value)));
   document.addEventListener('keydown',e=>{
@@ -233,5 +244,6 @@
   audio.addEventListener('error',()=>{state.audioPlaying=false;if(state.audioKey)toast('Аудиофайл не загрузился. Выберите MP3 с ноутбука или добавьте его в media/.');});
   // Закрытие dialog по клику за пределами содержимого.
   helpDialog.addEventListener('click',e=>{if(e.target===helpDialog)helpDialog.close();});
+  document.addEventListener('wedding-cloud-updated',()=>render());
   render();
 })();
