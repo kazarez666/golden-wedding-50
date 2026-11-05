@@ -1,0 +1,14 @@
+
+/* Upload overlay shared by all devices */
+#cloud-upload-status[hidden]{display:none!important}
+#cloud-upload-status{position:fixed;inset:0;z-index:500;background:rgba(33,0,10,.67);display:grid;place-items:center;padding:18px}
+.cloud-uploader{width:min(460px,100%);padding:32px 24px;border:2px solid #d7b052;border-radius:18px;background:#fef4dc;text-align:center;color:#3f010d;box-shadow:0 25px 70px rgba(0,0,0,.25)}
+.cloud-symbol{font-size:46px;color:#b98b34}
+.cloud-uploader h2{font-family:Georgia,serif;font-size:30px;font-weight:400;margin:12px 0}
+.cloud-filename{font-size:13px;overflow-wrap:anywhere}
+.cloud-track{height:12px;border-radius:20px;background:#e8d7ae;overflow:hidden;margin-top:20px}
+.cloud-fill{height:100%;width:0;background:linear-gradient(90deg,#ad7b2d,#f1d58b);transition:width .16s}
+.cloud-message{font-weight:600;line-height:1.4}
+.cloud-uploader small{display:block;color:#786355}
+.cloud-cancel{margin-top:20px;border:1px solid #8c3144;border-radius:10px;background:#3f010d;color:#fef4dc;padding:11px 18px}
+.cloud-sync-note{display:block;margin-top:12px;color:#714e36;font-size:12px;line-height:1.5}
