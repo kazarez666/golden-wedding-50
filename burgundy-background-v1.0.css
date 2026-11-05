@@ -1,0 +1,61 @@
+/* Golden wedding v1.0: richer burgundy intermission, warm golden trim.
+   Loaded last to override earlier cream-only backdrop. */
+#ambient-screen{
+  background:
+    linear-gradient(to bottom,
+      #3F010D 0%,#530d1e 6.5%,transparent 8.6%,
+      transparent 91.4%,#530d1e 93.5%,#3F010D 100%),
+    linear-gradient(to right,
+      rgba(63,1,13,.36) 0%,transparent 7%,transparent 93%,rgba(63,1,13,.36) 100%),
+    radial-gradient(ellipse at 50% 35%,rgba(254,244,220,.96) 5%,rgba(246,223,178,.82) 70%,rgba(215,176,82,.58)),
+    #FEF4DC;
+  color:#3F010D;
+}
+#ambient-screen::before{
+  border:2px solid #D7B052;
+  box-shadow:0 0 0 7px rgba(63,1,13,.24),inset 0 0 0 6px rgba(254,244,220,.28);
+}
+#ambient-screen::after{border-color:rgba(92,17,34,.19);
+  box-shadow:0 0 0 95px rgba(215,176,82,.06),0 0 0 180px rgba(63,1,13,.045)}
+#ambient-screen .ambient-screen-content{position:relative;z-index:1}
+#ambient-screen .ambient-overline{
+  color:#6E1A2C;font-weight:800;letter-spacing:.4em;
+}
+#ambient-screen .ambient-persons{
+  color:#3F010D;
+  font-weight:600;
+  text-shadow:0 2px 0 rgba(254,244,220,.65);
+}
+#ambient-screen .ambient-family{
+  color:#3F010D;font-weight:600;
+  letter-spacing:.03em;
+}
+#ambient-screen .ambient-and{color:#9b7232}
+#ambient-screen .ambient-years{color:#7b2538}
+#ambient-screen .ambient-rule{
+  height:2px;
+  background:linear-gradient(to right,transparent,#62192b 20%,#D7B052 50%,#62192b 80%,transparent);
+}
+#ambient-screen .ambient-footer{color:#77273a;font-weight:750}
+#ambient-screen .ambient-exit{
+  color:#FEF4DC;
+  background:#3F010D;
+  border:1.5px solid #D7B052;
+  box-shadow:0 9px 22px rgba(63,1,13,.19);
+}
+#ambient-screen .ambient-exit:hover,
+#ambient-screen .ambient-exit:focus-visible{
+  color:#FEF4DC;
+  background:#641529;
+}
+@media(max-width:800px){
+  #ambient-screen{
+    background:
+      linear-gradient(to bottom,
+        #3F010D 0%,#530d1e 5.5%,transparent 7.5%,
+        transparent 92.5%,#530d1e 94.5%,#3F010D 100%),
+      radial-gradient(ellipse at 50% 40%,#FEF4DC,#e9d2a6);
+  }
+  #ambient-screen::before{border-width:1.5px;box-shadow:0 0 0 3px rgba(63,1,13,.22)}
+  #ambient-screen .ambient-overline{letter-spacing:.23em}
+}
