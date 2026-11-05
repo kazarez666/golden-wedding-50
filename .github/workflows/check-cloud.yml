@@ -8,6 +8,7 @@ on:
       - 'cloud-media-config.js'
       - 'index.html'
       - 'burgundy-background-v1.0.css'
+      - 'final-layout-v1.1.css'
       - '.github/workflows/check-cloud.yml'
   workflow_dispatch:
 permissions:
@@ -60,14 +61,23 @@ jobs:
           assert(cloud.includes('const isAudio = key'),'MP3 cloud support missing');
           assert(app.includes('WeddingCloud?.isMedia(key)'),'audio selectors not connected to cloud');
           assert(cloud.includes('https://api.cloudinary.com/v1_1/'),'Cloudinary upload endpoint missing');
-          assert(cloud.includes('/video/upload'),'video upload endpoint missing');
+          assert(cloud.includes("(imageFile ? 'image' : 'video')"),'Dynamic Cloudinary endpoint selector missing');
+          assert(cloud.includes("loadList('image')"),'Image list endpoint missing');
+          assert(cloud.includes("const isImage = key"),'Silhouette Cloudinary slot support missing');
+          assert(app.includes('Загрузить картинку раунда'),'Silhouette image picker missing');
+          assert(!app.includes('function silhouetteSVG'),'Obsolete demo silhouettes still present');
+          assert(index.includes('id="host-menu"'),'Unified controls menu missing');
+          assert(index.includes('final-layout-v1.1.css'),'Final backdrop layout missing');
           assert(cloud.includes('/video/list/'),'cross-device manifest endpoint missing');
           assert(cloud.includes('XMLHttpRequest'),'upload progress client missing');
           assert(!cloud.includes("workerUrl"),'old Cloudflare Worker integration remains active');
           // Simulate a second device reading a shared MP3 from Cloudinary's public asset list.
           const simulated={window:{WEDDING_MEDIA_CONFIG:{provider:'cloudinary',cloudName:'testcloud',uploadPreset:'testpreset',tag:'test_wedding'}},
             document:{addEventListener(){},dispatchEvent(){}},Event:class {},
-            fetch:async()=>({ok:true,status:200,json:async()=>({resources:[
+            fetch:async(url)=>({ok:true,status:200,json:async()=>({resources:url.includes('/image/list/')?[
+              {public_id:'test/round1',format:'png',version:6,context:{custom:{slot:'silhouette-0'}}},
+              {public_id:'test/round2',format:'jpg',version:7,context:{custom:{slot:'silhouette-1'}}}
+            ]:[
               {public_id:'test/march',format:'mp3',version:5,context:{custom:{slot:'march'}}},
               {public_id:'test/melody',format:'mp3',version:8,context:{custom:{slot:'melody-7'}}}
             ]})})};
@@ -75,9 +85,14 @@ jobs:
           assert(simulated.window.WeddingCloud.isMedia('march'));
           assert(simulated.window.WeddingCloud.isMedia('melody-7'));
           assert(!simulated.window.WeddingCloud.isMedia('melody-8'));
+          assert(simulated.window.WeddingCloud.isImage('silhouette-0'));
+          assert(simulated.window.WeddingCloud.isImage('silhouette-1'));
+          assert(!simulated.window.WeddingCloud.isImage('silhouette-2'));
           assert(await simulated.window.WeddingCloud.refresh(),'Public MP3 list parsing failed');
           assert(simulated.window.WeddingCloud.fileURL('march','missing.mp3').endsWith('.mp3'));
           assert(simulated.window.WeddingCloud.fileURL('melody-7','missing.mp3').endsWith('.mp3'));
+          assert(simulated.window.WeddingCloud.fileURL('silhouette-0','').endsWith('.png'));
+          assert(simulated.window.WeddingCloud.fileURL('silhouette-1','').endsWith('.jpg'));
           const contentEnv={window:{}};
           vm.runInNewContext(data,contentEnv,{timeout:2000});
           assert.equal(contentEnv.window.SITE_DATA.movies.length,10,'Expected exactly 10 movie clues');
