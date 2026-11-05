@@ -8,6 +8,7 @@ on:
       - 'welcome-gold-numeral-v1.4.css'
       - 'cinematic-edition-v1.5.css'
       - 'golden-motion-v1.6.css'
+      - 'single-frame-gold-wipes-v1.7.css'
       - '.github/workflows/browser-ui.yml'
   workflow_dispatch:
 permissions:
@@ -43,6 +44,8 @@ jobs:
                 await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
                 await page.locator('.stage-content').waitFor();
                 await page.keyboard.press('ArrowRight');
+                await page.locator('.gold-wipe-scene').waitFor({state:'visible'});
+                await page.locator('.gold-wipe-scene').waitFor({state:'detached'});
                 await page.locator('.welcome-editorial').waitFor();
                 const screen=await page.evaluate(()=>{
                   const panel=document.querySelector('.welcome-editorial');
@@ -52,7 +55,13 @@ jobs:
                     fonts:getComputedStyle(panel.querySelector('.welcome-person')).color,
                     numeral:getComputedStyle(panel.querySelector('.welcome-figure')).color,
                     numeralBackground:getComputedStyle(panel.querySelector('.welcome-figure')).backgroundColor,
-                    numeralFill:getComputedStyle(panel.querySelector('.welcome-figure')).webkitTextFillColor};
+                    numeralFill:getComputedStyle(panel.querySelector('.welcome-figure')).webkitTextFillColor,
+                    borderCount:(getComputedStyle(panel).borderTopWidth),
+                    panelOutline:getComputedStyle(panel).outlineStyle,
+                    surnameFont:getComputedStyle(panel.querySelector('.welcome-surname')).fontFamily,
+                    nameFont:getComputedStyle(panel.querySelector('.welcome-person')).fontFamily,
+                    surnameSize:parseFloat(getComputedStyle(panel.querySelector('.welcome-surname')).fontSize),
+                    nameSize:parseFloat(getComputedStyle(panel.querySelector('.welcome-person')).fontSize)};
                 });
                 assert(screen.width <= viewport.width+2,`Horizontal page overflow at ${viewport.width}: ${screen.width}`);
                 assert.equal(screen.bg,'rgb(254, 244, 220)');
@@ -60,6 +69,9 @@ jobs:
                 assert.equal(screen.numeral,'rgb(215, 176, 82)');
                 assert.equal(screen.numeralFill,'rgb(215, 176, 82)');
                 assert.equal(screen.numeralBackground,'rgba(0, 0, 0, 0)');
+                assert.equal(screen.surnameFont,screen.nameFont);
+                assert(screen.surnameSize>screen.nameSize,'Surname should be larger than the names');
+                assert.equal(screen.panelOutline,'none');
                 await page.keyboard.press('b');
                 await page.locator('#ambient-screen:not([hidden])').waitFor();
                 const ambient=await page.evaluate(()=>{
@@ -72,6 +84,12 @@ jobs:
                     gold50:getComputedStyle(inner.querySelector('.ambient-big50')).color,
                     numeralFill:getComputedStyle(inner.querySelector('.ambient-big50')).webkitTextFillColor,
                     numeralBackground:getComputedStyle(inner.querySelector('.ambient-big50')).backgroundColor,
+                    surnameFont:getComputedStyle(inner.querySelector('.ambient-family')).fontFamily,
+                    nameFont:getComputedStyle(inner.querySelector('.ambient-persons')).fontFamily,
+                    surnameSize:parseFloat(getComputedStyle(inner.querySelector('.ambient-family')).fontSize),
+                    nameSize:parseFloat(getComputedStyle(inner.querySelector('.ambient-persons')).fontSize),
+                    outline:getComputedStyle(inner).outlineStyle,
+                    shadow:getComputedStyle(inner).boxShadow,
                     width:document.documentElement.scrollWidth};
                 });
                 assert.deepEqual([ambient.outer,ambient.inner,ambient.name,ambient.border],
@@ -79,6 +97,10 @@ jobs:
                 assert.equal(ambient.gold50,'rgb(215, 176, 82)');
                 assert.equal(ambient.numeralFill,'rgb(215, 176, 82)');
                 assert.equal(ambient.numeralBackground,'rgba(0, 0, 0, 0)');
+                assert.equal(ambient.surnameFont,ambient.nameFont);
+                assert(ambient.surnameSize>ambient.nameSize,'Backdrop surname needs a larger headline');
+                assert.equal(ambient.outline,'none');
+                assert.equal(ambient.shadow,'none');
                 assert(ambient.width <= viewport.width+2,`Ambient overflow at ${viewport.width}`);
                 await page.keyboard.press('Escape');
                 assert(await page.locator('#ambient-screen').evaluate(el=>el.hidden));
@@ -97,6 +119,8 @@ jobs:
                 await page.locator('video[data-player="interview-0"]').evaluate(v=>{v.volume=0.25;});
                 await page.waitForFunction(()=>JSON.parse(localStorage.getItem('golden-wedding-video-sound-v1')||'{}').volume===0.25);
                 await page.locator('[data-action="interview-next"]').click();
+                await page.locator('.gold-wipe-item').waitFor({state:'visible'});
+                await page.locator('.gold-wipe-item').waitFor({state:'detached'});
                 await page.locator('video[data-player="interview-1"]').waitFor();
                 assert(await page.locator('video[data-player="interview-1"]').evaluate(v=>v.paused));
                 assert.equal(await page.locator('video[data-player="interview-1"]').evaluate(v=>v.volume),.25);
