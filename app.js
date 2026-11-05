@@ -224,12 +224,55 @@
     if(btn)btn.textContent='❚❚ Пауза';
     startCreditsScroll();
   }
-  function render({enter=false,swap=false} = {}) {
+  // One gold wipe for navigation and item changes. Unlike subtle fading,
+  // it visibly crosses the whole stage, then reveals the next frame.
+  let activeGoldWipe=null;
+  function createGoldWipe(mode){
+    if(reduceMotion())return null;
+    activeGoldWipe?.remove();
+    const curtain=document.createElement('div');
+    curtain.className='gold-wipe gold-wipe-'+mode;
+    curtain.setAttribute('aria-hidden','true');
+    curtain.innerHTML='<span class="gold-wipe-seal"><b>50</b><small>ЛЕТ ВМЕСТЕ</small></span>';
+    curtain.style.clipPath='inset(0 100% 0 0)';
+    stage.scrollTop=0;
+    stage.appendChild(curtain);
+    activeGoldWipe=curtain;
+    return curtain;
+  }
+  async function moveGoldWipe(curtain,enter,mode){
+    if(!curtain||!curtain.isConnected)return;
+    const duration=mode==='scene' ? (enter?540:590) : (enter?440:480);
+    const from=enter?'inset(0 100% 0 0)':'inset(0 0 0 0)';
+    const to=enter?'inset(0 0 0 0)':'inset(0 0 0 100%)';
+    const animation=curtain.animate([{clipPath:from},{clipPath:to}],
+      {duration,easing:'cubic-bezier(.76,0,.24,1)',fill:'forwards'});
+    try{await animation.finished;}catch(_){}
+    if(!curtain.isConnected)return;
+    curtain.style.clipPath=to;
+    animation.cancel();
+  }
+  async function closeGoldWipe(curtain,mode){
+    if(!curtain)return;
+    try{
+      if(curtain.isConnected){
+        await new Promise(resolve=>setTimeout(resolve,mode==='scene'?150:95));
+        await moveGoldWipe(curtain,false,mode);
+      }
+    }finally{
+      curtain.remove();
+      if(activeGoldWipe===curtain)activeGoldWipe=null;
+    }
+  }
+    function render({enter=false,swap=false} = {}) {
     const key = D.sections[state.section].id;
     stage.classList.toggle('scene-enter',enter&&!reduceMotion());
     stage.classList.toggle('item-enter',swap&&!reduceMotion());
     stage.dataset.scene=key;
+    const curtain=stage.querySelector(':scope > .gold-wipe');
+    if(curtain)curtain.remove();
     stage.innerHTML = views[key]();
+    if(curtain)stage.appendChild(curtain);
     stage.scrollTop = 0;
     updateNavigation();
     syncVideoPrompts();
@@ -268,22 +311,21 @@
   async function goTo(index) {
     if(index<0 || index>=D.sections.length || index===state.section)return;
     const token=++sceneChangeToken;
-    ++itemChangeToken; // Cancel any pending intra-stage clip or gallery transition.
-    const departing=stage.querySelector('.stage-content');
+    ++itemChangeToken;
     stopTimer();stopAudio();
-    // A video must never continue making sound behind the transition.
     stage.querySelectorAll('video').forEach(video=>video.pause());
     if(state.silhouetteStatus==='showing')state.silhouetteStatus='ready';
-    state.section=index;
-    if(departing && !reduceMotion() && departing.animate){
-      const exit=departing.animate([
-        {opacity:1,transform:'translateY(0)'},
-        {opacity:0,transform:'translateY(-8px)'}
-      ],{duration:185,easing:'ease-in',fill:'forwards'});
-      try{await exit.finished;}catch(_){}
+    const curtain=createGoldWipe('scene');
+    try{
+      await moveGoldWipe(curtain,true,'scene');
+      if(token!==sceneChangeToken)return;
+      state.section=index;
+      render({enter:true});
+      await closeGoldWipe(curtain,'scene');
+    }finally{
+      if(curtain?.isConnected)curtain.remove();
+      if(activeGoldWipe===curtain)activeGoldWipe=null;
     }
-    if(token!==sceneChangeToken)return;
-    render({enter:true});
   }
   function audioToggle(key, path) {
     if (state.audioKey===key && !audio.paused) {audio.pause();state.audioPlaying=false;render();return;}
@@ -324,20 +366,20 @@
     const section=state.section;
     if(D.sections[section].id!==kind)return;
     const token=++itemChangeToken;
-    // Never leave sound playing under the old frame while another clip opens.
+    // Stop old video or audio BEFORE the curtain moves, never autoplay the next.
     if(kind==='interviews')stage.querySelectorAll('video').forEach(video=>video.pause());
     if(kind==='melodies')stopAudio();
-    const outgoing=stage.querySelector(selector);
-    if(outgoing && !reduceMotion() && outgoing.animate){
-      const animation=outgoing.animate(
-        [{opacity:1,transform:'translateY(0)'},{opacity:0,transform:'translateY(-8px)'}],
-        {duration:175,easing:'ease-in',fill:'forwards'}
-      );
-      try{await animation.finished;}catch(_){}
+    const curtain=createGoldWipe('item');
+    try{
+      await moveGoldWipe(curtain,true,'item');
+      if(token!==itemChangeToken || state.section!==section)return;
+      apply();
+      render({swap:true});
+      await closeGoldWipe(curtain,'item');
+    }finally{
+      if(curtain?.isConnected)curtain.remove();
+      if(activeGoldWipe===curtain)activeGoldWipe=null;
     }
-    if(token!==itemChangeToken||state.section!==section)return;
-    apply();
-    render({swap:true});
   }
   function setFilm(index){
     if(index<0||index>=D.movies.length||index===state.movie)return;
