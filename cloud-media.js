@@ -14,7 +14,8 @@
     /^[A-Za-z0-9_-]{2,120}$/.test(tag);
   const isVideo = key => key === 'wedding' || /^interview-(?:[0-9]|1[0-5])$/.test(key);
   const isAudio = key => key === 'march' || /^melody-[0-7]$/.test(key);
-  const isMedia = key => isVideo(key) || isAudio(key);
+  const isImage = key => /^silhouette-[01]$/.test(key);
+  const isMedia = key => isVideo(key) || isAudio(key) || isImage(key);
   const stored = new Map();
   let busy = false;
   let refreshing = false;
@@ -52,8 +53,8 @@
     const key = context.slot || context.wedding_slot;
     return typeof key === 'string' && isMedia(key) ? key : null;
   }
-  function assetUrl(asset) {
-    const base = 'https://res.cloudinary.com/' + cloudName + '/video/upload/';
+  function assetUrl(asset, kind) {
+    const base = 'https://res.cloudinary.com/' + cloudName + '/' + kind + '/upload/';
     if (typeof asset.secure_url === 'string' && asset.secure_url.startsWith(base)) {
       return asset.secure_url;
     }
@@ -63,46 +64,51 @@
     return base + (Number.isFinite(version) && version > 0 ? 'v' + version + '/' : '') +
       id + '.' + asset.format;
   }
+  async function loadList(kind) {
+    const url = 'https://res.cloudinary.com/' + encodeURIComponent(cloudName) +
+      '/' + kind + '/list/' + encodeURIComponent(tag) + '.json?refresh=' + Date.now();
+    const r = await fetch(url, {cache:'no-store'});
+    // Before first upload, a Cloudinary public list can legitimately be 404.
+    if (r.status === 404) return [];
+    if (!r.ok) throw new Error('Список '+kind+' Cloudinary недоступен ('+r.status+'). Проверьте Resource list.');
+    const body = await r.json();
+    if (!Array.isArray(body.resources)) throw new Error('Неверный список '+kind+' Cloudinary.');
+    return body.resources;
+  }
   async function refresh() {
     if (!configured || busy || refreshing) return false;
     refreshing = true;
     try {
-      const url = 'https://res.cloudinary.com/' + encodeURIComponent(cloudName) +
-        '/video/list/' + encodeURIComponent(tag) + '.json?refresh=' + Date.now();
-      const r = await fetch(url, {cache:'no-store'});
-      // An empty tag can return 404 before the first audio or video is uploaded.
-      if (r.status === 404 && stored.size === 0) return true;
-      if (!r.ok) throw new Error('Список Cloudinary недоступен (' + r.status + '). Проверьте настройку Resource list.');
-      const body = await r.json();
-      if (!Array.isArray(body.resources)) throw new Error('Неверный ответ списка Cloudinary.');
+      const [videos, images] = await Promise.all([loadList('video'),loadList('image')]);
       const updated = new Map();
-      for (const asset of body.resources) {
-        const slot = parseSlot(asset);
-        const url = assetUrl(asset);
-        if (!slot || !url) continue;
-        const version = Number(asset.version) || 0;
-        const record = {url, version};
-        if (!updated.has(slot) || updated.get(slot).version < version) updated.set(slot, record);
+      for (const [kind, assets] of [['video',videos],['image',images]]) {
+        for (const asset of assets) {
+          const slot = parseSlot(asset);
+          if (!slot || isImage(slot) !== (kind === 'image')) continue;
+          const url = assetUrl(asset,kind);
+          if (!url) continue;
+          const version=Number(asset.version)||0;
+          const record={url,version};
+          if (!updated.has(slot) || updated.get(slot).version < version) updated.set(slot,record);
+        }
       }
-      // Keep recently uploaded media if the CDN listing has not caught up yet.
-      for (const [slot, item] of stored) {
+      // The tag manifests are eventually consistent. Keep uploads visible instantly.
+      for (const [slot,item] of stored) {
         if (item.justUploaded && (!updated.has(slot) || updated.get(slot).version < item.version)) {
-          updated.set(slot, item);
+          updated.set(slot,item);
         }
       }
       const changed = JSON.stringify([...updated]) !== JSON.stringify([...stored]);
       stored.clear();
-      for (const [key, record] of updated) stored.set(key, record);
-      lastError = '';
+      for (const [key,record] of updated) stored.set(key,record);
+      lastError='';
       if (changed) document.dispatchEvent(new Event('wedding-cloud-updated'));
       return true;
-    } catch (err) {
-      lastError = err.message || 'Ошибка синхронизации';
-      console.warn('Не удалось обновить список медиафайлов:', err);
+    } catch(err) {
+      lastError=err.message || 'Ошибка синхронизации';
+      console.warn('Не удалось обновить общий список файлов:',err);
       return false;
-    } finally {
-      refreshing = false;
-    }
+    } finally { refreshing=false; }
   }
   async function upload(slot, file) {
     if (!configured) throw new Error('Сначала настройте бесплатный Cloudinary по инструкции в GitHub.');
@@ -110,16 +116,19 @@
     if (busy) throw new Error('Дождитесь завершения предыдущей загрузки.');
     if (!file || !file.size) throw new Error('Выберите непустой файл.');
     const audioFile = isAudio(slot);
-    if (audioFile && !/\.mp3$/i.test(file.name)) throw new Error('Для аудио нужен MP3-файл.');
-    if (!audioFile && !/\.mp4$/i.test(file.name)) throw new Error('Для видео нужен MP4 (H.264 + AAC).');
-    if (file.size > 100 * 1024 * 1024) throw new Error('На бесплатном тарифе лимит — 100 МБ на один файл.');
+    const imageFile = isImage(slot);
+    if (imageFile && !/\.(png|jpg|jpeg|webp)$/i.test(file.name)) throw new Error('Для силуэтов нужны PNG, JPG или WebP.');
+    if (audioFile && !/\.mp3$/i.test(file.name)) throw new Error('Для музыки нужен MP3-файл.');
+    if (!audioFile && !imageFile && !/\.mp4$/i.test(file.name)) throw new Error('Для видео нужен MP4 (H.264 + AAC).');
+    if (imageFile && file.size > 10 * 1024 * 1024) throw new Error('Картинка должна быть меньше 10 МБ.');
+    if (file.size > 100 * 1024 * 1024) throw new Error('Бесплатный тариф ограничивает файл 100 МБ.');
     busy = true;
     const el = overlay();
     const cancel = el.querySelector('.cloud-cancel');
     el.querySelector('.cloud-filename').textContent = file.name;
-    el.querySelector('h2').textContent = audioFile ? 'Загрузка аудио' : 'Загрузка видео';
+    el.querySelector('h2').textContent = imageFile ? 'Загрузка изображения' : audioFile ? 'Загрузка аудио' : 'Загрузка видео';
     cancel.disabled = false;
-    progress(audioFile ? 'Подготавливаем MP3…' : 'Подготавливаем видео…', 0);
+    progress(imageFile ? 'Подготавливаем картинку…' : audioFile ? 'Подготавливаем MP3…' : 'Подготавливаем видео…', 0);
     try {
       const data = new FormData();
       data.append('file', file);
@@ -130,7 +139,7 @@
         const xhr = new XMLHttpRequest();
         abortUpload = () => xhr.abort();
         xhr.open('POST', 'https://api.cloudinary.com/v1_1/' +
-          encodeURIComponent(cloudName) + '/video/upload', true);
+          encodeURIComponent(cloudName) + '/' + (imageFile ? 'image' : 'video') + '/upload', true);
         xhr.upload.onprogress = event => {
           if (!event.lengthComputable) return;
           const pct = Math.round(event.loaded / event.total * 95);
@@ -175,7 +184,7 @@
   }
 
   window.WeddingCloud = {
-    ready: () => configured, isVideo, isAudio, isMedia, upload, refresh, fileURL, statusLabel
+    ready: () => configured, isVideo, isAudio, isImage, isMedia, upload, refresh, fileURL, statusLabel
   };
   if (configured) {
     document.addEventListener('DOMContentLoaded', () => {
