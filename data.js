@@ -18,18 +18,18 @@ window.SITE_DATA = {
   ],
   files: { march: 'media/march.mp3', wedding: 'media/wedding.mp4' },
   interviews: Array.from({ length: 16 }, (_, i) => ({ title: `Интервью ${String(i + 1).padStart(2, '0')}`, src: `media/interviews/${String(i + 1).padStart(2, '0')}.mp4` })),
-  // Примерные фильмы для проверки механики: заменим на окончательные 10 заданий.
+  // Фильмы согласованы с организатором праздника. Эмодзи — авторские загадки.
   movies: [
-    { emoji: '🚢 🧊 💔', answer: 'Титаник' },
-    { emoji: '⚡ 🧙‍♂️ 🏰', answer: 'Гарри Поттер' },
-    { emoji: '🦁 👑 🌅', answer: 'Король Лев' },
-    { emoji: '🏠 👦 🪤', answer: 'Один дома' },
-    { emoji: '❄️ 👭 ⛄', answer: 'Холодное сердце' },
-    { emoji: '🚗 ⚡ 🕰️', answer: 'Назад в будущее' },
-    { emoji: '🦖 🌴 🚙', answer: 'Парк юрского периода' },
-    { emoji: '🏴‍☠️ ⚓ 🦜', answer: 'Пираты Карибского моря' },
-    { emoji: '🟢 🏰 🐉', answer: 'Шрек' },
-    { emoji: '🐀 👨‍🍳 🍲', answer: 'Рататуй' }
+    { emoji: '👨‍🔬 ⏳ 👑 🚪', answer: 'Иван Васильевич меняет профессию' },
+    { emoji: '❤️ 🕊️ 🏡 🌊', answer: 'Любовь и голуби' },
+    { emoji: '⚔️ 🤺 🤺 🤺 🪶', answer: 'Д’Артаньян и три мушкетёра' },
+    { emoji: '🤠 🎬 🏜️ 🎞️', answer: 'Человек с бульвара Капуцинов' },
+    { emoji: '1️⃣ 2️⃣ 🪑 💎', answer: '12 стульев' },
+    { emoji: '☂️ 🌬️ 👒 🎶', answer: 'Мэри Поппинс, до свидания' },
+    { emoji: '🕵️ 🔍 🎻 🩺', answer: 'Шерлок Холмс и доктор Ватсон' },
+    { emoji: '🧑 🐠 🌊 💙', answer: 'Человек-амфибия' },
+    { emoji: '🛸 🏜️ 🪐 🔔', answer: 'Кин-дза-дза!' },
+    { emoji: '❤️ ⚗️ 🗿 ✨', answer: 'Формула любви' }
   ],
   melodies: Array.from({ length: 8 }, (_, i) => ({ title: `Мелодия ${String(i + 1).padStart(2, '0')}`, answer: 'Название ещё не добавлено', src: `media/melodies/${String(i + 1).padStart(2, '0')}.mp3` })),
   // Вопросы пока демонстрационные. Фотографии поместите в media/salads/01.jpg и т. д.
