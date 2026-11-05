@@ -16,6 +16,9 @@
   let silhouetteInterval = null;
   let toastTimeout = null;
   let mouseTimeout = null;
+  let creditsAnimation = null;
+  let creditsRenderToken = 0;
+  const reduceMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
   // Use one master volume/mute preference for every newly created video player.
   // Persist in this browser across page reloads. Never store audio files.
   const videoSoundKey = 'golden-wedding-video-sound-v1';
@@ -116,7 +119,33 @@
     </section>`;
   }
   function viewCredits() {
-    return `<section class="stage-content compact">${confetti()}<p class="eyebrow">СПАСИБО, ЧТО БЫЛИ С НАМИ</p><h1 class="stage-h1">Финальные <em>титры</em></h1><div class="credits-viewport"><div class="credits-inner ${state.creditsPaused?'paused':''}"><div class="credits-block"><span>ЗОЛОТАЯ СВАДЬБА</span><h3>50 лет вместе</h3></div>${D.credits.map(c=>`<div class="credits-block"><span>${safe(c.role)}</span>${c.names.map(n=>`<h3>${safe(n)}</h3>`).join('')}</div>`).join('')}<div class="credits-block"><span>И САМОЕ ГЛАВНОЕ</span><h3>Спасибо нашей семье!</h3></div><div class="credits-final">Продолжение следует… ♡</div></div></div><div class="stage-actions credits-controls">${button(state.creditsPaused?'▶ Продолжить титры':'❚❚ Пауза','credits-pause','secondary-button')}${button('↻ С начала','credits-restart','small-button')}</div><p class="fine-print">Сейчас указаны только известные имена и временные строки. Финальный список уточним.</p></section>`;
+    return `<section class="stage-content compact credits-screen">
+      <div class="credits-head" aria-label="Завершение праздничной программы">
+        <p class="credits-overline">ЗОЛОТАЯ СВАДЬБА · 50 ЛЕТ ВМЕСТЕ</p>
+        <div class="credits-headline"><span class="credits-gold-mark" aria-hidden="true">✦</span><h1>История любви <em>длиною в полвека</em></h1><span class="credits-gold-mark" aria-hidden="true">✦</span></div>
+        <div class="credits-subtitle">Павел Семёнович и Ольга Леонидовна ${safe(D.names.family||'Смурыгины')}</div>
+      </div>
+      <div class="credits-viewport" aria-label="Титры участников праздника">
+        <div class="credits-inner">
+          <div class="credits-block credits-lead">
+            <span>ЭТОТ ВЕЧЕР ПОСВЯЩАЕТСЯ</span>
+            <h3>Павлу Семёновичу<br>и Ольге Леонидовне</h3>
+            <p>50 лет вместе</p>
+          </div>
+          ${D.credits.map(c=>`<div class="credits-block"><span>${safe(c.role)}</span>${c.names.map(n=>`<h3>${safe(n)}</h3>`).join('')}</div>`).join('')}
+          <div class="credits-block credits-thanks">
+            <span>С ЛЮБОВЬЮ И БЛАГОДАРНОСТЬЮ</span>
+            <h3>Спасибо за этот вечер!</h3>
+          </div>
+          <div class="credits-final">Продолжение следует… ♡</div>
+        </div>
+      </div>
+      <div class="stage-actions credits-controls">
+        ${button(state.creditsPaused?'▶ Продолжить':'❚❚ Пауза','credits-pause','secondary-button')}
+        ${button('↻ С начала','credits-restart','small-button')}
+      </div>
+      <p class="fine-print credits-note">Титры предварительные — участники и роли будут дополнены перед праздником.</p>
+    </section>`;
   }
   const views = { entrance:viewEntrance,welcome:viewWelcome,wedding:viewWedding,interviews:viewInterviews,movies:viewMovies,melodies:viewMelodies,pairs:viewPairs,salads:viewSalads,word:viewWord,silhouettes:viewSilhouettes,credits:viewCredits };
   function updateNavigation() {
@@ -160,12 +189,51 @@
       if (img.complete && !img.naturalWidth) onerr();
     });
   }
-  function render() {
+  function startCreditsScroll() {
+    const token = ++creditsRenderToken;
+    if(creditsAnimation){ creditsAnimation.cancel(); creditsAnimation=null; }
+    if(D.sections[state.section].id!=='credits')return;
+    requestAnimationFrame(()=>{
+      if(token!==creditsRenderToken||D.sections[state.section].id!=='credits')return;
+      const viewport=stage.querySelector('.credits-viewport');
+      const inner=stage.querySelector('.credits-inner');
+      if(!viewport||!inner||reduceMotion())return;
+      const distance=Math.ceil(inner.scrollHeight+viewport.clientHeight);
+      const duration=Math.max(42000,Math.round(distance/33*1000));
+      creditsAnimation=inner.animate([
+        {transform:'translateY(0)'},
+        {transform:'translateY(-'+distance+'px)'}
+      ],{duration,delay:1100,easing:'linear',fill:'forwards',iterations:1});
+      if(state.creditsPaused)creditsAnimation.pause();
+    });
+  }
+  function toggleCreditsPause() {
+    if(D.sections[state.section].id!=='credits')return;
+    state.creditsPaused=!state.creditsPaused;
+    if(creditsAnimation){
+      if(state.creditsPaused)creditsAnimation.pause();
+      else creditsAnimation.play();
+    }
+    const btn=stage.querySelector('[data-action="credits-pause"]');
+    if(btn)btn.textContent=state.creditsPaused?'▶ Продолжить':'❚❚ Пауза';
+  }
+  function restartCredits(){
+    if(D.sections[state.section].id!=='credits')return;
+    state.creditsPaused=false;
+    const btn=stage.querySelector('[data-action="credits-pause"]');
+    if(btn)btn.textContent='❚❚ Пауза';
+    startCreditsScroll();
+  }
+  function render({enter=false} = {}) {
     const key = D.sections[state.section].id;
+    stage.classList.toggle('scene-enter',enter&&!reduceMotion());
+    stage.dataset.scene=key;
     stage.innerHTML = views[key]();
     stage.scrollTop = 0;
     updateNavigation();
     syncVideoPrompts();
+    if(key==='credits')startCreditsScroll();
+    else if(creditsAnimation){creditsAnimation.cancel();creditsAnimation=null;++creditsRenderToken;}
   }
   function stopTimer() { if (silhouetteInterval) {clearInterval(silhouetteInterval);silhouetteInterval=null;} }
   function stopAudio() { audio.pause();audio.currentTime=0;state.audioPlaying=false;state.audioKey=''; }
@@ -198,7 +266,7 @@
     if (index<0 || index>=D.sections.length || index===state.section) return;
     stopTimer();stopAudio();
     if(state.silhouetteStatus==='showing')state.silhouetteStatus='ready';
-    state.section=index;render();
+    state.section=index;render({enter:true});
   }
   function audioToggle(key, path) {
     if (state.audioKey===key && !audio.paused) {audio.pause();state.audioPlaying=false;render();return;}
@@ -286,8 +354,8 @@
       case 'salad-reveal':state.saladAnswer=!state.saladAnswer;render();break;
       case 'silhouette-start':startSilhouette();break;
       case 'silhouette-next':resetSilhouette(state.silhouetteRound===0?1:0);break;
-      case 'credits-pause':state.creditsPaused=!state.creditsPaused;render();break;
-      case 'credits-restart':state.creditsPaused=false;render();break;
+      case 'credits-pause':toggleCreditsPause();break;
+      case 'credits-restart':restartCredits();break;
     }
   }
   document.addEventListener('click',e=>{
@@ -345,7 +413,11 @@
   audio.addEventListener('error',()=>{state.audioPlaying=false;if(state.audioKey)toast('Аудиофайл не загрузился. Выберите MP3 с ноутбука или добавьте его в media/.');});
   // Закрытие dialog по клику за пределами содержимого.
   helpDialog.addEventListener('click',e=>{if(e.target===helpDialog)helpDialog.close();});
-  document.addEventListener('wedding-cloud-updated',()=>render());
+  document.addEventListener('wedding-cloud-updated',()=>{
+    const current=D.sections[state.section].id;
+    // Keep the final scroll and other non-media stages uninterrupted.
+    if(['wedding','interviews','entrance','melodies','silhouettes'].includes(current))render();
+  });
   if(ambientScreen){
     const first=ambientScreen.querySelector('[data-ambient-name="first"]');
     const second=ambientScreen.querySelector('[data-ambient-name="second"]');
@@ -354,5 +426,5 @@
     if(second)second.textContent=D.names.second;
     if(family)family.textContent=D.names.family || 'Смурыгины';
   }
-  render();
+  render({enter:true});
 })();
