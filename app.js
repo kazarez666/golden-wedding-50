@@ -262,11 +262,25 @@
     (document.querySelector('body.presentation .presentation-control .ambient-trigger') ||
       document.querySelector('.topbar .ambient-trigger'))?.focus({preventScroll:true});
   }
-  function goTo(index) {
-    if (index<0 || index>=D.sections.length || index===state.section) return;
+  let sceneChangeToken=0;
+  async function goTo(index) {
+    if(index<0 || index>=D.sections.length || index===state.section)return;
+    const token=++sceneChangeToken;
+    const departing=stage.querySelector('.stage-content');
     stopTimer();stopAudio();
+    // A video must never continue making sound behind the transition.
+    stage.querySelectorAll('video').forEach(video=>video.pause());
     if(state.silhouetteStatus==='showing')state.silhouetteStatus='ready';
-    state.section=index;render({enter:true});
+    state.section=index;
+    if(departing && !reduceMotion() && departing.animate){
+      const exit=departing.animate([
+        {opacity:1,transform:'translateY(0)'},
+        {opacity:0,transform:'translateY(-8px)'}
+      ],{duration:185,easing:'ease-in',fill:'forwards'});
+      try{await exit.finished;}catch(_){}
+    }
+    if(token!==sceneChangeToken)return;
+    render({enter:true});
   }
   function audioToggle(key, path) {
     if (state.audioKey===key && !audio.paused) {audio.pause();state.audioPlaying=false;render();return;}
