@@ -76,8 +76,8 @@ jobs:
           assert(simulated.window.WeddingCloud.isMedia('melody-7'));
           assert(!simulated.window.WeddingCloud.isMedia('melody-8'));
           assert(await simulated.window.WeddingCloud.refresh(),'Public MP3 list parsing failed');
-          assert.match(simulated.window.WeddingCloud.fileURL('march','missing.mp3'),/\\.mp3$/);
-          assert.match(simulated.window.WeddingCloud.fileURL('melody-7','missing.mp3'),/\\.mp3$/);
+          assert(simulated.window.WeddingCloud.fileURL('march','missing.mp3').endsWith('.mp3'));
+          assert(simulated.window.WeddingCloud.fileURL('melody-7','missing.mp3').endsWith('.mp3'));
           const contentEnv={window:{}};
           vm.runInNewContext(data,contentEnv,{timeout:2000});
           assert.equal(contentEnv.window.SITE_DATA.movies.length,10,'Expected exactly 10 movie clues');
