@@ -191,16 +191,34 @@
     if (state.audioKey!==key || !audio.src) {audio.pause();audio.src=fileURL(key,path);audio.load();state.audioKey=key;}
     audio.play().then(()=>{state.audioPlaying=true;render();}).catch(()=>{state.audioPlaying=false;toast('Музыка не найдена. Выберите MP3-файл с ноутбука.');render();});
   }
-  function startSilhouette() {
-    if(!fileURL('silhouette-'+state.silhouetteRound,'')){toast('Сначала загрузите картинку для этого раунда.');return;}
-    stopTimer();state.silhouetteStatus='showing';state.silhouetteCounts=false;state.timerLeft=roundTotal;render();
-    const finishAt=performance.now()+roundTotal*1000;
-    silhouetteInterval=setInterval(()=>{
-      const left=Math.max(0,(finishAt-performance.now())/1000);state.timerLeft=left;
-      const display=document.getElementById('timer-display');if(display) display.textContent=`${left.toFixed(1)} с`;
-      const bar=document.getElementById('timer-bar');if(bar) bar.style.width=`${left/roundTotal*100}%`;
-      if(left===0){stopTimer();state.silhouetteStatus='done';render();toast('Время! Картинка скрыта.');}
-    },80);
+  let silhouettePreloading=false;
+  async function startSilhouette() {
+    const round=state.silhouetteRound;
+    const url=fileURL('silhouette-'+round,'');
+    if(!url){toast('Сначала загрузите картинку для этого раунда.');return;}
+    if(silhouettePreloading||state.silhouetteStatus==='showing')return;
+    silhouettePreloading=true;
+    toast('Подготавливаем изображение для показа…');
+    try {
+      // Start the 15-second timer only after the whole image has loaded.
+      const img=new Image();
+      img.src=url;
+      if(img.decode) await img.decode();
+      else await new Promise((resolve,reject)=>{
+        if(img.complete&&img.naturalWidth){resolve();return;}
+        img.onload=resolve;img.onerror=()=>reject(new Error('Изображение не загрузилось'));
+      });
+      if(state.silhouetteRound!==round||D.sections[state.section].id!=='silhouettes')return;
+      stopTimer();state.silhouetteStatus='showing';state.silhouetteCounts=false;state.timerLeft=roundTotal;render();
+      const finishAt=performance.now()+roundTotal*1000;
+      silhouetteInterval=setInterval(()=>{
+        const left=Math.max(0,(finishAt-performance.now())/1000);state.timerLeft=left;
+        const display=document.getElementById('timer-display');if(display)display.textContent=left.toFixed(1)+' с';
+        const bar=document.getElementById('timer-bar');if(bar)bar.style.width=left/roundTotal*100+'%';
+        if(left===0){stopTimer();state.silhouetteStatus='done';render();toast('Время! Картинка скрыта.');}
+      },80);
+    }catch(e){toast('Не удалось показать картинку: '+(e.message||'ошибка загрузки'));}
+    finally {silhouettePreloading=false;}
   }
   function resetSilhouette(round){stopTimer();state.silhouetteRound=round;state.silhouetteStatus='ready';state.silhouetteCounts=false;state.timerLeft=roundTotal;render();}
   function setFilm(index){if(index<0||index>=D.movies.length)return;state.movie=index;state.movieAnswer=false;render()}
