@@ -179,6 +179,7 @@
     ambientScreen.hidden=false;
     ambientScreen.setAttribute('aria-hidden','false');
     document.body.classList.add('ambient-active');
+    document.getElementById('app-shell').inert = true;
     ambientScreen.querySelector('button')?.focus({preventScroll:true});
   }
   function closeAmbient(){
@@ -186,6 +187,7 @@
     ambientScreen.hidden=true;
     ambientScreen.setAttribute('aria-hidden','true');
     document.body.classList.remove('ambient-active');
+    document.getElementById('app-shell').inert = false;
     if(['entrance','melodies'].includes(D.sections[state.section].id))render();
     (document.querySelector('body.presentation .presentation-control .ambient-trigger') ||
       document.querySelector('.topbar .ambient-trigger'))?.focus({preventScroll:true});
