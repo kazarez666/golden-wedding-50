@@ -99,7 +99,7 @@
     }finally{busy=false;el.hidden=true;cancel.onclick=null}
   }
   window.WeddingCloud={ready:()=>configured,fileURL,refresh,upload,isVideo,
-    statusLabel:()=>configured?'☁ Видео сохранится в облаке и появится на других устройствах.':'⚠ Хранилище ещё не подключено: выбор видео сейчас работает только на этом устройстве.'};
+    statusLabel:()=>configured?'☁ Видео сохранится в облаке и появится на других устройствах.':'⚠ Облако не подключено: пока не загружайте видео, сначала завершите настройку хранилища.'};
   if(configured){
     document.addEventListener('DOMContentLoaded',()=>{
       refresh();setInterval(()=>{if(!document.hidden)refresh()},30000);
