@@ -40,7 +40,7 @@
     clearTimeout(toastTimeout); toastTimeout = setTimeout(() => node.classList.remove('show'), 3600);
   }
   const button = (label, action, klass = 'primary-button', extra = '') => `<button class="${klass}" type="button" data-action="${action}" ${extra}>${label}</button>`;
-  const pick = (key, label = 'Выбрать файл', accept = 'video/*') => `<label class="secondary-button file-picker" tabindex="0">${label} <input class="file-input" data-file-key="${safe(key)}" type="file" accept="${accept}"></label>${window.WeddingCloud?.isVideo(key) ? `<span class="cloud-sync-note">${safe(window.WeddingCloud.statusLabel())}</span>` : ''}`;
+  const pick = (key, label = 'Выбрать файл', accept = 'video/*') => `<label class="secondary-button file-picker" tabindex="0">${label} <input class="file-input" data-file-key="${safe(key)}" type="file" accept="${accept}"></label>${window.WeddingCloud?.isMedia(key) ? `<span class="cloud-sync-note">${safe(window.WeddingCloud.statusLabel())}</span>` : ''}`;
   const lead = (eyebrow, heading, subtitle = '') => `<p class="eyebrow">${eyebrow}</p><h1 class="stage-h1">${heading}</h1>${subtitle ? `<p class="stage-subtitle">${subtitle}</p>` : ''}`;
   const stepper = (prev, next, current, total) => `<div class="number-stepper">${button('←', prev, '', `aria-label="Предыдущее задание" ${current <= 0 ? 'disabled' : ''}`)}<span class="step-current">${fmt(current+1)} / ${fmt(total)}</span>${button('→', next, '', `aria-label="Следующее задание" ${current >= total-1 ? 'disabled' : ''}`)}</div>`;
   const confetti = () => `<div class="confetti" aria-hidden="true">${Array.from({ length: 26 }, (_, i) => `<i style="left:${(i * 53) % 101}%;animation-delay:${-(i * 0.63)}s;animation-duration:${6 + i % 5}s"></i>`).join('')}</div>`;
@@ -261,17 +261,18 @@
   document.addEventListener('change',async e=>{
     const input=e.target.closest('[data-file-key]');if(!input?.files?.length)return;
     const file=input.files[0],key=input.dataset.fileKey;
-    if(window.WeddingCloud?.isVideo(key) && !window.WeddingCloud.ready()){
-      toast('Видео пока не загружено: сначала нужно подключить облачное хранилище для всех устройств.');
+    if(window.WeddingCloud?.isMedia(key) && !window.WeddingCloud.ready()){
+      toast('Файл не загружен: сначала нужно подключить облачное хранилище для всех устройств.');
       return;
     }
-    if(window.WeddingCloud?.isVideo(key) && window.WeddingCloud.ready()){
+    if(window.WeddingCloud?.isMedia(key) && window.WeddingCloud.ready()){
       try{
         await window.WeddingCloud.upload(key,file);
+        if(key===state.audioKey)stopAudio();
         if(state.uploads[key]){URL.revokeObjectURL(state.uploads[key]);delete state.uploads[key];}
         render();
-        toast('Видео сохранено в облаке. На остальных устройствах оно появится автоматически.');
-      }catch(err){toast('Не удалось загрузить видео: '+err.message)}
+        toast('Файл сохранён в облаке. На остальных устройствах он появится автоматически.');
+      }catch(err){toast('Не удалось загрузить файл: '+err.message)}
       return;
     }
     const previous=state.uploads[key];
