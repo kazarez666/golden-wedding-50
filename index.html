@@ -16,10 +16,11 @@
   <link rel="stylesheet" href="polish-background-v0.9.css?v=2">
   <link rel="stylesheet" href="burgundy-background-v1.0.css">
   <link rel="stylesheet" href="final-layout-v1.1.css">
+  <link rel="stylesheet" href="editorial-design-v1.2.css">
   <script defer src="cloud-media-config.js"></script>
   <script defer src="cloud-media.js?v=1.1"></script>
   <script defer src="data.js?v=1.0"></script>
-  <script defer src="app.js?v=1.1"></script>
+  <script defer src="app.js?v=1.2"></script>
 </head>
 <body>
   <div class="ambient ambient-one" aria-hidden="true"></div>
@@ -34,12 +35,12 @@
       </div>
       <nav id="section-nav" class="section-nav" aria-label="Этапы праздника"></nav>
       <div class="sidebar-bottom">
-        <span class="pilot-light"></span><span>Версия 1.1 · Фон, меню и силуэты</span>
+        <span class="pilot-light"></span><span>Версия 1.2 · Новый дизайн</span>
       </div>
     </aside>
     <div class="workspace">
       <header class="topbar" id="topbar">
-        <div class="breadcrumb"><span class="breadcrumb-gold">ПРОГРАММА ВЕЧЕРА</span><span class="crumb-slash">/</span><span id="header-stage-name">Торжественная встреча</span></div>
+        <div class="breadcrumb"><span class="breadcrumb-gold">ЗОЛОТАЯ СВАДЬБА</span><span class="crumb-slash">/</span><span id="header-stage-name">Торжественная встреча</span></div>
         <label class="mobile-stage-picker"><span class="sr-only">Выберите этап программы</span><select id="mobile-stage-select" aria-label="Перейти к этапу праздника"></select></label>
         <div class="toolbar-actions">
           <button class="menu-toggle" type="button" data-action="menu-toggle"
@@ -73,15 +74,17 @@
   <section id="ambient-screen" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Праздничный фон — 50 лет вместе">
     <button class="ambient-exit" type="button" data-action="ambient-close" title="Вернуться к программе (Esc или B)">← К программе</button>
     <div class="ambient-screen-content">
-      <p class="ambient-overline">ЗОЛОТАЯ СВАДЬБА</p>
-      <div class="ambient-big50">50</div>
-      <div class="ambient-years">ЛЕТ ВМЕСТЕ</div>
-      <div class="ambient-rule"></div>
-      <div class="ambient-persons" data-ambient-name="first">Павел Семёнович</div>
-      <div class="ambient-and">и</div>
-      <div class="ambient-persons" data-ambient-name="second">Ольга Леонидовна</div>
-      <div class="ambient-family" data-ambient-name="family">Смурыгины</div>
-      <div class="ambient-footer">ЛЮБОВЬ · СЕМЬЯ · ПОЛВЕКА ВМЕСТЕ</div>
+      <div class="ambient-card-inner">
+        <p class="ambient-overline">ЗОЛОТАЯ СВАДЬБА</p>
+        <div class="ambient-big50">50</div>
+        <div class="wedding-divider ambient-divider" aria-hidden="true"><i></i><span class="wedding-rings"><b></b><b></b></span><i></i></div>
+        <div class="ambient-years">ЛЕТ ВМЕСТЕ</div>
+        <div class="ambient-persons" data-ambient-name="first">Павел Семёнович</div>
+        <div class="ambient-connector" aria-hidden="true"><i></i><span class="ambient-and">и</span><i></i></div>
+        <div class="ambient-persons" data-ambient-name="second">Ольга Леонидовна</div>
+        <div class="ambient-family" data-ambient-name="family">Смурыгины</div>
+        <div class="ambient-footer">ЛЮБОВЬ · СЕМЬЯ · 50 ЛЕТ ВМЕСТЕ</div>
+      </div>
     </div>
   </section>
   <audio id="shared-audio" preload="none"></audio>
