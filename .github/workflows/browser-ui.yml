@@ -112,7 +112,7 @@ jobs:
                 await page.locator('[data-action="salad-reveal"]').click();
                 await page.locator('.salad-reveal-title').waitFor();
                 assert((await page.locator('.salad-reveal-title').textContent()).includes('Селёдка под шубой'));
-                await page.locator('[data-action="salad-next"]').click();
+                await page.locator('.stage-actions [data-action="salad-next"]').click();
                 await page.waitForFunction(()=>document.querySelector('.salad-reveal-title')?.textContent.includes('Слушаем'));
                 assert.equal(await page.locator('.salad-frame img').count(),0);
                 // Closing credits must be readable and the rolling film credits
