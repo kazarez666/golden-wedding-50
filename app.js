@@ -46,30 +46,6 @@
   const confetti = () => `<div class="confetti" aria-hidden="true">${Array.from({ length: 26 }, (_, i) => `<i style="left:${(i * 53) % 101}%;animation-delay:${-(i * 0.63)}s;animation-duration:${6 + i % 5}s"></i>`).join('')}</div>`;
   const episode = (kicker, title, count) => `<div class="episode-meta"><div><p class="eyebrow">${safe(kicker)}</p><h1>${safe(title)}</h1></div>${count ? `<span class="counter-pill">${safe(count)}</span>` : ''}</div>`;
   const roundTotal = 15;
-  const silhouetteRounds = [
-    ['turtle','fish','umbrella','elephant','fish','bird','turtle','umbrella','elephant','fish','turtle','bird','umbrella','turtle','elephant','fish'],
-    ['cat','umbrella','fish','elephant','turtle','cat','umbrella','fish','elephant','umbrella','cat','turtle','fish','elephant','umbrella','cat']
-  ];
-  const silhouetteLabels = { turtle: 'Черепах', fish: 'Рыб', elephant: 'Слонов', umbrella: 'Зонтиков', bird: 'Птиц', cat: 'Кошек' };
-  function silhouetteSVG(round) {
-    const entries = silhouetteRounds[round];
-    const icons = `<defs>
-      <symbol id="i-turtle" viewBox="0 0 110 80"><g fill="#242326"><ellipse cx="50" cy="40" rx="32" ry="23"/><circle cx="91" cy="35" r="12"/><path d="M24 23Q11 11 9 27L22 42ZM23 53Q12 63 19 72L38 58ZM66 55Q82 69 89 66L79 50ZM60 15Q73 5 82 16L72 29ZM19 44L1 34L17 55Z"/></g><path d="M30 36Q50 7 74 32" stroke="#242326" fill="none" stroke-width="4"/></symbol>
-      <symbol id="i-elephant" viewBox="0 0 110 80"><g fill="#242326"><ellipse cx="47" cy="36" rx="34" ry="25"/><rect x="20" y="44" width="14" height="29" rx="4"/><rect x="64" y="43" width="13" height="30" rx="4"/><circle cx="79" cy="31" r="23"/><ellipse cx="69" cy="32" rx="15" ry="21"/><path d="M93 30Q113 35 101 65Q92 72 88 59L90 44Z"/></g><path d="M94 43L107 46L95 51" fill="#f1eadb"/></symbol>
-      <symbol id="i-fish" viewBox="0 0 110 80"><g fill="#242326"><ellipse cx="48" cy="39" rx="34" ry="23"/><path d="M18 40L1 15L1 65Z"/><path d="M42 19L57 2L69 22Z"/><path d="M44 58L63 75L70 57Z"/></g><circle cx="71" cy="34" r="3" fill="#f1eadb"/></symbol>
-      <symbol id="i-umbrella" viewBox="0 0 110 80"><path d="M12 40Q17 4 55 5Q94 5 100 40Q88 31 76 41Q65 31 55 41Q44 31 34 41Q21 31 12 40Z" fill="#242326"/><path d="M55 34V65Q55 79 43 73" stroke="#242326" stroke-width="7" stroke-linecap="round" fill="none"/></symbol>
-      <symbol id="i-bird" viewBox="0 0 110 80"><g fill="#242326"><ellipse cx="50" cy="44" rx="31" ry="22"/><circle cx="80" cy="21" r="14"/><path d="M92 18L108 26L91 30Z"/><path d="M43 43L13 9L27 49Z"/><path d="M24 45L4 23L10 56Z"/><path d="M54 63V78H48V61ZM67 63V78H61V61Z"/></g></symbol>
-      <symbol id="i-cat" viewBox="0 0 110 80"><g fill="#242326"><ellipse cx="54" cy="53" rx="27" ry="22"/><circle cx="55" cy="24" r="22"/><path d="M36 15L31 0L48 8ZM67 8L81 0L76 18Z"/><path d="M73 59Q105 46 100 19" stroke="#242326" stroke-width="12" fill="none" stroke-linecap="round"/></g></symbol>
-    </defs>`;
-    const placed = entries.map((id, i) => {
-      const c = i % 4; const r = Math.floor(i / 4);
-      const x = 54 + c*222 + ((i*17)%37)-15;
-      const y = 29 + r*123 + ((i*13)%21)-8;
-      const angle = [-13,7,16,-9,9,-8,4,13][i%8];
-      return `<use href="#i-${id}" x="${x}" y="${y}" width="104" height="80" transform="rotate(${angle} ${x+52} ${y+40})"/>`;
-    }).join('');
-    return `<svg viewBox="0 0 980 540" role="img" aria-label="Набор силуэтов животных и предметов">${icons}<rect width="980" height="540" fill="#f1eadb"/>${placed}</svg>`;
-  }
   function viewEntrance() {
     const playing = state.audioPlaying && state.audioKey === 'march';
     return `<section class="stage-content">${confetti()}<div class="ring-set" aria-hidden="true"><i></i><i></i></div><p class="eyebrow">ПЕРВЫЙ АККОРД ЭТОГО ВЕЧЕРА</p><h1 class="stage-h1 entrance-h1">Торжественная<br><em>встреча</em></h1><div class="ornament-line">✦</div><p class="stage-subtitle">Встречаем наших главных героев. Пусть вечер начнётся с музыки.</p><div class="stage-actions">${button(playing ? '❚❚ &nbsp; Пауза' : '▶ &nbsp; Марш Мендельсона', 'march-toggle')}${pick('march','Загрузить музыку','audio/*')}</div><p class="intro-note">Звук запускается только по нажатию. Добавьте свой аудиофайл MP3.</p><div class="stage-bottom-fine">ЗОЛОТАЯ СВАДЬБА · 50 ЛЕТ ВМЕСТЕ</div></section>`;
@@ -107,12 +83,23 @@
     return `<section class="stage-content">${lead('ЕЩЁ ОДИН СЮРПРИЗ', 'Загаданное <em>слово</em>', 'Здесь появится следующий конкурс, когда согласуем его правила.')}<div class="callout-panel"><div class="ornament-line">?</div><p>Этот раздел уже есть в программе. Когда узнаем механику, добавим подсказки, таймер, буквы или другую нужную интерактивность.</p></div><p class="fine-print">Заглушка черновой версии — конкурс пока не реализован.</p></section>`;
   }
   function viewSilhouettes() {
-    const round = state.silhouetteRound;
-    const isShowing = state.silhouetteStatus === 'showing';
-    const isDone = state.silhouetteStatus === 'done';
-    const board = isShowing ? `<div class="silhouette-board">${silhouetteSVG(round)}</div>` : `<div class="silhouette-board silhouette-covered"><span class="cover-icon">${isDone?'⌛':'◈'}</span><strong>${isDone?'Время вышло!':'Проверьте свою память'}</strong><p class="stage-subtitle">${isDone?'Теперь называйте количество увиденных предметов':'На запоминание будет всего 15 секунд'}</p></div>`;
-    const counts = silhouetteRounds[round].reduce((a,k)=>(a[k]=(a[k]||0)+1,a),{});
-    return `<section class="stage-content wide compact">${episode('КОНКУРС НА ВНИМАТЕЛЬНОСТЬ','Силуэты',`РАУНД ${round+1} / ${silhouetteRounds.length}`)}${board}<div class="timer-track"><div id="timer-bar" style="width:${isShowing?state.timerLeft/roundTotal*100:0}%"></div></div><div class="stage-actions">${isShowing ? `<span class="timer-display" id="timer-display">${state.timerLeft.toFixed(1)} с</span>` : button(isDone?'Повторить раунд':'Начать просмотр · 15 сек','silhouette-start')}${isDone ? button(state.silhouetteCounts?'Скрыть количества':'Показать количества','silhouette-answers','secondary-button') : ''}${!isShowing ? button(round===0?'Раунд 2 →':'← Раунд 1','silhouette-next','small-button') : ''}</div>${isDone && state.silhouetteCounts?`<div class="counts-grid">${Object.entries(counts).map(([k,n])=>`<span class="count-chip">${silhouetteLabels[k]}: ${n}</span>`).join('')}</div>`:''}<p class="fine-print">Два демонстрационных набора силуэтов. После 15 секунд изображение автоматически скрывается.</p></section>`;
+    const round=state.silhouetteRound;
+    const key='silhouette-'+round;
+    const url=fileURL(key,'');
+    const showing=state.silhouetteStatus==='showing';
+    const done=state.silhouetteStatus==='done';
+    const board=showing && url
+      ? `<div class="silhouette-board silhouette-image-board"><img class="silhouette-user-image" src="${safe(url)}" alt="Изображение с силуэтами, раунд ${round+1}" draggable="false"></div>`
+      : `<div class="silhouette-board silhouette-covered"><span class="cover-icon">${done?'⌛':'◈'}</span><strong>${done?'Время вышло!':url?'Картинка готова':'Добавьте картинку раунда'}</strong><p class="stage-subtitle">${done?'Теперь задавайте командам вопросы по увиденным силуэтам':url?'Нажмите «Начать», когда все будут готовы':'Понадобится изображение PNG, JPG или WebP'}</p></div>`;
+    return `<section class="stage-content wide compact">${episode('КОНКУРС НА ВНИМАТЕЛЬНОСТЬ','Силуэты',`РАУНД ${round+1} / 2`)}${board}
+      <div class="timer-track"><div id="timer-bar" style="width:${showing?state.timerLeft/roundTotal*100:0}%"></div></div>
+      <div class="stage-actions">
+        ${showing?`<span class="timer-display" id="timer-display">${state.timerLeft.toFixed(1)} с</span>`:button(done?'Повторить раунд':'Начать просмотр · 15 сек','silhouette-start','primary-button',url?'':'disabled')}
+        ${!showing?pick(key,'Загрузить картинку раунда','image/png,image/jpeg,image/webp'):''}
+        ${!showing?button(round===0?'Раунд 2 →':'← Раунд 1','silhouette-next','small-button'):''}
+      </div>
+      <p class="fine-print">Ваше изображение видно только во время 15-секундного отсчёта. После таймера оно скрывается. Вопросы и правильные количества ведущий сообщает самостоятельно.</p>
+    </section>`;
   }
   function viewCredits() {
     return `<section class="stage-content compact">${confetti()}<p class="eyebrow">СПАСИБО, ЧТО БЫЛИ С НАМИ</p><h1 class="stage-h1">Финальные <em>титры</em></h1><div class="credits-viewport"><div class="credits-inner ${state.creditsPaused?'paused':''}"><div class="credits-block"><span>ЗОЛОТАЯ СВАДЬБА</span><h3>50 лет вместе</h3></div>${D.credits.map(c=>`<div class="credits-block"><span>${safe(c.role)}</span>${c.names.map(n=>`<h3>${safe(n)}</h3>`).join('')}</div>`).join('')}<div class="credits-block"><span>И САМОЕ ГЛАВНОЕ</span><h3>Спасибо нашей семье!</h3></div><div class="credits-final">Продолжение следует… ♡</div></div></div><div class="stage-actions credits-controls">${button(state.creditsPaused?'▶ Продолжить титры':'❚❚ Пауза','credits-pause','secondary-button')}${button('↻ С начала','credits-restart','small-button')}</div><p class="fine-print">Сейчас указаны только известные имена и временные строки. Финальный список уточним.</p></section>`;
@@ -170,6 +157,7 @@
   function stopAudio() { audio.pause();audio.currentTime=0;state.audioPlaying=false;state.audioKey=''; }
   function openAmbient(){
     if(!ambientScreen || !ambientScreen.hidden)return;
+    closeHostMenu();
     // The backdrop is intended for breaks: avoid sound or an active timed game behind it.
     stage.querySelectorAll('video').forEach(video=>video.pause());
     stopAudio();
@@ -194,7 +182,9 @@
   }
   function goTo(index) {
     if (index<0 || index>=D.sections.length || index===state.section) return;
-    stopTimer();stopAudio();state.section=index;render();
+    stopTimer();stopAudio();
+    if(state.silhouetteStatus==='showing')state.silhouetteStatus='ready';
+    state.section=index;render();
   }
   function audioToggle(key, path) {
     if (state.audioKey===key && !audio.paused) {audio.pause();state.audioPlaying=false;render();return;}
@@ -202,6 +192,7 @@
     audio.play().then(()=>{state.audioPlaying=true;render();}).catch(()=>{state.audioPlaying=false;toast('Музыка не найдена. Выберите MP3-файл с ноутбука.');render();});
   }
   function startSilhouette() {
+    if(!fileURL('silhouette-'+state.silhouetteRound,'')){toast('Сначала загрузите картинку для этого раунда.');return;}
     stopTimer();state.silhouetteStatus='showing';state.silhouetteCounts=false;state.timerLeft=roundTotal;render();
     const finishAt=performance.now()+roundTotal*1000;
     silhouetteInterval=setInterval(()=>{
@@ -222,16 +213,30 @@
     else if(document.fullscreenElement) document.exitFullscreen?.().catch(()=>{});
   }
   function toggleFullscreen(){if(document.fullscreenElement)document.exitFullscreen?.().catch(()=>{});else document.documentElement.requestFullscreen?.().catch(()=>toast('Полный экран недоступен. Можно нажать F11 в браузере.'));}
+  const hostMenu=document.getElementById('host-menu');
+  function closeHostMenu(){
+    if(!hostMenu)return;
+    hostMenu.hidden=true;
+    document.querySelectorAll('[data-action="menu-toggle"]').forEach(btn=>btn.setAttribute('aria-expanded','false'));
+  }
+  function toggleHostMenu(){
+    if(!hostMenu)return;
+    const open=hostMenu.hidden;
+    hostMenu.hidden=!open;
+    document.querySelectorAll('[data-action="menu-toggle"]').forEach(btn=>btn.setAttribute('aria-expanded',String(open)));
+    if(open)hostMenu.querySelector('[data-action]')?.focus({preventScroll:true});
+  }
   function handleAction(action,value){
     switch(action){
       case 'next':goTo(state.section+1);break;
       case 'previous':goTo(state.section-1);break;
       case 'jump':goTo(Number(value));break;
-      case 'presentation':togglePresentation();break;
-      case 'fullscreen':toggleFullscreen();break;
-      case 'ambient-open':openAmbient();break;
+      case 'presentation':closeHostMenu();togglePresentation();break;
+      case 'fullscreen':closeHostMenu();toggleFullscreen();break;
+      case 'menu-toggle':toggleHostMenu();break;
+      case 'ambient-open':closeHostMenu();openAmbient();break;
       case 'ambient-close':closeAmbient();break;
-      case 'help':helpDialog.showModal();break;
+      case 'help':closeHostMenu();helpDialog.showModal();break;
       case 'close-help':helpDialog.close();break;
       case 'march-toggle':audioToggle('march',D.files.march);break;
       case 'interview-prev':setInterview(state.interview-1);break;
@@ -249,7 +254,6 @@
       case 'salad-reveal':state.saladAnswer=!state.saladAnswer;render();break;
       case 'silhouette-start':startSilhouette();break;
       case 'silhouette-next':resetSilhouette(state.silhouetteRound===0?1:0);break;
-      case 'silhouette-answers':state.silhouetteCounts=!state.silhouetteCounts;render();break;
       case 'credits-pause':state.creditsPaused=!state.creditsPaused;render();break;
       case 'credits-restart':state.creditsPaused=false;render();break;
     }
@@ -257,6 +261,7 @@
   document.addEventListener('click',e=>{
     const target=e.target.closest('[data-action]');
     if(target){handleAction(target.dataset.action,target.dataset.value);}
+    else if(!e.target.closest('#host-menu'))closeHostMenu();
   });
   document.addEventListener('change',async e=>{
     const input=e.target.closest('[data-file-key]');if(!input?.files?.length)return;
@@ -284,6 +289,7 @@
   });
   document.getElementById('mobile-stage-select')?.addEventListener('change',e=>goTo(Number(e.target.value)));
   document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'&&hostMenu&&!hostMenu.hidden){e.preventDefault();closeHostMenu();return;}
     if(ambientScreen && !ambientScreen.hidden){
       if(e.key==='Escape'||e.key.toLowerCase()==='b'){
         e.preventDefault();closeAmbient();
