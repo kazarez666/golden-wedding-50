@@ -7,6 +7,7 @@ on:
       - 'editorial-design-v1.2.css'
       - 'welcome-gold-numeral-v1.4.css'
       - 'cinematic-edition-v1.5.css'
+      - 'golden-motion-v1.6.css'
       - '.github/workflows/browser-ui.yml'
   workflow_dispatch:
 permissions:
@@ -68,10 +69,16 @@ jobs:
                     inner:getComputedStyle(inner).backgroundColor,
                     name:getComputedStyle(inner.querySelector('.ambient-persons')).color,
                     border:getComputedStyle(inner).borderTopColor,
+                    gold50:getComputedStyle(inner.querySelector('.ambient-big50')).color,
+                    numeralFill:getComputedStyle(inner.querySelector('.ambient-big50')).webkitTextFillColor,
+                    numeralBackground:getComputedStyle(inner.querySelector('.ambient-big50')).backgroundColor,
                     width:document.documentElement.scrollWidth};
                 });
                 assert.deepEqual([ambient.outer,ambient.inner,ambient.name,ambient.border],
                   ['rgb(63, 1, 13)','rgb(254, 244, 220)','rgb(63, 1, 13)','rgb(215, 176, 82)']);
+                assert.equal(ambient.gold50,'rgb(215, 176, 82)');
+                assert.equal(ambient.numeralFill,'rgb(215, 176, 82)');
+                assert.equal(ambient.numeralBackground,'rgba(0, 0, 0, 0)');
                 assert(ambient.width <= viewport.width+2,`Ambient overflow at ${viewport.width}`);
                 await page.keyboard.press('Escape');
                 assert(await page.locator('#ambient-screen').evaluate(el=>el.hidden));
@@ -83,6 +90,17 @@ jobs:
                 assert(!(await page.locator('#host-menu').evaluate(el=>el.hidden)));
                 await page.keyboard.press('Escape');
                 assert(await page.locator('#host-menu').evaluate(el=>el.hidden));
+                // Validate interview-to-interview transitions, shared volume and no autoplay.
+                if(viewport.width<=800)await page.locator('#mobile-stage-select').selectOption('3');
+                else await page.locator('.section-item[data-value="3"]').click();
+                await page.locator('video[data-player="interview-0"]').waitFor();
+                await page.locator('video[data-player="interview-0"]').evaluate(v=>{v.volume=0.25;});
+                await page.waitForFunction(()=>JSON.parse(localStorage.getItem('golden-wedding-video-sound-v1')||'{}').volume===0.25);
+                await page.locator('[data-action="interview-next"]').click();
+                await page.locator('video[data-player="interview-1"]').waitFor();
+                assert(await page.locator('video[data-player="interview-1"]').evaluate(v=>v.paused));
+                assert.equal(await page.locator('video[data-player="interview-1"]').evaluate(v=>v.volume),.25);
+                assert(await page.locator('.video-switcher .clip-button.active').textContent()==='02');
                 if(viewport.width<=800){
                   await page.locator('#mobile-stage-select').selectOption('4');
                 } else {
@@ -93,6 +111,15 @@ jobs:
                 await page.locator('.question-card').waitFor();
                 await page.locator('[data-action="movie-reveal"]').click();
                 await page.locator('.question-card .answer-panel').waitFor();
+                // Image/answer change animation stays within the selected contest.
+                if(viewport.width<=800)await page.locator('#mobile-stage-select').selectOption('7');
+                else await page.locator('.section-item[data-value="7"]').click();
+                await page.locator('[data-action="salad-reveal"]').click();
+                await page.locator('.salad-reveal-title').waitFor();
+                assert((await page.locator('.salad-reveal-title').textContent()).includes('Селёдка под шубой'));
+                await page.locator('[data-action="salad-next"]').click();
+                await page.waitForFunction(()=>document.querySelector('.salad-reveal-title')?.textContent.includes('Слушаем'));
+                assert.equal(await page.locator('.salad-frame img').count(),0);
                 // Closing credits must be readable and the rolling film credits
                 // must pause/resume without starting over or re-rendering.
                 if(viewport.width<=800) await page.locator('#mobile-stage-select').selectOption('10');
