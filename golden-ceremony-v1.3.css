@@ -1,0 +1,509 @@
+/* 50 YEARS — Golden Ceremony 1.3
+   Real UI theme. Reference colours only:
+   burgundy #3F010D, cream #FEF4DC, gold #D7B052.
+   Opacity is used to create depth, never additional paint colours. */
+:root {
+  --bg:#FEF4DC;
+  --panel:#FEF4DC;
+  --panel2:#FEF4DC;
+  --cream:#FEF4DC;
+  --white:#FEF4DC;
+  --gold:#D7B052;
+  --gold2:#D7B052;
+  --gold-dim:#D7B052;
+  --red:#3F010D;
+  --border:#D7B052;
+  --burgundy:#3F010D;
+}
+
+/* Lustrous gold is now a STRUCTURAL colour: navigation, ornaments,
+   seals, heading chips and buttons, not just one-pixel outlines. */
+.app-shell {background:#FEF4DC;}
+.topbar {
+  background:linear-gradient(110deg,#D7B052 0%,#FEF4DC 83%)!important;
+  border-bottom:3px solid #D7B052!important;
+}
+.topbar .breadcrumb-gold {
+  color:#3F010D!important;
+  font-weight:750;
+}
+.topbar .crumb-slash{color:#3F010D!important}
+.toolbar-actions .menu-toggle {
+  background:#D7B052!important;
+  color:#3F010D!important;
+  border:2px solid #3F010D!important;
+  box-shadow:0 3px 0 rgba(63,1,13,.10)!important;
+}
+.toolbar-actions .menu-toggle:hover,
+.toolbar-actions .menu-toggle:focus-visible {
+  background:#FEF4DC!important;color:#3F010D!important;
+}
+.sidebar {
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(215,176,82,.16),transparent 55%),
+    #3F010D!important;
+  border-right:3px solid #D7B052!important;
+}
+.sidebar-top:after{
+  content:"";
+  display:block;
+  height:15px;
+  margin:11px auto 0;
+  width:min(85%,195px);
+  background:linear-gradient(to right,transparent,#D7B052,transparent);
+  opacity:.9;
+}
+.brand-number{
+  background:#D7B052!important;
+  color:#3F010D!important;
+  border:2px solid #D7B052!important;
+  box-shadow:0 0 0 5px #3F010D,0 0 0 6px #D7B052!important;
+}
+.brand-copy strong{color:#D7B052!important}
+.sidebar .section-item.active{
+  background:#D7B052!important;
+  border:2px solid #D7B052!important;
+  box-shadow:inset 4px 0 #3F010D!important;
+}
+.sidebar .section-item.active .section-text strong,
+.sidebar .section-item.active .section-text small,
+.sidebar .section-item.active .section-number,
+.sidebar .section-item.active .section-icon{
+  color:#3F010D!important;opacity:1;
+}
+.sidebar .section-item:hover:not(.active){border-color:#D7B052}
+.controlbar {
+  border-top:4px solid #D7B052!important;
+  background:linear-gradient(90deg,#3F010D,#3F010D)!important;
+}
+.controlbar .nav-arrow{
+  background:#D7B052!important;
+  color:#3F010D!important;
+  border:1px solid #D7B052!important;
+}
+.controlbar .nav-arrow:hover{background:#FEF4DC!important}
+.progress-track{background:rgba(215,176,82,.27)}
+.progress-bar{background:#D7B052!important}
+.controlbar .next-button{
+  background:#D7B052!important;
+  color:#3F010D!important;
+  border-color:#D7B052!important;
+  box-shadow:inset 0 2px 0 rgba(254,244,220,.55)!important;
+}
+.presentation-control{
+  border:2px solid #D7B052!important;
+  background:#3F010D!important;
+}
+.presentation-control button:not(.menu-toggle-presentation){
+  color:#D7B052!important;
+}
+.presentation-control button:hover{background:#D7B052!important;color:#3F010D!important}
+
+/* Gold ornamental structure in each content screen. Central text stays
+   free of decoration; the two botanicals live entirely in side gutters. */
+.stage{
+  background:
+    radial-gradient(circle at 15% 11%,rgba(215,176,82,.35),transparent 31%),
+    radial-gradient(circle at 90% 90%,rgba(215,176,82,.31),transparent 34%),
+    #FEF4DC!important;
+}
+.stage::before{
+  border:2px solid rgba(215,176,82,.75)!important;
+  border-radius:23px!important;
+}
+.stage-content:not(.stage-welcome) {
+  background:
+    linear-gradient(140deg,rgba(215,176,82,.19),rgba(254,244,220,0) 34%),
+    radial-gradient(circle at 82% 83%,rgba(215,176,82,.13),transparent 32%),
+    #FEF4DC!important;
+  border:2px solid #D7B052!important;
+  border-radius:24px!important;
+  box-shadow:0 16px 45px rgba(63,1,13,.10)!important;
+}
+.stage-content:not(.stage-welcome)::before,
+.stage-content:not(.stage-welcome)::after{
+  content:"";
+  width:clamp(95px,12vw,165px);
+  height:clamp(145px,19vw,225px);
+  background:url('assets/gold-botanical.svg') no-repeat center / contain!important;
+  opacity:.32;
+  pointer-events:none;
+  border:0;
+  position:absolute;
+  z-index:0;
+}
+.stage-content:not(.stage-welcome)::before{left:-20px;top:-25px}
+.stage-content:not(.stage-welcome)::after{right:-20px;bottom:-25px;transform:rotate(180deg)}
+.stage-content:not(.stage-welcome)>*{position:relative;z-index:1}
+.eyebrow,.section-kicker{
+  color:#3F010D!important;
+  display:inline-block;
+  background:#D7B052;
+  border:1px solid #D7B052;
+  border-radius:100px;
+  padding:5px 17px;
+  letter-spacing:.16em!important;
+  font-weight:750;
+}
+.episode-meta .eyebrow{text-align:left}
+.episode-meta .counter-pill,.stage .counter-pill{
+  color:#3F010D!important;background:#D7B052!important;
+  border:1px solid #D7B052!important;font-weight:750;
+  box-shadow:none!important;
+}
+.stage-h1,.episode-meta h1{color:#3F010D!important}
+.stage-h1 em{color:#3F010D!important}
+.stage-actions .primary-button,.primary-button,.next-button,
+.stage .stage-actions button[data-action="movie-reveal"],
+.stage .stage-actions button[data-action="melody-toggle"]{
+  background:#D7B052!important;
+  color:#3F010D!important;
+  border:2px solid #D7B052!important;
+  box-shadow:0 8px 17px rgba(63,1,13,.11),inset 0 2px rgba(254,244,220,.46)!important;
+}
+.stage-actions .primary-button:hover:not(:disabled),.primary-button:hover:not(:disabled),
+.stage-actions .primary-button:focus-visible{
+  background:#FEF4DC!important;
+  color:#3F010D!important;
+}
+.secondary-button,.small-button,.stage .file-picker{
+  border:2px solid #D7B052!important;
+  color:#3F010D!important;
+}
+.secondary-button:hover,.small-button:hover,.stage .file-picker:hover{
+  background:#D7B052!important;color:#3F010D!important;
+}
+.video-switcher .clip-button.active,
+.video-switcher .clip-button:hover{
+  background:#D7B052!important;color:#3F010D!important;
+  border-color:#D7B052!important;
+}
+.number-stepper button{
+  background:#D7B052!important;color:#3F010D!important;
+  border:2px solid #D7B052!important;
+}
+.number-stepper button:hover:not(:disabled){background:#FEF4DC!important}
+.wedding-divider>i,
+.welcome-connector i,.ambient-connector i{
+  height:2px!important;background:#D7B052!important;
+}
+.wedding-rings>b{border:3px solid #D7B052!important}
+
+/* Richer gold planes for quizzes, videos and other content. */
+.stage .media-side,.stage .salad-info,.stage .salad-display-card,
+.stage .callout-panel,.stage .workspace-card,.stage .melody-layout{
+  background:
+    linear-gradient(180deg,rgba(215,176,82,.27),rgba(254,244,220,0) 60%),
+    #FEF4DC!important;
+  border:2px solid #D7B052!important;
+  box-shadow:0 13px 32px rgba(63,1,13,.08)!important;
+}
+.media-window,.salad-frame,.silhouette-board,.silhouette-image-board{
+  border:3px solid #D7B052!important;
+}
+.question-card{
+  background:
+    radial-gradient(circle at 50% 0%,rgba(215,176,82,.20),transparent 56%),
+    #3F010D!important;
+  border:4px solid #D7B052!important;
+  box-shadow:0 14px 34px rgba(63,1,13,.18),inset 0 0 0 6px #3F010D,inset 0 0 0 7px #D7B052!important;
+}
+.question-card .question-label{color:#D7B052!important}
+.question-card .answer-panel strong{color:#D7B052!important}
+.question-card .answer-panel{border-top:2px solid #D7B052!important}
+.video-switcher button,.clip-button{
+  border:2px solid #D7B052!important;
+}
+.melody-art{
+  border:13px solid #D7B052!important;
+  box-shadow:0 0 0 7px #FEF4DC,0 0 0 10px #D7B052!important;
+}
+.silhouette-board,.salad-frame{box-shadow:0 10px 27px rgba(63,1,13,.12)!important}
+
+/* BIG EVENT MOMENT: gold becomes a broad composition, not a stroke.
+   The card remains cream, the surrounding field remains EXACT burgundy.
+   Floral ornaments are at the outer edges and cannot overlap names. */
+#ambient-screen{
+  background:
+    radial-gradient(circle at 4% 16%,rgba(215,176,82,.15),transparent 23%),
+    radial-gradient(circle at 96% 84%,rgba(215,176,82,.15),transparent 23%),
+    #3F010D!important;
+  padding:clamp(17px,3.1vw,49px)!important;
+}
+#ambient-screen .ambient-screen-content{
+  background:
+    radial-gradient(ellipse at 50% 18%,rgba(215,176,82,.14),transparent 46%),
+    #FEF4DC!important;
+  border:8px solid #D7B052!important;
+  outline:2px solid #D7B052;
+  outline-offset:-17px;
+  box-shadow:0 0 0 7px #3F010D,0 0 0 9px #D7B052!important;
+  border-radius:22px!important;
+  min-height:calc(100dvh - 2 * clamp(17px,3.1vw,49px));
+  padding:clamp(30px,4vh,60px) clamp(20px,3.6vw,50px)!important;
+  position:relative;
+  overflow:hidden;
+}
+#ambient-screen .ambient-screen-content::before,
+#ambient-screen .ambient-screen-content::after{
+  content:"";
+  display:block;
+  position:absolute;
+  z-index:0;
+  pointer-events:none;
+  background:url('assets/gold-botanical.svg') no-repeat center / contain;
+  width:clamp(135px,16vw,265px);
+  height:clamp(220px,27vw,390px);
+  opacity:.79;
+  top:clamp(45px,9vh,110px);
+  left:clamp(6px,2.5vw,40px);
+}
+#ambient-screen .ambient-screen-content::after{
+  left:auto;right:clamp(6px,2.5vw,40px);
+  transform:scaleX(-1);
+}
+#ambient-screen .ambient-card-inner{
+  width:min(100%,710px);
+  max-width:710px;
+  padding:0 14px!important;
+  position:relative;z-index:2;
+}
+#ambient-screen .ambient-overline{
+  background:#D7B052;
+  color:#3F010D!important;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(16px,1.8vw,26px);
+  letter-spacing:.16em;
+  padding:9px 30px 8px;
+  border-radius:100px;
+  margin:0 0 clamp(10px,1.3vh,20px);
+  font-weight:700;
+}
+#ambient-screen .ambient-big50{
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;justify-content:center;
+  width:clamp(146px,17vw,248px);
+  height:clamp(146px,17vw,248px);
+  margin:0 auto clamp(7px,.8vh,12px);
+  padding:0 18px 10px!important;
+  background:#D7B052!important;
+  border-radius:50%;
+  border:5px double #FEF4DC;
+  box-shadow:0 0 0 5px #D7B052,0 11px 28px rgba(63,1,13,.14)!important;
+  color:#3F010D!important;
+  -webkit-text-fill-color:#3F010D!important;
+  font-family:Georgia,"Times New Roman",serif;
+  font-style:italic;
+  font-size:clamp(103px,12vw,185px)!important;
+  font-weight:400;
+  line-height:1!important;
+  letter-spacing:-.085em;
+  filter:none!important;
+  text-shadow:none!important;
+}
+#ambient-screen .ambient-divider{
+  margin:clamp(4px,.8vh,10px) auto clamp(6px,1vh,16px);
+}
+#ambient-screen .ambient-years{
+  color:#3F010D!important;
+  font-size:clamp(25px,3.1vw,42px);
+  font-weight:700;
+  margin-bottom:clamp(8px,1vh,15px)!important;
+}
+#ambient-screen .ambient-persons{
+  color:#3F010D!important;
+  font-size:clamp(32px,3.65vw,60px)!important;
+}
+#ambient-screen .ambient-family{
+  color:#3F010D!important;
+  font-size:clamp(29px,3.25vw,51px)!important;
+  margin-top:clamp(7px,1vh,13px);
+}
+#ambient-screen .ambient-connector{margin:2px auto!important}
+#ambient-screen .ambient-footer{
+  color:#3F010D!important;
+  background:#D7B052;
+  border-radius:100px;
+  padding:9px 24px;
+  font-size:clamp(9px,.9vw,13px);
+  letter-spacing:.17em;
+  margin:clamp(14px,2vh,30px) auto 0;
+}
+#ambient-screen .ambient-exit{
+  opacity:.58;
+  background:#D7B052!important;
+  color:#3F010D!important;
+  border:2px solid #3F010D!important;
+  border-radius:100px;
+  top:clamp(20px,3.65vw,60px);
+  right:clamp(20px,3.65vw,60px);
+}
+#ambient-screen .ambient-exit:hover,
+#ambient-screen .ambient-exit:focus-visible{
+  opacity:1;background:#D7B052!important;color:#3F010D!important;
+}
+
+/* Second slide shares the celebration language. */
+.stage-welcome{background:transparent!important}
+.welcome-editorial{
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(215,176,82,.20),transparent 55%),
+    #FEF4DC!important;
+  border:7px solid #D7B052!important;
+  outline:2px solid #D7B052;
+  outline-offset:-16px;
+  border-radius:22px;
+  box-shadow:0 14px 45px rgba(63,1,13,.12)!important;
+  position:relative;
+  overflow:hidden;
+}
+.welcome-editorial::before,.welcome-editorial::after{
+  content:"";
+  background:url('assets/gold-botanical.svg') no-repeat center / contain;
+  width:clamp(110px,13vw,205px);
+  height:clamp(160px,19vw,300px);
+  opacity:.45;
+  position:absolute;z-index:0;
+  left:0;top:6%;
+  pointer-events:none;
+}
+.welcome-editorial::after{left:auto;right:0;transform:scaleX(-1)}
+.welcome-editorial>*{position:relative;z-index:1}
+.welcome-overline{
+  color:#3F010D!important;
+  background:#D7B052;
+  border-radius:100px;
+  padding:8px 24px;
+  letter-spacing:.16em!important;
+}
+.welcome-figure{
+  width:clamp(130px,14vw,207px);
+  height:clamp(130px,14vw,207px);
+  display:flex;align-items:center;justify-content:center;
+  background:#D7B052!important;
+  border:5px double #FEF4DC;
+  border-radius:50%;
+  box-shadow:0 0 0 5px #D7B052!important;
+  color:#3F010D!important;
+  -webkit-text-fill-color:#3F010D!important;
+  font-size:clamp(100px,11vw,157px)!important;
+  line-height:1!important;
+  letter-spacing:-.085em;
+  margin:16px auto 15px;
+  padding:0 14px 9px;
+}
+.welcome-anniversary{color:#3F010D!important}
+.welcome-person,.welcome-surname{color:#3F010D!important}
+.welcome-ambient-link{
+  color:#3F010D;background:#D7B052;
+  border:2px solid #D7B052;
+  border-radius:100px;
+  padding:11px 23px;
+  box-shadow:0 8px 17px rgba(63,1,13,.11);
+}
+.welcome-ambient-link:hover{background:#FEF4DC;border-color:#D7B052}
+
+@media(max-width:1200px){
+  #ambient-screen .ambient-screen-content::before,
+  #ambient-screen .ambient-screen-content::after{
+    width:clamp(90px,13vw,185px);height:clamp(170px,21vw,270px);
+    opacity:.55;
+  }
+  .welcome-editorial::before,.welcome-editorial::after{width:105px;opacity:.3}
+}
+@media(max-width:800px){
+  .topbar{background:#3F010D!important;border-bottom:3px solid #D7B052!important}
+  .toolbar-actions .menu-toggle{
+    background:#D7B052!important;color:#3F010D!important;
+    border:1px solid #D7B052!important;
+  }
+  .stage-content:not(.stage-welcome)::before,
+  .stage-content:not(.stage-welcome)::after{
+    width:76px;height:110px;opacity:.2;
+  }
+  #ambient-screen{padding:12px!important}
+  #ambient-screen .ambient-screen-content{
+    min-height:calc(100dvh - 24px);padding:65px 10px 24px!important;
+    border-width:5px!important;border-radius:15px!important;
+    outline-offset:-12px;
+  }
+  #ambient-screen .ambient-screen-content::before,
+  #ambient-screen .ambient-screen-content::after{
+    width:72px;height:118px;top:9%;opacity:.28;
+  }
+  #ambient-screen .ambient-card-inner{max-width:100%;padding:0 8px!important}
+  #ambient-screen .ambient-overline{
+    padding:8px 15px;
+    font-size:clamp(12px,3.45vw,18px);
+    letter-spacing:.10em;
+  }
+  #ambient-screen .ambient-big50{
+    width:clamp(137px,36vw,191px);
+    height:clamp(137px,36vw,191px);
+    font-size:clamp(96px,25vw,139px)!important;
+  }
+  #ambient-screen .ambient-years{
+    font-size:clamp(20px,5.4vw,30px);
+  }
+  #ambient-screen .ambient-persons{
+    font-size:clamp(26px,6.7vw,39px)!important;
+  }
+  #ambient-screen .ambient-family{font-size:clamp(25px,6.2vw,36px)!important}
+  #ambient-screen .ambient-footer{
+    font-size:9px;
+    max-width:95%;
+    letter-spacing:.06em;
+    padding:8px 14px;
+  }
+  #ambient-screen .ambient-exit{
+    top:16px;right:16px;
+    padding:6px 10px;opacity:1;
+    font-size:10px;
+  }
+  .welcome-editorial{
+    border-width:5px!important;outline-offset:-12px;
+    border-radius:14px!important;
+  }
+  .welcome-editorial::before,.welcome-editorial::after{
+    width:57px;height:105px;top:7%;opacity:.25;
+  }
+  .welcome-figure{
+    width:clamp(132px,39vw,182px);
+    height:clamp(132px,39vw,182px);
+    font-size:clamp(95px,28vw,132px)!important;
+  }
+}
+@media(max-width:390px){
+  #ambient-screen .ambient-screen-content::before,
+  #ambient-screen .ambient-screen-content::after{width:45px;height:75px;opacity:.22}
+  #ambient-screen .ambient-persons{font-size:clamp(24px,6.4vw,32px)!important}
+  #ambient-screen .ambient-family{font-size:clamp(23px,6.2vw,30px)!important}
+  .welcome-editorial::before,.welcome-editorial::after{width:45px}
+}
+@media(max-height:740px) and (min-width:801px){
+  #ambient-screen .ambient-screen-content{padding:18px 16px!important}
+  #ambient-screen .ambient-overline{font-size:16px;margin-bottom:7px}
+  #ambient-screen .ambient-big50{
+    width:145px;height:145px;font-size:108px!important;
+    margin-bottom:3px;
+  }
+  #ambient-screen .ambient-divider{margin:3px auto 4px}
+  #ambient-screen .ambient-years{font-size:26px;margin:0 0 5px!important}
+  #ambient-screen .ambient-persons{font-size:clamp(28px,5vh,40px)!important}
+  #ambient-screen .ambient-family{font-size:clamp(27px,4.5vh,35px)!important}
+  #ambient-screen .ambient-footer{margin-top:9px}
+  .welcome-editorial{padding:17px 20px!important;min-height:450px}
+  .welcome-figure{
+    width:125px;height:125px;font-size:94px!important;
+    margin:7px auto 7px;
+  }
+}
+@media(max-height:620px) and (max-width:800px){
+  #ambient-screen .ambient-screen-content{padding:58px 10px 17px!important}
+  #ambient-screen .ambient-big50{width:105px;height:105px;font-size:76px!important}
+  #ambient-screen .ambient-years{font-size:19px}
+  #ambient-screen .ambient-persons{font-size:23px!important}
+  #ambient-screen .ambient-family{font-size:23px!important}
+  #ambient-screen .ambient-footer{margin-top:8px}
+}
