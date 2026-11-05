@@ -5,6 +5,7 @@
   const nav = document.getElementById('section-nav');
   const audio = document.getElementById('shared-audio');
   const helpDialog = document.getElementById('help-dialog');
+  const ambientScreen = document.getElementById('ambient-screen');
   const state = {
     section: 0, movie: 0, movieAnswer: false, interview: 0,
     melody: 0, melodyAnswer: false, salad: 0, saladAnswer: false,
@@ -15,6 +16,22 @@
   let silhouetteInterval = null;
   let toastTimeout = null;
   let mouseTimeout = null;
+  // Use one master volume/mute preference for every newly created video player.
+  // Persist in this browser across page reloads. Never store audio files.
+  const videoSoundKey = 'golden-wedding-video-sound-v1';
+  function readVideoSound(){
+    try {
+      const saved=JSON.parse(localStorage.getItem(videoSoundKey)||'null');
+      if(saved && Number.isFinite(saved.volume)){
+        return {volume:Math.max(0,Math.min(1,saved.volume)),muted:!!saved.muted};
+      }
+    } catch (_) { /* Private browsing can disable storage. */ }
+    return {volume:1,muted:false};
+  }
+  const videoSound = readVideoSound();
+  function saveVideoSound(){
+    try {localStorage.setItem(videoSoundKey,JSON.stringify(videoSound));} catch (_) {}
+  }
   const safe = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const fmt = (n) => String(n).padStart(2, '0');
   const fileURL = (key, fallback) => window.WeddingCloud?.fileURL(key, state.uploads[key] || fallback) || state.uploads[key] || fallback;
@@ -58,7 +75,7 @@
     return `<section class="stage-content">${confetti()}<div class="ring-set" aria-hidden="true"><i></i><i></i></div><p class="eyebrow">ПЕРВЫЙ АККОРД ЭТОГО ВЕЧЕРА</p><h1 class="stage-h1 entrance-h1">Торжественная<br><em>встреча</em></h1><div class="ornament-line">✦</div><p class="stage-subtitle">Встречаем наших главных героев. Пусть вечер начнётся с музыки.</p><div class="stage-actions">${button(playing ? '❚❚ &nbsp; Пауза' : '▶ &nbsp; Марш Мендельсона', 'march-toggle')}${pick('march','Загрузить музыку','audio/*')}</div><p class="intro-note">Звук запускается только по нажатию. Добавьте свой аудиофайл MP3.</p><div class="stage-bottom-fine">ЗОЛОТАЯ СВАДЬБА · 50 ЛЕТ ВМЕСТЕ</div></section>`;
   }
   function viewWelcome() {
-    return `<section class="stage-content">${confetti()}<p class="eyebrow">ПРАЗДНИК ЛЮБВИ И СЕМЬИ</p><div class="number-hero">50</div><div class="welcome-title">ЛЕТ ВМЕСТЕ</div><div class="ornament-line">✦</div><div class="welcome-names">${safe(D.names.first)}<br><span style="color:#AC7B2C;font-style:italic">и</span> ${safe(D.names.second)}</div><div class="hero-rule"></div><p class="stage-subtitle">Сегодня мы собрались, чтобы отметить историю длиною в полвека.<br>Спасибо, что вы разделяете этот вечер с нами.</p></section>`;
+    return `<section class="stage-content">${confetti()}<p class="eyebrow">ПРАЗДНИК ЛЮБВИ И СЕМЬИ</p><div class="number-hero">50</div><div class="welcome-title">ЛЕТ ВМЕСТЕ</div><div class="ornament-line">✦</div><div class="welcome-names">${safe(D.names.first)}<br><span style="color:#AC7B2C;font-style:italic">и</span> ${safe(D.names.second)}<br><span class="welcome-family">${safe(D.names.family || 'Смурыгины')}</span></div><div class="hero-rule"></div><p class="stage-subtitle">Сегодня мы собрались, чтобы отметить историю длиною в полвека.<br>Спасибо, что вы разделяете этот вечер с нами.</p><button class="ambient-trigger ambient-welcome-button" type="button" data-action="ambient-open">✦ Показать праздничный фон</button></section>`;
   }
   function videoPlayer(key, path) {
     return `<div class="media-window"><video controls playsinline preload="metadata" src="${safe(fileURL(key,path))}" data-player="${safe(key)}"></video><div class="media-prompt" data-video-prompt="${safe(key)}"><div class="prompt-symbol">▶</div><strong>Здесь будет ваше видео</strong><small>Добавьте файл или выберите его с ноутбука</small></div></div>`;
@@ -119,6 +136,14 @@
   }
   function syncVideoPrompts() {
     stage.querySelectorAll('video[data-player]').forEach(video => {
+      // Apply before playback so the next interview never starts at full volume.
+      video.volume = videoSound.volume;
+      video.muted = videoSound.muted;
+      video.addEventListener('volumechange', () => {
+        videoSound.volume = video.volume;
+        videoSound.muted = video.muted;
+        saveVideoSound();
+      });
       const prompt = stage.querySelector(`[data-video-prompt="${video.dataset.player}"]`);
       if (!prompt) return;
       const loaded = () => { prompt.style.display = 'none'; };
@@ -143,6 +168,28 @@
   }
   function stopTimer() { if (silhouetteInterval) {clearInterval(silhouetteInterval);silhouetteInterval=null;} }
   function stopAudio() { audio.pause();audio.currentTime=0;state.audioPlaying=false;state.audioKey=''; }
+  function openAmbient(){
+    if(!ambientScreen || !ambientScreen.hidden)return;
+    // The backdrop is intended for breaks: avoid sound or an active timed game behind it.
+    stage.querySelectorAll('video').forEach(video=>video.pause());
+    stopAudio();
+    if(state.silhouetteStatus==='showing'){
+      stopTimer();state.silhouetteStatus='ready';state.timerLeft=roundTotal;render();
+    }
+    ambientScreen.hidden=false;
+    ambientScreen.setAttribute('aria-hidden','false');
+    document.body.classList.add('ambient-active');
+    ambientScreen.querySelector('button')?.focus({preventScroll:true});
+  }
+  function closeAmbient(){
+    if(!ambientScreen || ambientScreen.hidden)return;
+    ambientScreen.hidden=true;
+    ambientScreen.setAttribute('aria-hidden','true');
+    document.body.classList.remove('ambient-active');
+    if(['entrance','melodies'].includes(D.sections[state.section].id))render();
+    (document.querySelector('body.presentation .presentation-control .ambient-trigger') ||
+      document.querySelector('.topbar .ambient-trigger'))?.focus({preventScroll:true});
+  }
   function goTo(index) {
     if (index<0 || index>=D.sections.length || index===state.section) return;
     stopTimer();stopAudio();state.section=index;render();
@@ -180,6 +227,8 @@
       case 'jump':goTo(Number(value));break;
       case 'presentation':togglePresentation();break;
       case 'fullscreen':toggleFullscreen();break;
+      case 'ambient-open':openAmbient();break;
+      case 'ambient-close':closeAmbient();break;
       case 'help':helpDialog.showModal();break;
       case 'close-help':helpDialog.close();break;
       case 'march-toggle':audioToggle('march',D.files.march);break;
@@ -232,7 +281,14 @@
   });
   document.getElementById('mobile-stage-select')?.addEventListener('change',e=>goTo(Number(e.target.value)));
   document.addEventListener('keydown',e=>{
+    if(ambientScreen && !ambientScreen.hidden){
+      if(e.key==='Escape'||e.key.toLowerCase()==='b'){
+        e.preventDefault();closeAmbient();
+      }
+      return;
+    }
     if(e.target.closest('input,textarea,select')||helpDialog.open)return;
+    if(e.key.toLowerCase()==='b'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();openAmbient();return;}
     if(e.key==='ArrowRight'){e.preventDefault();goTo(state.section+1);}
     else if(e.key==='ArrowLeft'){e.preventDefault();goTo(state.section-1);}
     else if(e.key.toLowerCase()==='h'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();togglePresentation();}
@@ -249,5 +305,13 @@
   // Закрытие dialog по клику за пределами содержимого.
   helpDialog.addEventListener('click',e=>{if(e.target===helpDialog)helpDialog.close();});
   document.addEventListener('wedding-cloud-updated',()=>render());
+  if(ambientScreen){
+    const first=ambientScreen.querySelector('[data-ambient-name="first"]');
+    const second=ambientScreen.querySelector('[data-ambient-name="second"]');
+    const family=ambientScreen.querySelector('[data-ambient-name="family"]');
+    if(first)first.textContent=D.names.first;
+    if(second)second.textContent=D.names.second;
+    if(family)family.textContent=D.names.family || 'Смурыгины';
+  }
   render();
 })();
