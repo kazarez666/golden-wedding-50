@@ -51,7 +51,21 @@
     return `<section class="stage-content">${confetti()}<div class="ring-set" aria-hidden="true"><i></i><i></i></div><p class="eyebrow">ПЕРВЫЙ АККОРД ЭТОГО ВЕЧЕРА</p><h1 class="stage-h1 entrance-h1">Торжественная<br><em>встреча</em></h1><div class="ornament-line">✦</div><p class="stage-subtitle">Встречаем наших главных героев. Пусть вечер начнётся с музыки.</p><div class="stage-actions">${button(playing ? '❚❚ &nbsp; Пауза' : '▶ &nbsp; Марш Мендельсона', 'march-toggle')}${pick('march','Загрузить музыку','audio/*')}</div><p class="intro-note">Звук запускается только по нажатию. Добавьте свой аудиофайл MP3.</p><div class="stage-bottom-fine">ЗОЛОТАЯ СВАДЬБА · 50 ЛЕТ ВМЕСТЕ</div></section>`;
   }
   function viewWelcome() {
-    return `<section class="stage-content">${confetti()}<p class="eyebrow">ПРАЗДНИК ЛЮБВИ И СЕМЬИ</p><div class="number-hero">50</div><div class="welcome-title">ЛЕТ ВМЕСТЕ</div><div class="ornament-line">✦</div><div class="welcome-names">${safe(D.names.first)}<br><span style="color:#AC7B2C;font-style:italic">и</span> ${safe(D.names.second)}<br><span class="welcome-family">${safe(D.names.family || 'Смурыгины')}</span></div><div class="hero-rule"></div><p class="stage-subtitle">Сегодня мы собрались, чтобы отметить историю длиною в полвека.<br>Спасибо, что вы разделяете этот вечер с нами.</p><button class="ambient-trigger ambient-welcome-button" type="button" data-action="ambient-open">✦ Показать праздничный фон</button></section>`;
+    return `<section class="stage-content stage-welcome">
+      <div class="welcome-editorial">
+        <p class="welcome-overline">ЗОЛОТАЯ СВАДЬБА</p>
+        <div class="welcome-figure" aria-label="50 лет">50</div>
+        <div class="wedding-divider" aria-hidden="true"><i></i><span class="wedding-rings"><b></b><b></b></span><i></i></div>
+        <p class="welcome-anniversary">ЛЕТ ВМЕСТЕ</p>
+        <div class="welcome-couple">
+          <div class="welcome-person">${safe(D.names.first)}</div>
+          <div class="welcome-connector" aria-label="и"><i></i><span>и</span><i></i></div>
+          <div class="welcome-person">${safe(D.names.second)}</div>
+          <div class="welcome-surname">${safe(D.names.family || 'Смурыгины')}</div>
+        </div>
+        <button class="welcome-ambient-link" type="button" data-action="ambient-open">✦ &nbsp;Праздничный фон</button>
+      </div>
+    </section>`;
   }
   function videoPlayer(key, path) {
     return `<div class="media-window"><video controls playsinline preload="metadata" src="${safe(fileURL(key,path))}" data-player="${safe(key)}"></video><div class="media-prompt" data-video-prompt="${safe(key)}"><div class="prompt-symbol">▶</div><strong>Здесь будет ваше видео</strong><small>Добавьте файл или выберите его с ноутбука</small></div></div>`;
@@ -65,7 +79,7 @@
   }
   function viewMovies() {
     const movie = D.movies[state.movie];
-    return `<section class="stage-content compact"><p class="eyebrow">КОНКУРС · КИНОВИКТОРИНА</p><h1 class="stage-h1">Угадай <em>фильм</em></h1><div class="question-card"><div class="film-flare"></div><div class="question-label">КАКОЙ ФИЛЬМ ЗАГАДАН?</div><div class="emojis">${safe(movie.emoji)}</div>${state.movieAnswer ? `<div class="answer-panel"><p>ПРАВИЛЬНЫЙ ОТВЕТ</p><strong>${safe(movie.answer)}</strong></div>` : `<p class="answer-hidden">Посмотрите на эмодзи и назовите фильм</p>`}</div><div class="stage-actions">${button(state.movieAnswer?'Скрыть ответ':'Показать ответ','movie-reveal')}${button('Следующий фильм →','movie-next','secondary-button',state.movie===D.movies.length-1?'disabled':'')}</div>${stepper('movie-prev','movie-next',state.movie,D.movies.length)}<p class="fine-print">Демонстрационные 10 фильмов — позже заменим на окончательный набор.</p></section>`;
+    return `<section class="stage-content compact"><p class="eyebrow">КОНКУРС · КИНОВИКТОРИНА</p><h1 class="stage-h1">Угадай <em>фильм</em></h1><div class="question-card"><div class="film-flare"></div><div class="question-label">КАКОЙ ФИЛЬМ ЗАГАДАН?</div><div class="emojis">${safe(movie.emoji)}</div>${state.movieAnswer ? `<div class="answer-panel"><p>ПРАВИЛЬНЫЙ ОТВЕТ</p><strong>${safe(movie.answer)}</strong></div>` : `<p class="answer-hidden">Посмотрите на эмодзи и назовите фильм</p>`}</div><div class="stage-actions">${button(state.movieAnswer?'Скрыть ответ':'Показать ответ','movie-reveal')}${button('Следующий фильм →','movie-next','secondary-button',state.movie===D.movies.length-1?'disabled':'')}</div>${stepper('movie-prev','movie-next',state.movie,D.movies.length)}<p class="fine-print">10 фильмов, выбранных для праздничного вечера.</p></section>`;
   }
   function viewMelodies() {
     const current = D.melodies[state.melody];
