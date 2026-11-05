@@ -101,13 +101,8 @@ jobs:
                 assert(await page.locator('video[data-player="interview-1"]').evaluate(v=>v.paused));
                 assert.equal(await page.locator('video[data-player="interview-1"]').evaluate(v=>v.volume),.25);
                 assert(await page.locator('.video-switcher .clip-button.active').textContent()==='02');
-                if(viewport.width<=800){
-                  await page.locator('#mobile-stage-select').selectOption('4');
-                } else {
-                  await page.keyboard.press('ArrowRight');
-                  await page.keyboard.press('ArrowRight');
-                  await page.keyboard.press('ArrowRight');
-                }
+                if(viewport.width<=800) await page.locator('#mobile-stage-select').selectOption('4');
+                else await page.locator('.section-item[data-value="4"]').click();
                 await page.locator('.question-card').waitFor();
                 await page.locator('[data-action="movie-reveal"]').click();
                 await page.locator('.question-card .answer-panel').waitFor();
