@@ -1,0 +1,374 @@
+/* CINEMATIC EDITION 1.5
+   Never introduces paint beyond the three approved swatches:
+   burgundy #3F010D, cream #FEF4DC, gold #D7B052. */
+
+/* Quiet cinematic transitions, only on *navigation*, not every
+   re-render of a quiz or media player. */
+.stage .stage-content{animation:none!important}
+.stage.scene-enter .stage-content{
+  animation:scene-arrive 620ms cubic-bezier(.2,.73,.2,1) both!important;
+}
+@keyframes scene-arrive{
+  from{opacity:0;transform:translateY(15px) scale(.994);filter:blur(2px)}
+  60%{filter:blur(0)}
+  to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
+}
+.stage.scene-enter .stage-content > .episode-meta,
+.stage.scene-enter .stage-content > .stage-h1,
+.stage.scene-enter .stage-content > .ring-set,
+.stage.scene-enter .stage-content > .question-card,
+.stage.scene-enter .stage-content > .media-layout,
+.stage.scene-enter .stage-content > .callout-panel,
+.stage.scene-enter .stage-content > .melody-art{
+  animation:element-arrive 720ms cubic-bezier(.2,.72,.2,1) both;
+  animation-delay:100ms;
+}
+@keyframes element-arrive{
+  from{opacity:0;transform:translateY(18px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.stage.scene-enter .stage-content > .stage-actions,
+.stage.scene-enter .stage-content > .fine-print{
+  animation:element-arrive 720ms cubic-bezier(.2,.72,.2,1) both;
+  animation-delay:250ms;
+}
+
+/* The important anniversary unveiling — gold 50 first, names after.
+   Motion happens once when entering the welcome slide, never on a loop. */
+.stage-welcome .welcome-editorial{isolation:isolate}
+.stage.scene-enter .stage-welcome .welcome-editorial{
+  animation:golden-frame 1s cubic-bezier(.2,.72,.2,1) both;
+}
+@keyframes golden-frame{
+  from{opacity:.6;transform:scale(.986)}
+  to{opacity:1;transform:scale(1)}
+}
+.stage.scene-enter .stage-welcome .welcome-overline{
+  animation:quiet-reveal .7s ease-out both;
+  animation-delay:150ms;
+}
+.stage.scene-enter .stage-welcome .welcome-figure{
+  animation:golden-figure 1300ms cubic-bezier(.18,.88,.24,1) both!important;
+  animation-delay:190ms!important;
+  transform-origin:50% 60%;
+}
+@keyframes golden-figure{
+  from{opacity:0;transform:translateY(26px) scale(.88);filter:blur(4px)}
+  58%{opacity:1;filter:blur(0)}
+  to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
+}
+.stage.scene-enter .stage-welcome .wedding-divider{
+  animation:line-expand 900ms cubic-bezier(.2,.72,.2,1) both;
+  animation-delay:530ms;
+  transform-origin:center;
+}
+@keyframes line-expand{
+  from{opacity:0;transform:scaleX(.23)}
+  to{opacity:1;transform:scaleX(1)}
+}
+.stage.scene-enter .stage-welcome .welcome-anniversary{
+  animation:quiet-reveal 700ms ease-out both;
+  animation-delay:640ms;
+}
+.stage.scene-enter .stage-welcome .welcome-person:first-child{
+  animation:name-arrive 720ms ease-out both;
+  animation-delay:840ms;
+}
+.stage.scene-enter .stage-welcome .welcome-connector{
+  animation:quiet-reveal 620ms ease-out both;
+  animation-delay:1020ms;
+}
+.stage.scene-enter .stage-welcome .welcome-person:nth-child(3){
+  animation:name-arrive 720ms ease-out both;
+  animation-delay:1170ms;
+}
+.stage.scene-enter .stage-welcome .welcome-surname{
+  animation:quiet-reveal 750ms ease-out both;
+  animation-delay:1350ms;
+}
+.stage.scene-enter .stage-welcome .welcome-ambient-link{
+  animation:quiet-reveal 650ms ease-out both;
+  animation-delay:1500ms;
+}
+@keyframes name-arrive{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes quiet-reveal{
+  from{opacity:0}to{opacity:1}
+}
+
+/* The entrance slide is a ceremony, not a flashy confetti animation.
+   A ring motif glides into place and the title is presented in order. */
+.stage.scene-enter .stage-content .ring-set{
+  animation:ring-arrive 960ms cubic-bezier(.18,.82,.22,1) both;
+  animation-delay:100ms;
+}
+@keyframes ring-arrive{
+  from{opacity:0;transform:translateY(16px) scale(.88)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+.stage.scene-enter .stage-content .ornament-line{
+  animation:line-expand 860ms ease both;
+  animation-delay:350ms;
+}
+/* No particles over people's names or over media, ever. */
+.stage-content .confetti{display:none!important}
+
+/* Reveal answers with a short, restrained gold accent. */
+.answer-panel{
+  transform-origin:top center;
+  animation:answer-arrive 380ms ease-out both;
+}
+@keyframes answer-arrive{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* Credits: a proper film-style final sequence, with a fixed ceremonial
+   title and a slow, non-looping reel controlled by JavaScript. */
+.stage .stage-content.credits-screen,
+.stage .stage-content.compact.credits-screen,
+body.presentation .stage-content.credits-screen {
+  background:
+    radial-gradient(ellipse at 50% 14%,rgba(215,176,82,.13),transparent 50%),
+    #3F010D!important;
+  color:#FEF4DC!important;
+  border:5px solid #D7B052!important;
+  border-radius:18px!important;
+  box-shadow:inset 0 0 0 8px #3F010D,inset 0 0 0 9px #D7B052!important;
+  padding:clamp(23px,3vh,38px) clamp(20px,3vw,50px) clamp(19px,2.5vh,30px)!important;
+  gap:clamp(6px,1.2vh,14px);
+  min-height:100%;
+  position:relative;overflow:hidden;
+  justify-content:center;
+}
+.stage .credits-screen::before,
+.stage .credits-screen::after{
+  content:"";
+  position:absolute;
+  top:12%;
+  left:0;right:auto;
+  width:clamp(80px,10vw,160px);
+  height:clamp(140px,20vw,300px);
+  background:url('assets/gold-botanical.svg') no-repeat center/contain!important;
+  opacity:.23;pointer-events:none;z-index:0;
+}
+.stage .credits-screen::after{
+  left:auto;right:0;transform:scaleX(-1);
+}
+.stage .credits-screen > *{z-index:1;position:relative}
+.credits-head{
+  width:min(100%,860px);
+  flex:0 0 auto;
+  text-align:center;
+  color:#FEF4DC;
+  padding:0 18px 12px;
+  border-bottom:1px solid #D7B052;
+}
+.credits-overline{
+  color:#D7B052!important;
+  font-size:clamp(10px,.87vw,13px);
+  font-weight:750;
+  letter-spacing:.28em;
+  margin:0 0 10px;
+}
+.credits-headline{
+  display:flex;align-items:center;justify-content:center;
+  width:100%;gap:clamp(8px,1.4vw,22px);
+}
+.credits-headline h1{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(30px,3.5vw,57px);
+  letter-spacing:-.016em;
+  font-weight:400;
+  color:#FEF4DC!important;
+  margin:0;
+  line-height:1.12;
+}
+.credits-headline h1 em{
+  font-weight:400;font-style:italic;color:#D7B052!important;
+}
+.credits-gold-mark{
+  font-size:clamp(14px,1.7vw,23px);
+  color:#D7B052;flex:0 0 auto;
+}
+.credits-subtitle{
+  color:#D7B052!important;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(16px,1.45vw,23px);
+  letter-spacing:.02em;
+  margin:8px 0 0;
+}
+.credits-screen .credits-viewport{
+  flex:1 1 auto;
+  width:min(100%,920px);
+  height:clamp(270px,48vh,525px);
+  max-height:58dvh;
+  min-height:250px;
+  border-left:1px solid rgba(215,176,82,.42);
+  border-right:1px solid rgba(215,176,82,.42);
+  position:relative;
+  overflow:hidden;
+  background:transparent!important;
+  box-shadow:none!important;
+  mask-image:linear-gradient(to bottom,transparent 0%,#3F010D 13%,#3F010D 84%,transparent 100%);
+}
+.credits-screen .credits-inner{
+  position:absolute;top:100%;left:0;
+  width:100%;
+  animation:none!important;
+  text-align:center;
+  transform:translateY(0);
+}
+.credits-screen .credits-block{
+  margin:10px auto clamp(49px,8vh,90px);
+  padding:0 15px;
+  max-width:840px;
+}
+.credits-screen .credits-block span{
+  display:block;
+  text-transform:uppercase;
+  color:#D7B052!important;
+  font-size:clamp(10px,1vw,13px);
+  font-weight:750;
+  letter-spacing:.2em;
+}
+.credits-screen .credits-block h3{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(29px,3.5vw,53px);
+  font-weight:400;
+  line-height:1.3;
+  margin:12px 0 0;
+  color:#FEF4DC!important;
+}
+.credits-screen .credits-lead h3{
+  color:#D7B052!important;
+  font-size:clamp(34px,3.9vw,61px);
+}
+.credits-screen .credits-lead p{
+  color:#FEF4DC!important;
+  font-size:clamp(16px,1.55vw,23px);
+}
+.credits-screen .credits-thanks h3{color:#D7B052!important}
+.credits-screen .credits-final{
+  font-family:Georgia,"Times New Roman",serif;
+  font-style:italic;
+  font-size:clamp(36px,4.8vw,74px);
+  line-height:1.2;
+  color:#D7B052!important;
+  margin:15px auto 70px;
+  text-align:center;
+}
+.credits-screen .credits-controls{
+  flex:0 0 auto;
+  display:flex;flex-direction:row;
+  justify-content:center;
+  gap:10px;
+  margin:4px auto 0;
+  width:auto;
+}
+.credits-screen .credits-controls button{
+  color:#3F010D!important;
+  background:#D7B052!important;
+  border:1.5px solid #D7B052!important;
+  min-width:156px;
+  font-weight:750;
+}
+.credits-screen .credits-controls button:hover{
+  color:#3F010D!important;background:#FEF4DC!important;
+}
+.credits-screen .credits-note{
+  color:#FEF4DC!important;
+  font-size:11px;
+  opacity:.68;
+  margin:4px 0 0;
+  line-height:1.45;
+  text-align:center;
+}
+.stage.scene-enter .credits-screen .credits-head{
+  animation:quiet-reveal 800ms ease both;
+  animation-delay:350ms;
+}
+
+/* Within the "show" mode the final credits should still be comfortable
+   on the television; controls are always reachable. */
+body.presentation .credits-screen .credits-viewport{
+  max-height:60dvh;
+  height:clamp(310px,56vh,610px);
+}
+
+@media(max-width:800px){
+  .stage .stage-content.credits-screen,
+  .stage .stage-content.compact.credits-screen{
+    padding:24px 11px 20px!important;
+    border-width:3px!important;
+    border-radius:12px!important;
+    gap:8px;
+  }
+  .credits-screen::before,.credits-screen::after{
+    width:65px!important;height:115px!important;opacity:.16!important;
+  }
+  .credits-head{padding:0 7px 12px}
+  .credits-headline h1{font-size:clamp(24px,6.5vw,37px)}
+  .credits-subtitle{font-size:clamp(13px,3.5vw,18px)}
+  .credits-overline{font-size:10px;letter-spacing:.13em}
+  .credits-gold-mark{font-size:13px}
+  .credits-screen .credits-viewport{
+    height:min(43dvh,420px);
+    max-height:50dvh;min-height:230px;
+    width:100%;
+  }
+  .credits-screen .credits-block{
+    margin:15px auto 50px;
+    padding:0 10px;
+  }
+  .credits-screen .credits-block h3{font-size:clamp(25px,6.6vw,37px)}
+  .credits-screen .credits-lead h3{font-size:clamp(29px,7vw,41px)}
+  .credits-screen .credits-final{font-size:clamp(34px,8vw,47px)}
+  .credits-screen .credits-controls{
+    width:min(100%,380px);gap:8px;
+    flex-direction:row;
+  }
+  .credits-screen .credits-controls button{
+    flex:1 1 50%;width:auto;min-width:0;
+    padding:11px 8px;
+    font-size:12px;
+  }
+  .credits-screen .credits-note{font-size:10px;max-width:95%}
+}
+@media(max-width:390px){
+  .credits-headline h1{font-size:clamp(22px,6vw,29px)}
+  .credits-subtitle{font-size:13px}
+  .credits-screen .credits-viewport{min-height:195px;height:39dvh}
+}
+@media(max-height:650px) and (min-width:801px){
+  .stage .stage-content.credits-screen{padding:15px 20px!important}
+  .credits-head{padding-bottom:6px}
+  .credits-overline{margin-bottom:4px;font-size:10px}
+  .credits-headline h1{font-size:31px}
+  .credits-subtitle{font-size:15px;margin-top:3px}
+  .credits-screen .credits-viewport{height:42vh;min-height:175px}
+  .credits-screen .credits-block{margin-bottom:50px}
+}
+@media(prefers-reduced-motion:reduce){
+  /* No need to watch moving titles if user asked for reduced motion. */
+  .stage .stage-content,
+  .stage.scene-enter .stage-content,
+  .stage.scene-enter .stage-content *,
+  .stage .answer-panel{
+    animation:none!important;
+    transition:none!important;
+    transform:none!important;
+    filter:none!important;
+  }
+  .credits-screen .credits-viewport{
+    overflow:auto!important;
+    mask-image:none!important;
+    scrollbar-color:#D7B052 #3F010D;
+  }
+  .credits-screen .credits-inner{
+    position:static!important;
+    transform:none!important;
+  }
+}
