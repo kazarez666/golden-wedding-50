@@ -2,7 +2,7 @@
    Примерные вопросы помечены как демо. Настоящие видео/аудио добавляются в media/.
 */
 window.SITE_DATA = {
-  names: { first: 'Павел Семёнович', second: 'Ольга Леонидовна' },
+  names: { first: 'Павел Семёнович', second: 'Ольга Леонидовна', family: 'Смурыгины' },
   sections: [
     { id: 'entrance', title: 'Торжественная встреча', subtitle: 'Начало вечера', icon: '✦' },
     { id: 'welcome', title: 'Приветствие', subtitle: '50 лет вместе', icon: '♡' },
