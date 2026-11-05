@@ -6,6 +6,7 @@ on:
       - 'app.js'
       - 'editorial-design-v1.2.css'
       - 'welcome-gold-numeral-v1.4.css'
+      - 'cinematic-edition-v1.5.css'
       - '.github/workflows/browser-ui.yml'
   workflow_dispatch:
 permissions:
@@ -92,8 +93,26 @@ jobs:
                 await page.locator('.question-card').waitFor();
                 await page.locator('[data-action="movie-reveal"]').click();
                 await page.locator('.question-card .answer-panel').waitFor();
+                // Closing credits must be readable and the rolling film credits
+                // must pause/resume without starting over or re-rendering.
+                if(viewport.width<=800) await page.locator('#mobile-stage-select').selectOption('10');
+                else await page.locator('.section-item[data-value="10"]').click();
+                await page.locator('.credits-screen').waitFor();
+                assert.equal(await page.locator('.credits-headline h1').textContent(),
+                  'История любви длиною в полвека');
+                await page.waitForFunction(()=>{
+                  const inner=document.querySelector('.credits-inner');
+                  return inner && inner.getAnimations().length>0;
+                });
+                await page.locator('[data-action="credits-pause"]').click();
+                assert.equal(await page.locator('.credits-inner').evaluate(el=>el.getAnimations()[0]?.playState),'paused');
+                await page.locator('[data-action="credits-pause"]').click();
+                assert.equal(await page.locator('.credits-inner').evaluate(el=>el.getAnimations()[0]?.playState),'running');
+                await page.locator('[data-action="credits-restart"]').click();
+                await page.waitForFunction(()=>document.querySelector('.credits-inner')?.getAnimations()[0]?.playState==='running');
+                assert.equal(await page.locator('.credits-lead h3').textContent(), 'Павлу Семёновичуи Ольге Леонидовне');
                 assert.deepEqual(errors,[],`Page errors on viewport ${viewport.width}`);
-                console.log(`PASS ${viewport.width}x${viewport.height}: panel, colours, backdrop, menu, quiz; overflow <= 2px`);
+                console.log(`PASS ${viewport.width}x${viewport.height}: welcome reveal, backdrop, menu, quiz, credits playback`);
                 await page.close();
               }
             }finally {await browser.close()}
