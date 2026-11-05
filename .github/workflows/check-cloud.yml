@@ -1,0 +1,45 @@
+name: Check website JavaScript and cloud media integration
+on:
+  push:
+    paths:
+      - 'app.js'
+      - 'cloud-media.js'
+      - 'cloud-media-config.js'
+      - 'cloudflare/worker.js'
+      - 'index.html'
+      - '.github/workflows/check-cloud.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check script syntax
+        run: |
+          node --check app.js
+          node --check data.js
+          node --check cloud-media.js
+          node --check cloud-media-config.js
+          node --check cloudflare/worker.js
+      - name: Check integration wiring
+        run: |
+          node --input-type=module <<'EOF'
+          import fs from 'node:fs';
+          import assert from 'node:assert/strict';
+          const index=fs.readFileSync('index.html','utf8');
+          const app=fs.readFileSync('app.js','utf8');
+          const cloud=fs.readFileSync('cloud-media.js','utf8');
+          const worker=fs.readFileSync('cloudflare/worker.js','utf8');
+          assert(index.includes('src="cloud-media.js"'));
+          assert(index.includes('src="cloud-media-config.js"'));
+          assert(app.includes('await window.WeddingCloud.upload'));
+          assert(cloud.includes('/upload/part'));
+          assert(worker.includes('resumeMultipartUpload'));
+          assert(worker.includes('ADMIN_TOKEN'));
+          console.log('Cloud media integration is wired correctly');
+          EOF
