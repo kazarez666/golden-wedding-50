@@ -4,7 +4,7 @@
 // WARNING: unsigned presets allow unauthenticated uploads, and public videos can be viewed by URL.
 window.WEDDING_MEDIA_CONFIG = {
   provider: 'cloudinary',
-  cloudName: '',
-  uploadPreset: '',
+  cloudName: 't8dsuxni',
+  uploadPreset: 'wedding_video_free',
   tag: 'golden_wedding_50_family_2026'
 };
