@@ -15,10 +15,11 @@
   <link rel="stylesheet" href="cloud-media.css">
   <link rel="stylesheet" href="polish-background-v0.9.css?v=2">
   <link rel="stylesheet" href="burgundy-background-v1.0.css">
+  <link rel="stylesheet" href="final-layout-v1.1.css">
   <script defer src="cloud-media-config.js"></script>
-  <script defer src="cloud-media.js?v=1.0"></script>
+  <script defer src="cloud-media.js?v=1.1"></script>
   <script defer src="data.js?v=1.0"></script>
-  <script defer src="app.js?v=1.0"></script>
+  <script defer src="app.js?v=1.1"></script>
 </head>
 <body>
   <div class="ambient ambient-one" aria-hidden="true"></div>
@@ -33,7 +34,7 @@
       </div>
       <nav id="section-nav" class="section-nav" aria-label="Этапы праздника"></nav>
       <div class="sidebar-bottom">
-        <span class="pilot-light"></span><span>Версия 1.0 · Фильмы и музыка</span>
+        <span class="pilot-light"></span><span>Версия 1.1 · Фон, меню и силуэты</span>
       </div>
     </aside>
     <div class="workspace">
@@ -41,11 +42,9 @@
         <div class="breadcrumb"><span class="breadcrumb-gold">ПРОГРАММА ВЕЧЕРА</span><span class="crumb-slash">/</span><span id="header-stage-name">Торжественная встреча</span></div>
         <label class="mobile-stage-picker"><span class="sr-only">Выберите этап программы</span><select id="mobile-stage-select" aria-label="Перейти к этапу праздника"></select></label>
         <div class="toolbar-actions">
-          <span class="draft-indicator">ПРЕДВАРИТЕЛЬНАЯ ВЕРСИЯ</span>
-          <button class="ambient-trigger" type="button" data-action="ambient-open" title="Праздничный фон для перерыва (B)">✦ Фон</button>
-          <button class="icon-button" type="button" data-action="help" aria-label="Как управлять" title="Подсказки по управлению">?</button>
-          <button class="icon-button" type="button" data-action="fullscreen" aria-label="На весь экран" title="На весь экран (F)">⛶</button>
-          <button class="top-show-button" type="button" data-action="presentation"><span>◉</span> Режим показа</button>
+          <button class="menu-toggle" type="button" data-action="menu-toggle"
+            aria-controls="host-menu" aria-expanded="false" aria-haspopup="true"
+            title="Открыть меню управления">☰ <span>Управление</span></button>
         </div>
       </header>
       <main id="stage" class="stage" tabindex="-1" aria-label="Экран текущего этапа"></main>
@@ -58,11 +57,18 @@
       <div class="presentation-control" id="presentation-control" aria-label="Управление в режиме показа">
         <button type="button" data-action="previous" title="Предыдущий этап (←)">←</button>
         <span id="presentation-caption">01 / 11</span>
-        <button type="button" class="ambient-trigger" data-action="ambient-open" title="Показать фон для перерыва (B)">✦ Фон</button>
         <button type="button" data-action="next" title="Следующий этап (→)">→</button>
-        <button type="button" data-action="presentation" title="Выйти из режима показа (H)">✕</button>
+        <button type="button" class="menu-toggle menu-toggle-presentation" data-action="menu-toggle"
+          aria-controls="host-menu" aria-expanded="false" aria-haspopup="true"
+          title="Управление">☰</button>
       </div>
     </div>
+  </div>
+  <div id="host-menu" class="host-menu" hidden role="group" aria-label="Управление сайтом">
+    <button type="button" data-action="ambient-open">✦ Праздничный фон <span>B</span></button>
+    <button type="button" data-action="fullscreen">⛶ Полный экран <span>F</span></button>
+    <button type="button" data-action="presentation">◉ Режим показа <span>H</span></button>
+    <button type="button" data-action="help">? Подсказки</button>
   </div>
   <section id="ambient-screen" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Праздничный фон — 50 лет вместе">
     <button class="ambient-exit" type="button" data-action="ambient-close" title="Вернуться к программе (Esc или B)">← К программе</button>
