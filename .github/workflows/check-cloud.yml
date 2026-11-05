@@ -3,9 +3,9 @@ on:
   push:
     paths:
       - 'app.js'
+      - 'data.js'
       - 'cloud-media.js'
       - 'cloud-media-config.js'
-      - 'cloudflare/worker.js'
       - 'index.html'
       - '.github/workflows/check-cloud.yml'
   workflow_dispatch:
@@ -25,21 +25,35 @@ jobs:
           node --check data.js
           node --check cloud-media.js
           node --check cloud-media-config.js
-          node --check cloudflare/worker.js
-      - name: Check integration wiring
+      - name: Check Cloudinary integration wiring
         run: |
           node --input-type=module <<'EOF'
           import fs from 'node:fs';
+          import vm from 'node:vm';
           import assert from 'node:assert/strict';
           const index=fs.readFileSync('index.html','utf8');
           const app=fs.readFileSync('app.js','utf8');
           const cloud=fs.readFileSync('cloud-media.js','utf8');
-          const worker=fs.readFileSync('cloudflare/worker.js','utf8');
-          assert(index.includes('src="cloud-media.js"'));
-          assert(index.includes('src="cloud-media-config.js"'));
-          assert(app.includes('await window.WeddingCloud.upload'));
-          assert(cloud.includes('/upload/part'));
-          assert(worker.includes('resumeMultipartUpload'));
-          assert(worker.includes('ADMIN_TOKEN'));
-          console.log('Cloud media integration is wired correctly');
+          const config=fs.readFileSync('cloud-media-config.js','utf8');
+          const scripts=['cloud-media-config.js','cloud-media.js','data.js','app.js'];
+          let last=-1;
+          for(const script of scripts){
+            const pos=index.indexOf('src="'+script+'"');
+            assert(pos>last, script+' missing or scripts loaded in the wrong order');
+            last=pos;
+          }
+          const sandbox={window:{}};
+          vm.runInNewContext(config,sandbox,{timeout:1000});
+          assert.equal(sandbox.window.WEDDING_MEDIA_CONFIG?.provider,'cloudinary');
+          assert.match(sandbox.window.WEDDING_MEDIA_CONFIG.cloudName,/^[a-zA-Z0-9_-]+$/);
+          assert.match(sandbox.window.WEDDING_MEDIA_CONFIG.uploadPreset,/^[a-zA-Z0-9_-]+$/);
+          assert.match(sandbox.window.WEDDING_MEDIA_CONFIG.tag,/^[a-zA-Z0-9_-]+$/);
+          assert(app.includes('await window.WeddingCloud.upload(key,file)'),'upload handler not connected');
+          assert(app.includes('window.WeddingCloud?.fileURL('),'video player not connected');
+          assert(cloud.includes('https://api.cloudinary.com/v1_1/'),'Cloudinary upload endpoint missing');
+          assert(cloud.includes('/video/upload'),'video upload endpoint missing');
+          assert(cloud.includes('/video/list/'),'cross-device manifest endpoint missing');
+          assert(cloud.includes('XMLHttpRequest'),'upload progress client missing');
+          assert(!cloud.includes("workerUrl"),'old Cloudflare Worker integration remains active');
+          console.log('Cloudinary client wiring OK. Live uploads and permissions require a separate browser test.');
           EOF
