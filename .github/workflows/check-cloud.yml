@@ -38,7 +38,7 @@ jobs:
           const scripts=['cloud-media-config.js','cloud-media.js','data.js','app.js'];
           let last=-1;
           for(const script of scripts){
-            const pos=index.indexOf('src="'+script+'"');
+            const pos=index.indexOf('src="'+script);
             assert(pos>last, script+' missing or scripts loaded in the wrong order');
             last=pos;
           }
@@ -50,6 +50,10 @@ jobs:
           assert.match(sandbox.window.WEDDING_MEDIA_CONFIG.tag,/^[a-zA-Z0-9_-]+$/);
           assert(app.includes('await window.WeddingCloud.upload(key,file)'),'upload handler not connected');
           assert(app.includes('window.WeddingCloud?.fileURL('),'video player not connected');
+          assert(app.includes('video.addEventListener(\'volumechange\''),'video volume persistence missing');
+          assert(app.includes('function openAmbient()'),'intermission control missing');
+          assert(index.includes('id="ambient-screen"'),'intermission screen missing');
+          assert(index.includes('polish-background-v0.9.css'),'latest palette override missing');
           assert(cloud.includes('https://api.cloudinary.com/v1_1/'),'Cloudinary upload endpoint missing');
           assert(cloud.includes('/video/upload'),'video upload endpoint missing');
           assert(cloud.includes('/video/list/'),'cross-device manifest endpoint missing');
