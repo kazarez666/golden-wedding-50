@@ -1,0 +1,272 @@
+/* GENTLE GOLDEN TRANSITIONS — v1.6
+   Approved colours only: burgundy #3F010D, cream #FEF4DC, gold #D7B052.
+   All highlights are opacity variations of these three colours. */
+
+/* A ceremonial yet calm intermission: cream inside the frame, burgundy
+   outside, and a purely GOLD numeral rather than a coloured medallion. */
+#ambient-screen{
+  background-color:#3F010D!important;
+  background-image:
+    linear-gradient(90deg,transparent 0 35%,rgba(215,176,82,.36) 49%,transparent 63%),
+    linear-gradient(0deg,transparent 0 35%,rgba(215,176,82,.32) 49%,transparent 63%),
+    radial-gradient(circle at 50% 50%,rgba(215,176,82,.09),transparent 65%)!important;
+  background-repeat:no-repeat!important;
+  background-size:100% 1px,1px 100%,100% 100%!important;
+  background-position:top 12px center,center left 12px,center!important;
+}
+#ambient-screen .ambient-screen-content{
+  background:#FEF4DC!important;
+  border-color:#D7B052!important;
+}
+#ambient-screen .ambient-card-inner{
+  position:relative;
+  z-index:3;
+  max-width:740px;
+  isolation:isolate;
+}
+#ambient-screen .ambient-big50{
+  display:block!important;
+  width:max-content!important;
+  max-width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  margin:clamp(3px,.8vh,12px) auto clamp(5px,1.1vh,18px)!important;
+  padding:.055em .12em .09em!important;
+  border:0!important;
+  border-radius:0!important;
+  background:none!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+  filter:none!important;
+  text-shadow:none!important;
+  color:#D7B052!important;
+  -webkit-text-fill-color:#D7B052!important;
+  font-family:Georgia,"Times New Roman",serif;
+  font-weight:400;
+  font-style:italic;
+  font-size:clamp(130px,17vw,248px)!important;
+  line-height:1.02!important;
+  letter-spacing:-.065em;
+  white-space:nowrap;
+}
+#ambient-screen .ambient-years,
+#ambient-screen .ambient-persons,
+#ambient-screen .ambient-family,
+#ambient-screen .ambient-and{
+  color:#3F010D!important;
+  text-shadow:none!important;
+}
+/* Existing hand-drawn gold branches occupy the outside gutters only. */
+#ambient-screen .ambient-screen-content::before,
+#ambient-screen .ambient-screen-content::after{
+  opacity:.69!important;
+  width:clamp(86px,12.5vw,190px)!important;
+  height:clamp(160px,22vw,300px)!important;
+  top:clamp(60px,12vh,155px)!important;
+  z-index:0!important;
+}
+#ambient-screen .ambient-screen-content::before{left:clamp(7px,2.4vw,34px)!important}
+#ambient-screen .ambient-screen-content::after{right:clamp(7px,2.4vw,34px)!important;left:auto!important}
+#ambient-screen .ambient-overline{color:#3F010D!important}
+#ambient-screen .ambient-divider .wedding-rings>b{border-color:#D7B052!important}
+/* Subtle filigree lines in the upper and lower cream margins. */
+#ambient-screen .ambient-screen-content{
+  background-image:
+    linear-gradient(90deg,transparent 0%,rgba(215,176,82,.55) 17%,rgba(215,176,82,.55) 83%,transparent 100%),
+    linear-gradient(90deg,transparent 0%,rgba(215,176,82,.55) 17%,rgba(215,176,82,.55) 83%,transparent 100%)!important;
+  background-size:53% 1px,53% 1px!important;
+  background-position:center 29px,center calc(100% - 29px)!important;
+  background-repeat:no-repeat!important;
+}
+#ambient-screen .ambient-exit{z-index:6}
+
+/* Gold ornaments around the regular stage remain quiet and frame content,
+   not letters. The botanical asset is the same hand-drawn gold as elsewhere. */
+.stage .stage-content:not(.stage-welcome):not(.credits-screen)::before,
+.stage .stage-content:not(.stage-welcome):not(.credits-screen)::after{
+  width:clamp(85px,11vw,145px);
+  height:clamp(145px,18vw,220px);
+  opacity:.38!important;
+  pointer-events:none;
+}
+.stage .stage-content:not(.stage-welcome):not(.credits-screen)>*{
+  position:relative;
+  z-index:1;
+}
+.stage .stage-content:not(.stage-welcome):not(.credits-screen){
+  border-color:#D7B052!important;
+  box-shadow:0 14px 45px rgba(63,1,13,.10), inset 0 0 0 1px rgba(215,176,82,.35)!important;
+}
+.stage .media-side,.stage .callout-panel,.stage .workspace-card,
+.stage .salad-info,.stage .salad-display-card{
+  border:2px solid #D7B052!important;
+}
+.stage .media-side{
+  background:
+    linear-gradient(180deg,rgba(215,176,82,.23),transparent 65%),
+    #FEF4DC!important;
+}
+.stage .media-side .marker-line{
+  height:2px;
+  background:linear-gradient(90deg,#D7B052,transparent)!important;
+}
+.stage .video-switcher .clip-button{
+  transition:background-color .2s ease,border-color .2s ease,transform .2s ease;
+}
+.stage .video-switcher .clip-button.active{
+  box-shadow:inset 0 -3px #3F010D!important;
+}
+.stage .video-switcher .clip-button:hover:not(.active){
+  transform:translateY(-2px);
+}
+.stage .salad-frame,
+.stage .silhouette-image-board{
+  border:3px solid #D7B052!important;
+}
+
+/* Film-like dissolve between interviews, with distinct incoming video and
+   details. The outgoing film is paused by JS *before* any visual change. */
+.stage.item-enter[data-scene="interviews"] .media-window{
+  animation:gold-media-arrive .52s cubic-bezier(.16,.75,.25,1) both;
+}
+.stage.item-enter[data-scene="interviews"] .media-side{
+  animation:gold-panel-arrive .54s cubic-bezier(.16,.75,.25,1) both;
+  animation-delay:70ms;
+}
+.stage.item-enter[data-scene="interviews"] .video-switcher{
+  animation:gold-soft-arrive .52s ease both;
+  animation-delay:120ms;
+}
+@keyframes gold-media-arrive{
+  from{opacity:0;transform:translateY(10px) scale(.985);filter:blur(3px)}
+  55%{filter:blur(0)}
+  to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
+}
+@keyframes gold-panel-arrive{
+  from{opacity:0;transform:translateX(14px)}
+  to{opacity:1;transform:translateX(0)}
+}
+@keyframes gold-soft-arrive{
+  from{opacity:.1;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* A coherent visual language for quiz images, film clues and answers. */
+.stage.item-enter[data-scene="movies"] .question-card{
+  animation:gold-media-arrive .5s ease-out both;
+}
+.stage.item-enter[data-scene="movies"] .emojis{
+  animation:gold-scale-arrive .6s ease-out both;
+}
+.stage.item-enter[data-scene="salads"] .salad-frame,
+.stage.item-enter[data-scene="salads"] .salad-reveal-title{
+  animation:gold-media-arrive .5s cubic-bezier(.2,.75,.3,1) both;
+}
+.stage.item-enter[data-scene="melodies"] .melody-art,
+.stage.item-enter[data-scene="melodies"] .answer-panel{
+  animation:gold-scale-arrive .5s ease-out both;
+}
+.stage.item-enter[data-scene="silhouettes"] .silhouette-board,
+.stage[data-scene="silhouettes"] .silhouette-image-board img{
+  animation:gold-soft-arrive .36s ease-out both;
+}
+.stage .salad-frame>img[data-salad-photo]{
+  animation:gold-image-unveil .58s cubic-bezier(.2,.75,.2,1) both;
+  transform-origin:center;
+}
+@keyframes gold-image-unveil{
+  from{opacity:0;transform:scale(1.025)}
+  to{opacity:1;transform:scale(1)}
+}
+@keyframes gold-scale-arrive{
+  from{opacity:0;transform:scale(.955)}
+  to{opacity:1;transform:scale(1)}
+}
+/* Gold sweep marks the start of a newly revealed video, without loops. */
+.stage.item-enter[data-scene="interviews"] .media-window::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+  background:linear-gradient(100deg,transparent 30%,rgba(215,176,82,.24) 50%,transparent 70%);
+  animation:gold-sweep .65s ease-out both;
+}
+@keyframes gold-sweep{
+  from{transform:translateX(-120%);opacity:.8}
+  to{transform:translateX(120%);opacity:0}
+}
+
+/* Presenting a festive background should feel like opening a curtain,
+   but once open it stays perfectly still for a relaxed family dinner. */
+#ambient-screen:not([hidden]) .ambient-screen-content{
+  animation:ambient-soft-open .65s cubic-bezier(.18,.76,.26,1) both;
+}
+#ambient-screen:not([hidden]) .ambient-card-inner{
+  animation:gold-soft-arrive .82s cubic-bezier(.18,.76,.26,1) both;
+}
+@keyframes ambient-soft-open{
+  from{opacity:.5;transform:scale(.991)}
+  to{opacity:1;transform:scale(1)}
+}
+
+/* TV / laptop: keep enough central space for each full name. */
+@media(min-width:801px) and (max-width:1260px){
+  #ambient-screen .ambient-screen-content::before,
+  #ambient-screen .ambient-screen-content::after{width:100px!important;opacity:.47!important}
+}
+@media(max-width:800px){
+  #ambient-screen .ambient-big50{
+    font-size:clamp(96px,25vw,160px)!important;
+    margin:5px auto 8px!important;
+    padding:.06em .12em .09em!important;
+  }
+  #ambient-screen .ambient-screen-content::before,
+  #ambient-screen .ambient-screen-content::after{
+    width:46px!important;
+    height:92px!important;
+    top:13%!important;
+    opacity:.36!important;
+  }
+  #ambient-screen .ambient-screen-content{
+    background-size:65% 1px,65% 1px!important;
+    background-position:center 20px,center calc(100% - 20px)!important;
+  }
+  .stage .stage-content:not(.stage-welcome):not(.credits-screen)::before,
+  .stage .stage-content:not(.stage-welcome):not(.credits-screen)::after{
+    width:68px;height:105px;opacity:.21!important;
+  }
+  .stage.item-enter[data-scene="interviews"] .media-side{animation-name:gold-soft-arrive}
+}
+@media(max-height:740px) and (min-width:801px){
+  #ambient-screen .ambient-big50{
+    font-size:clamp(95px,19vh,142px)!important;
+    margin:0 auto 2px!important;
+  }
+}
+@media(max-height:620px) and (max-width:800px){
+  #ambient-screen .ambient-big50{font-size:clamp(76px,20vh,112px)!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .stage.item-enter .media-window,
+  .stage.item-enter .media-window::after,
+  .stage.item-enter .media-side,
+  .stage.item-enter .video-switcher,
+  .stage.item-enter .question-card,
+  .stage.item-enter .emojis,
+  .stage.item-enter .salad-frame,
+  .stage.item-enter .salad-reveal-title,
+  .stage.item-enter .melody-art,
+  .stage.item-enter .answer-panel,
+  .stage.item-enter .silhouette-board,
+  .stage .silhouette-image-board img,
+  .stage .salad-frame>img[data-salad-photo],
+  #ambient-screen:not([hidden]) .ambient-screen-content,
+  #ambient-screen:not([hidden]) .ambient-card-inner{
+    animation:none!important;
+    transform:none!important;
+    filter:none!important;
+    opacity:1!important;
+  }
+}
