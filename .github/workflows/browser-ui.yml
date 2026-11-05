@@ -5,6 +5,7 @@ on:
       - 'index.html'
       - 'app.js'
       - 'editorial-design-v1.2.css'
+      - 'welcome-gold-numeral-v1.4.css'
       - '.github/workflows/browser-ui.yml'
   workflow_dispatch:
 permissions:
@@ -46,11 +47,17 @@ jobs:
                   return {width:document.documentElement.scrollWidth,
                     panelWidth:panel.getBoundingClientRect().width,
                     bg:getComputedStyle(panel).backgroundColor,
-                    fonts:getComputedStyle(panel.querySelector('.welcome-person')).color};
+                    fonts:getComputedStyle(panel.querySelector('.welcome-person')).color,
+                    numeral:getComputedStyle(panel.querySelector('.welcome-figure')).color,
+                    numeralBackground:getComputedStyle(panel.querySelector('.welcome-figure')).backgroundColor,
+                    numeralFill:getComputedStyle(panel.querySelector('.welcome-figure')).webkitTextFillColor};
                 });
                 assert(screen.width <= viewport.width+2,`Horizontal page overflow at ${viewport.width}: ${screen.width}`);
                 assert.equal(screen.bg,'rgb(254, 244, 220)');
                 assert.equal(screen.fonts,'rgb(63, 1, 13)');
+                assert.equal(screen.numeral,'rgb(215, 176, 82)');
+                assert.equal(screen.numeralFill,'rgb(215, 176, 82)');
+                assert.equal(screen.numeralBackground,'rgba(0, 0, 0, 0)');
                 await page.keyboard.press('b');
                 await page.locator('#ambient-screen:not([hidden])').waitFor();
                 const ambient=await page.evaluate(()=>{
