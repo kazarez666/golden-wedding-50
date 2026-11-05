@@ -224,9 +224,10 @@
     if(btn)btn.textContent='❚❚ Пауза';
     startCreditsScroll();
   }
-  function render({enter=false} = {}) {
+  function render({enter=false,swap=false} = {}) {
     const key = D.sections[state.section].id;
     stage.classList.toggle('scene-enter',enter&&!reduceMotion());
+    stage.classList.toggle('item-enter',swap&&!reduceMotion());
     stage.dataset.scene=key;
     stage.innerHTML = views[key]();
     stage.scrollTop = 0;
@@ -263,9 +264,11 @@
       document.querySelector('.topbar .ambient-trigger'))?.focus({preventScroll:true});
   }
   let sceneChangeToken=0;
+  let itemChangeToken=0;
   async function goTo(index) {
     if(index<0 || index>=D.sections.length || index===state.section)return;
     const token=++sceneChangeToken;
+    ++itemChangeToken; // Cancel any pending intra-stage clip or gallery transition.
     const departing=stage.querySelector('.stage-content');
     stopTimer();stopAudio();
     // A video must never continue making sound behind the transition.
@@ -316,11 +319,42 @@
     }catch(e){toast('Не удалось показать картинку: '+(e.message||'ошибка загрузки'));}
     finally {silhouettePreloading=false;}
   }
-  function resetSilhouette(round){stopTimer();state.silhouetteRound=round;state.silhouetteStatus='ready';state.silhouetteCounts=false;state.timerLeft=roundTotal;render();}
-  function setFilm(index){if(index<0||index>=D.movies.length)return;state.movie=index;state.movieAnswer=false;render()}
-  function setInterview(index){if(index<0||index>=D.interviews.length)return;state.interview=index;render()}
-  function setMelody(index){if(index<0||index>=D.melodies.length)return;stopAudio();state.melody=index;state.melodyAnswer=false;render()}
-  function setSalad(index){if(index<0||index>=D.salads.length)return;state.salad=index;state.saladAnswer=false;render()}
+  function resetSilhouette(round){stopTimer();state.silhouetteRound=round;state.silhouetteStatus='ready';state.silhouetteCounts=false;state.timerLeft=roundTotal;render({swap:true});}
+  async function switchWithinStage(kind, selector, apply){
+    const section=state.section;
+    if(D.sections[section].id!==kind)return;
+    const token=++itemChangeToken;
+    // Never leave sound playing under the old frame while another clip opens.
+    if(kind==='interviews')stage.querySelectorAll('video').forEach(video=>video.pause());
+    if(kind==='melodies')stopAudio();
+    const outgoing=stage.querySelector(selector);
+    if(outgoing && !reduceMotion() && outgoing.animate){
+      const animation=outgoing.animate(
+        [{opacity:1,transform:'translateY(0)'},{opacity:0,transform:'translateY(-8px)'}],
+        {duration:175,easing:'ease-in',fill:'forwards'}
+      );
+      try{await animation.finished;}catch(_){}
+    }
+    if(token!==itemChangeToken||state.section!==section)return;
+    apply();
+    render({swap:true});
+  }
+  function setFilm(index){
+    if(index<0||index>=D.movies.length||index===state.movie)return;
+    switchWithinStage('movies','.question-card',()=>{state.movie=index;state.movieAnswer=false});
+  }
+  function setInterview(index){
+    if(index<0||index>=D.interviews.length||index===state.interview)return;
+    switchWithinStage('interviews','.media-layout',()=>{state.interview=index});
+  }
+  function setMelody(index){
+    if(index<0||index>=D.melodies.length||index===state.melody)return;
+    switchWithinStage('melodies','.melody-art',()=>{state.melody=index;state.melodyAnswer=false});
+  }
+  function setSalad(index){
+    if(index<0||index>=D.salads.length||index===state.salad)return;
+    switchWithinStage('salads','.salad-display',()=>{state.salad=index;state.saladAnswer=false});
+  }
   function togglePresentation() {
     state.presentation=!state.presentation;document.body.classList.toggle('presentation',state.presentation);
     if (state.presentation) {document.documentElement.requestFullscreen?.().catch(()=>{});} 
@@ -358,14 +392,14 @@
       case 'interview-jump':setInterview(Number(value));break;
       case 'movie-prev':setFilm(state.movie-1);break;
       case 'movie-next':setFilm(state.movie+1);break;
-      case 'movie-reveal':state.movieAnswer=!state.movieAnswer;render();break;
+      case 'movie-reveal':state.movieAnswer=!state.movieAnswer;render({swap:true});break;
       case 'melody-prev':setMelody(state.melody-1);break;
       case 'melody-next':setMelody(state.melody+1);break;
       case 'melody-toggle':audioToggle(`melody-${state.melody}`,D.melodies[state.melody].src);break;
-      case 'melody-reveal':state.melodyAnswer=!state.melodyAnswer;render();break;
+      case 'melody-reveal':state.melodyAnswer=!state.melodyAnswer;render({swap:true});break;
       case 'salad-prev':setSalad(state.salad-1);break;
       case 'salad-next':setSalad(state.salad+1);break;
-      case 'salad-reveal':state.saladAnswer=!state.saladAnswer;render();break;
+      case 'salad-reveal':state.saladAnswer=!state.saladAnswer;render({swap:true});break;
       case 'silhouette-start':startSilhouette();break;
       case 'silhouette-next':resetSilhouette(state.silhouetteRound===0?1:0);break;
       case 'credits-pause':toggleCreditsPause();break;
