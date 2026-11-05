@@ -1,0 +1,222 @@
+/* GOLDEN STAGE — v1.7
+   Only the three approved colours:
+   burgundy #3F010D / cream #FEF4DC / gold #D7B052.
+   No concentric double frames. */
+
+/* ONE decorative frame per screen. Remove the stale second frame from
+   the stage pseudo-element and all inset outline/box-shadow rings. */
+.stage{position:relative;isolation:isolate}
+.stage::before,.stage::after{
+  display:none!important;
+  content:none!important;
+}
+.stage .stage-content:not(.credits-screen):not(.stage-welcome){
+  border:2px solid #D7B052!important;
+  outline:0!important;
+  box-shadow:0 14px 35px rgba(63,1,13,.08)!important;
+}
+.stage .stage-content.stage-welcome{
+  border:none!important;
+  outline:none!important;
+  box-shadow:none!important;
+  background:transparent!important;
+}
+.stage-welcome .welcome-editorial,
+body.presentation .stage-welcome .welcome-editorial{
+  border:4px solid #D7B052!important;
+  outline:0!important;
+  outline-offset:0!important;
+  box-shadow:0 12px 34px rgba(63,1,13,.10)!important;
+  background:#FEF4DC!important;
+}
+/* The passive screen has one gold boundary, burgundy outside, cream inside. */
+#ambient-screen .ambient-screen-content{
+  border:5px solid #D7B052!important;
+  outline:none!important;
+  outline-offset:0!important;
+  box-shadow:none!important;
+  background:#FEF4DC!important;
+}
+#ambient-screen .ambient-screen-content::before,
+#ambient-screen .ambient-screen-content::after{
+  /* Retain botanical branches only, not extra decorative borders. */
+  pointer-events:none;
+}
+#ambient-screen .ambient-big50,
+.stage-welcome .welcome-figure{
+  background:none!important;
+  border:0!important;
+  box-shadow:none!important;
+  outline:0!important;
+  color:#D7B052!important;
+  -webkit-text-fill-color:#D7B052!important;
+}
+/* Other visually stacked frames are simplified to single outlines. */
+.stage .question-card{
+  border:3px solid #D7B052!important;
+  outline:none!important;
+  box-shadow:0 12px 25px rgba(63,1,13,.14)!important;
+}
+.stage .melody-art{
+  box-shadow:0 8px 19px rgba(63,1,13,.12)!important;
+}
+.stage .stage-content.credits-screen{
+  border:4px solid #D7B052!important;
+  outline:none!important;
+  box-shadow:none!important;
+}
+
+/* Surname has exactly the same typeface and upright style as the names,
+   but reads as the headline of the family. */
+.stage-welcome .welcome-surname,
+#ambient-screen .ambient-family{
+  font-family:Georgia,"Times New Roman",serif!important;
+  font-style:normal!important;
+  font-weight:400!important;
+  letter-spacing:-.025em!important;
+  color:#3F010D!important;
+  line-height:1.16!important;
+  overflow-wrap:normal;
+  text-shadow:none!important;
+}
+.stage-welcome .welcome-surname{
+  font-size:clamp(42px,4.35vw,78px)!important;
+  margin-top:12px!important;
+}
+#ambient-screen .ambient-family{
+  font-size:clamp(46px,5vw,85px)!important;
+  margin-top:10px!important;
+}
+.stage-welcome .welcome-person,
+#ambient-screen .ambient-persons{
+  font-family:Georgia,"Times New Roman",serif!important;
+  font-style:normal!important;
+  font-weight:400!important;
+}
+/* Avoid placing the names on gold branches on narrower TVs. */
+#ambient-screen .ambient-card-inner{max-width:760px!important}
+#ambient-screen .ambient-screen-content::before,
+#ambient-screen .ambient-screen-content::after{opacity:.42!important}
+
+/* Highly visible but smooth gold curtain:
+   begins at the left, fills the stage briefly, then slides out right.
+   Works for video changes and major stage changes. */
+.stage .gold-wipe{
+  position:absolute;
+  inset:0;
+  z-index:80;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:100%;
+  background:
+    linear-gradient(120deg,rgba(254,244,220,.28),transparent 23%,rgba(254,244,220,.25) 51%,transparent 78%),
+    #D7B052;
+  color:#3F010D;
+  overflow:hidden;
+  pointer-events:all;
+  will-change:clip-path;
+  isolation:isolate;
+}
+.stage .gold-wipe::before,
+.stage .gold-wipe::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+  height:clamp(50px,9vw,145px);
+  width:100%;
+  border-top:2px solid rgba(63,1,13,.28);
+  border-bottom:2px solid rgba(63,1,13,.28);
+}
+.stage .gold-wipe::before{top:5%;left:0}
+.stage .gold-wipe::after{bottom:5%;right:0}
+.stage .gold-wipe-seal{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+  text-align:center;
+  font-family:Georgia,"Times New Roman",serif;
+  line-height:1;
+  font-weight:400;
+  position:relative;
+  z-index:1;
+  margin:auto;
+}
+.stage .gold-wipe-seal b{
+  font-size:clamp(120px,19vw,280px);
+  font-style:italic;
+  font-weight:400;
+  letter-spacing:-.075em;
+  color:#3F010D;
+}
+.stage .gold-wipe-seal small{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(14px,1.8vw,28px);
+  font-weight:500;
+  letter-spacing:.22em;
+  color:#3F010D;
+  padding:10px 10px 0;
+  border-top:2px solid #3F010D;
+}
+.stage .gold-wipe-item .gold-wipe-seal b{
+  font-size:clamp(95px,15vw,190px);
+}
+
+/* Stronger first frame of each animation, still restrained. */
+.stage.item-enter[data-scene="interviews"] .media-window{
+  animation:gold-media-arrive 850ms cubic-bezier(.14,.8,.27,1) both!important;
+}
+.stage.item-enter[data-scene="interviews"] .media-side{
+  animation:gold-panel-arrive 800ms cubic-bezier(.16,.79,.3,1) both!important;
+  animation-delay:90ms!important;
+}
+.stage.item-enter[data-scene="movies"] .question-card,
+.stage.item-enter[data-scene="salads"] .salad-frame,
+.stage.item-enter[data-scene="melodies"] .melody-art,
+.stage.item-enter[data-scene="silhouettes"] .silhouette-board{
+  animation:gold-media-arrive 780ms cubic-bezier(.2,.8,.3,1) both!important;
+}
+.stage .answer-panel{
+  animation:gold-media-arrive 620ms cubic-bezier(.2,.75,.3,1) both!important;
+}
+.stage .salad-frame>img[data-salad-photo]{
+  animation:gold-image-unveil 780ms ease-out both!important;
+}
+.stage.scene-enter .stage-content{
+  animation:scene-arrive 790ms cubic-bezier(.2,.75,.25,1) both!important;
+}
+@media(max-width:800px){
+  .stage-welcome .welcome-surname{
+    font-size:clamp(31px,8.9vw,51px)!important;
+    margin-top:9px!important;
+  }
+  #ambient-screen .ambient-family{
+    font-size:clamp(34px,9.2vw,55px)!important;
+    margin-top:8px!important;
+  }
+  .stage .gold-wipe-seal b{font-size:clamp(106px,27vw,183px)}
+  .stage .gold-wipe-item .gold-wipe-seal b{font-size:clamp(89px,23vw,148px)}
+  .stage .gold-wipe::before,.stage .gold-wipe::after{height:60px}
+}
+@media(max-width:390px){
+  .stage-welcome .welcome-surname{font-size:clamp(29px,9.1vw,37px)!important}
+  #ambient-screen .ambient-family{font-size:clamp(31px,9.7vw,40px)!important}
+}
+@media(max-height:740px) and (min-width:801px){
+  .stage-welcome .welcome-surname{font-size:clamp(31px,5.6vh,47px)!important;margin-top:5px!important}
+  #ambient-screen .ambient-family{font-size:clamp(34px,6.1vh,55px)!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .stage .gold-wipe{display:none!important}
+  .stage.item-enter .media-window,
+  .stage.item-enter .media-side,
+  .stage.item-enter .question-card,
+  .stage.item-enter .salad-frame,
+  .stage.item-enter .melody-art,
+  .stage.item-enter .silhouette-board,
+  .stage .answer-panel,
+  .stage.scene-enter .stage-content{
+    animation:none!important;
+  }
+}
