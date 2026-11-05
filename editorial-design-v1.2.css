@@ -294,12 +294,12 @@ button:disabled:hover{transform:none}
 .welcome-editorial{
   box-sizing:border-box;
   width:min(100%,1200px);
-  min-height:clamp(570px,75vh,815px);
+  min-height:clamp(510px,70vh,770px);
   margin:auto;
   background:#FEF4DC;
   border:2px solid #D7B052;
   box-shadow:inset 0 0 0 9px #FEF4DC,inset 0 0 0 10px #D7B052;
-  padding:clamp(45px,6.6vh,85px) clamp(20px,3vw,48px) clamp(28px,4vh,55px);
+  padding:clamp(27px,4vh,46px) clamp(20px,3vw,48px) clamp(24px,3vh,40px);
   display:flex;flex-direction:column;align-items:center;
   justify-content:center;text-align:center;
   position:relative;
@@ -328,7 +328,7 @@ button:disabled:hover{transform:none}
   white-space:nowrap;
 }
 .welcome-figure{
-  font-size:clamp(136px,17vw,262px);
+  font-size:clamp(125px,13vw,220px);
   line-height:1.02;
   padding:.015em .12em .03em;
   margin:clamp(10px,1.5vh,20px) 0 0;
@@ -360,7 +360,7 @@ button:disabled:hover{transform:none}
 .welcome-couple{display:flex;flex-direction:column;align-items:center;gap:0;width:100%}
 .welcome-person,.ambient-persons{
   font-family:var(--serif);font-weight:400;
-  font-size:clamp(33px,3.45vw,56px);letter-spacing:-.02em;
+  font-size:clamp(31px,3vw,50px);letter-spacing:-.02em;
   line-height:1.22;color:#3F010D!important;
   text-shadow:none!important;
 }
@@ -378,7 +378,7 @@ button:disabled:hover{transform:none}
   line-height:1;color:#3F010D!important;
 }
 .welcome-surname,.ambient-family{
-  font-family:var(--serif);font-size:clamp(29px,3vw,48px);
+  font-family:var(--serif);font-size:clamp(28px,2.7vw,45px);
   line-height:1.24;font-style:italic;letter-spacing:.01em;
   color:#3F010D!important;font-weight:400;
   margin-top:8px;
