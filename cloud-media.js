@@ -1,108 +1,182 @@
-/* Golden Wedding cloud video client. No admin secrets are persisted. */
+/* Golden Wedding v0.8 — Cloudinary Free uploads and cross-device video index.
+   No server-side credentials in the repository. The unsigned upload preset is public:
+   only use with non-confidential videos and a dedicated Cloudinary account. */
 (() => {
   'use strict';
-  const cfg=window.WEDDING_MEDIA_CONFIG||{};
-  const endpoint=String(cfg.workerUrl||'').trim().replace(/\/+$/,'');
-  const configured=/^https:\/\/[\w.-]+(?::\d+)?$/.test(endpoint);
-  const isVideo=k=>k==='wedding'||/^interview-(?:[0-9]|1[0-5])$/.test(k);
-  let admin='', busy=false, videos=new Map();
-  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-  function setupUI(){
-    let el=document.getElementById('cloud-upload-status');
-    if(el)return el;
-    el=document.createElement('div');el.id='cloud-upload-status';el.hidden=true;
-    el.innerHTML='<div class="cloud-uploader"><div class="cloud-symbol">☁</div><h2>Загрузка видео</h2><p class="cloud-filename"></p><div class="cloud-track"><div class="cloud-fill"></div></div><p class="cloud-message">Начинаем загрузку…</p><small>Не закрывайте страницу, пока загрузка не закончится.</small><button type="button" class="cloud-cancel">Отменить загрузку</button></div>';
-    document.body.appendChild(el);
+  const cfg = window.WEDDING_MEDIA_CONFIG || {};
+  const cloudName = String(cfg.cloudName || '').trim();
+  const uploadPreset = String(cfg.uploadPreset || '').trim();
+  const tag = String(cfg.tag || 'golden_wedding_50_family_2026').trim();
+  const configured =
+    cfg.provider === 'cloudinary' &&
+    /^[A-Za-z0-9_-]{2,64}$/.test(cloudName) &&
+    /^[A-Za-z0-9_-]{2,120}$/.test(uploadPreset) &&
+    /^[A-Za-z0-9_-]{2,120}$/.test(tag);
+  const isVideo = key => key === 'wedding' || /^interview-(?:[0-9]|1[0-5])$/.test(key);
+  const stored = new Map();
+  let busy = false;
+  let refreshing = false;
+  let abortUpload = null;
+  let lastError = '';
+  const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  function overlay() {
+    let el = document.getElementById('cloud-upload-status');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'cloud-upload-status';
+      el.hidden = true;
+      el.innerHTML = '<div class="cloud-uploader" role="status" aria-live="polite">' +
+        '<div class="cloud-symbol">✦</div><h2>Загрузка видео</h2>' +
+        '<p class="cloud-filename"></p><div class="cloud-track"><div class="cloud-fill"></div></div>' +
+        '<p class="cloud-message"></p><small>Не закрывайте страницу до завершения.</small>' +
+        '<button type="button" class="cloud-cancel">Отменить загрузку</button></div>';
+      document.body.appendChild(el);
+    }
     return el;
   }
-  function progress(message,part){
-    const el=setupUI();el.hidden=false;
-    el.querySelector('.cloud-message').textContent=message;
-    el.querySelector('.cloud-fill').style.width=Math.max(0,Math.min(100,part))+'%';
+  function progress(text, pct) {
+    const el = overlay();
+    el.hidden = false;
+    el.querySelector('.cloud-message').textContent = text;
+    el.querySelector('.cloud-fill').style.width = Math.max(0, Math.min(100, pct)) + '%';
   }
-  async function refresh(){
-    if(!configured||busy)return false;
-    try{
-      const r=await fetch(endpoint+'/manifest',{cache:'no-store'});
-      if(!r.ok)throw new Error('Ошибка хранилища '+r.status);
-      const d=await r.json();if(!Array.isArray(d.videos))throw new Error('Неверный ответ сервера');
-      const next=new Map(d.videos.filter(x=>isVideo(x.slot)).map(x=>[x.slot,x]));
-      const changed=JSON.stringify([...next])!==JSON.stringify([...videos]);
-      videos=next;
-      if(changed)document.dispatchEvent(new Event('wedding-cloud-updated'));
-      return true;
-    }catch(e){console.warn('Видео не синхронизировались:',e);return false}
+  function fileURL(slot, fallback) {
+    if (!configured || !isVideo(slot)) return fallback;
+    return stored.get(slot)?.url || fallback;
   }
-  function fileURL(slot,fallback){
-    if(!configured||!isVideo(slot)||!videos.has(slot))return fallback;
-    const obj=videos.get(slot);
-    return endpoint+'/media/'+encodeURIComponent(slot)+'?v='+encodeURIComponent(obj.version||obj.updatedAt||'');
+  function parseSlot(asset) {
+    const context = asset.context?.custom || asset.context || {};
+    const key = context.slot || context.wedding_slot;
+    return typeof key === 'string' && isVideo(key) ? key : null;
   }
-  async function api(path,options={},signal){
-    const r=await fetch(endpoint+path,{...options,signal,headers:{Authorization:'Bearer '+admin,...(options.headers||{})}});
-    const result=await r.json().catch(()=>({}));
-    if(!r.ok){
-      if(r.status===401)admin='';
-      throw new Error(result.error||('Ошибка сервера '+r.status));
+  function assetUrl(asset) {
+    const base = 'https://res.cloudinary.com/' + cloudName + '/video/upload/';
+    if (typeof asset.secure_url === 'string' && asset.secure_url.startsWith(base)) {
+      return asset.secure_url;
     }
-    return result;
+    if (typeof asset.public_id !== 'string' || !/^[a-z0-9]+$/i.test(asset.format || '')) return '';
+    const id = asset.public_id.split('/').map(encodeURIComponent).join('/');
+    const version = Number(asset.version);
+    return base + (Number.isFinite(version) && version > 0 ? 'v' + version + '/' : '') +
+      id + '.' + asset.format;
   }
-  async function upload(slot,file){
-    if(!configured)throw new Error('Облачное хранилище ещё не подключено. Файл будет виден только на этом устройстве.');
-    if(!isVideo(slot))throw new Error('Облачная загрузка для этого файла пока недоступна.');
-    if(busy)throw new Error('Сначала дождитесь окончания предыдущей загрузки.');
-    if(!file?.size)throw new Error('Выбери непустой видеофайл.');
-    const ext=String(file.name).split('.').pop().toLowerCase();
-    const type=({mp4:'video/mp4',m4v:'video/x-m4v',mov:'video/quicktime',webm:'video/webm'})[ext];
-    if(!type)throw new Error('Выбери MP4, M4V, MOV или WebM. Надёжнее всего MP4 (H.264 + AAC).');
-    if(file.size>5*1024**3)throw new Error('Размер видео превышает 5 ГБ.');
-    if(!admin){
-      admin=prompt('Введи код администратора, который ты указал в Cloudflare:')||'';
-      if(!admin)throw new Error('Загрузка отменена: код не введён.');
-    }
-    let started=null;const controller=new AbortController();
-    const el=setupUI();el.querySelector('.cloud-filename').textContent=file.name;
-    const cancel=el.querySelector('.cloud-cancel');
-    cancel.disabled=false;cancel.onclick=()=>{cancel.disabled=true;controller.abort()};
-    busy=true;progress('Подключаемся к хранилищу…',0);
-    try{
-      started=await api('/upload/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({slot,size:file.size,type})},controller.signal);
-      const size=started.partSize||8388608,count=Math.ceil(file.size/size),parts=[];
-      for(let i=0;i<count;i++){
-        if(controller.signal.aborted)throw new Error('Загрузка отменена');
-        const chunk=file.slice(i*size,Math.min((i+1)*size,file.size));
-        let part;
-        for(let attempt=0;attempt<3;attempt++){
-          try{
-            part=await api('/upload/part?slot='+encodeURIComponent(slot)+'&uploadId='+encodeURIComponent(started.uploadId)+'&partNumber='+(i+1),{method:'PUT',headers:{'Content-Type':'application/octet-stream'},body:chunk},controller.signal);
-            break;
-          }catch(e){
-            if(controller.signal.aborted||attempt===2||!admin)throw e;
-            progress('Проблема с сетью, повторяем часть '+(i+1)+'…',Math.floor(i/count*100));
-            await sleep((attempt+1)*800);
-          }
-        }
-        parts.push({partNumber:part.partNumber,etag:part.etag});
-        const percent=Math.round((i+1)/count*100);
-        progress('Загружено '+percent+'% · часть '+(i+1)+' из '+count,percent);
+  async function refresh() {
+    if (!configured || busy || refreshing) return false;
+    refreshing = true;
+    try {
+      const url = 'https://res.cloudinary.com/' + encodeURIComponent(cloudName) +
+        '/video/list/' + encodeURIComponent(tag) + '.json?refresh=' + Date.now();
+      const r = await fetch(url, {cache:'no-store'});
+      // An empty tag can return 404 before the first video is uploaded.
+      if (r.status === 404 && stored.size === 0) return true;
+      if (!r.ok) throw new Error('Список Cloudinary недоступен (' + r.status + '). Проверьте настройку Resource list.');
+      const body = await r.json();
+      if (!Array.isArray(body.resources)) throw new Error('Неверный ответ списка Cloudinary.');
+      const updated = new Map();
+      for (const asset of body.resources) {
+        const slot = parseSlot(asset);
+        const url = assetUrl(asset);
+        if (!slot || !url) continue;
+        const version = Number(asset.version) || 0;
+        const record = {url, version};
+        if (!updated.has(slot) || updated.get(slot).version < version) updated.set(slot, record);
       }
-      progress('Сохраняем видео для всех устройств…',100);
-      await api('/upload/complete?slot='+encodeURIComponent(slot)+'&uploadId='+encodeURIComponent(started.uploadId),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parts})},controller.signal);
-      busy=false;await refresh();
-      progress('Готово! Видео доступно на всех устройствах.',100);
-      await sleep(900);
+      // Keep a recently uploaded video if the CDN listing has not caught up yet.
+      for (const [slot, item] of stored) {
+        if (item.justUploaded && (!updated.has(slot) || updated.get(slot).version < item.version)) {
+          updated.set(slot, item);
+        }
+      }
+      const changed = JSON.stringify([...updated]) !== JSON.stringify([...stored]);
+      stored.clear();
+      for (const [key, record] of updated) stored.set(key, record);
+      lastError = '';
+      if (changed) document.dispatchEvent(new Event('wedding-cloud-updated'));
       return true;
-    }catch(e){
-      if(started)api('/upload/abort?slot='+encodeURIComponent(slot)+'&uploadId='+encodeURIComponent(started.uploadId),{method:'POST'}).catch(()=>{});
-      if(controller.signal.aborted)throw new Error('Загрузка отменена.');
-      throw e;
-    }finally{busy=false;el.hidden=true;cancel.onclick=null}
+    } catch (err) {
+      lastError = err.message || 'Ошибка синхронизации';
+      console.warn('Не удалось обновить список видео:', err);
+      return false;
+    } finally {
+      refreshing = false;
+    }
   }
-  window.WeddingCloud={ready:()=>configured,fileURL,refresh,upload,isVideo,
-    statusLabel:()=>configured?'☁ Видео сохранится в облаке и появится на других устройствах.':'⚠ Облако не подключено: пока не загружайте видео, сначала завершите настройку хранилища.'};
-  if(configured){
-    document.addEventListener('DOMContentLoaded',()=>{
-      refresh();setInterval(()=>{if(!document.hidden)refresh()},30000);
+  async function upload(slot, file) {
+    if (!configured) throw new Error('Сначала настройте бесплатный Cloudinary по инструкции в GitHub.');
+    if (!isVideo(slot)) throw new Error('Эта загрузка предназначена только для свадебного ролика и интервью.');
+    if (busy) throw new Error('Дождитесь завершения предыдущей загрузки.');
+    if (!file || !file.size) throw new Error('Выберите непустой видеофайл.');
+    if (!/\.mp4$/i.test(file.name)) throw new Error('Для воспроизведения на всех устройствах нужен MP4 (H.264 + AAC).');
+    if (file.size > 100 * 1024 * 1024) throw new Error('Cloudinary Free ограничивает видео размером 100 МБ. Сожмите этот файл.');
+    busy = true;
+    const el = overlay();
+    const cancel = el.querySelector('.cloud-cancel');
+    el.querySelector('.cloud-filename').textContent = file.name;
+    cancel.disabled = false;
+    progress('Подготавливаем видео…', 0);
+    try {
+      const data = new FormData();
+      data.append('file', file);
+      data.append('upload_preset', uploadPreset);
+      data.append('tags', tag);
+      data.append('context', 'slot=' + slot);
+      const result = await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        abortUpload = () => xhr.abort();
+        xhr.open('POST', 'https://api.cloudinary.com/v1_1/' +
+          encodeURIComponent(cloudName) + '/video/upload', true);
+        xhr.upload.onprogress = event => {
+          if (!event.lengthComputable) return;
+          const pct = Math.round(event.loaded / event.total * 95);
+          progress('Передаём видео: ' + pct + '%', pct);
+        };
+        xhr.onerror = () => reject(new Error('Проблема с интернетом во время загрузки.'));
+        xhr.onabort = () => reject(new Error('Загрузка отменена.'));
+        xhr.onload = () => {
+          let response = {};
+          try { response = JSON.parse(xhr.responseText || '{}'); } catch (_) {}
+          if (xhr.status < 200 || xhr.status >= 300) {
+            reject(new Error(response.error?.message || 'Cloudinary вернул ошибку ' + xhr.status));
+            return;
+          }
+          if (typeof response.secure_url !== 'string' ||
+              !response.secure_url.startsWith('https://res.cloudinary.com/')) {
+            reject(new Error('Cloudinary не вернул адрес видео.'));
+            return;
+          }
+          resolve(response);
+        };
+        xhr.send(data);
+      });
+      progress('Готово! Сохраняем видео в общем списке…', 100);
+      stored.set(slot, {url:result.secure_url, version:Number(result.version) || Date.now(), justUploaded:true});
+      document.dispatchEvent(new Event('wedding-cloud-updated'));
+      // The public video list can take up to 60 seconds to reflect newly uploaded assets.
+      await sleep(700);
+      return true;
+    } finally {
+      busy = false;
+      abortUpload = null;
+      cancel.onclick = null;
+      el.hidden = true;
+    }
+  }
+  function statusLabel() {
+    if (!configured) return '⚠ Облачная загрузка пока не включена. Настройте бесплатный Cloudinary, прежде чем выбирать видео.';
+    return lastError ?
+      '⚠ Список видео пока не синхронизирован: ' + lastError :
+      '☁ Видео сохранится в Cloudinary и появится на других устройствах (обычно до 1 минуты).';
+  }
+
+  window.WeddingCloud = {
+    ready: () => configured, isVideo, upload, refresh, fileURL, statusLabel
+  };
+  if (configured) {
+    document.addEventListener('DOMContentLoaded', () => {
+      refresh();
+      setInterval(() => {if (!document.hidden) refresh();}, 30000);
+      document.addEventListener('visibilitychange', () => {if (!document.hidden) refresh();});
     });
   }
 })();
