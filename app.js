@@ -210,6 +210,10 @@
   document.addEventListener('change',async e=>{
     const input=e.target.closest('[data-file-key]');if(!input?.files?.length)return;
     const file=input.files[0],key=input.dataset.fileKey;
+    if(window.WeddingCloud?.isVideo(key) && !window.WeddingCloud.ready()){
+      toast('Видео пока не загружено: сначала нужно подключить облачное хранилище для всех устройств.');
+      return;
+    }
     if(window.WeddingCloud?.isVideo(key) && window.WeddingCloud.ready()){
       try{
         await window.WeddingCloud.upload(key,file);
