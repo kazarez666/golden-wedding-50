@@ -1,0 +1,54 @@
+/* Golden wedding v1.4 — second-slide numeral: gold on an uninterrupted cream canvas.
+   Three approved colors ONLY: burgundy #3F010D, cream #FEF4DC, gold #D7B052. */
+
+/* The original gold fill behind 50 is removed. The numeral itself is now gold. */
+.stage-welcome .welcome-editorial {
+  background:#FEF4DC!important;
+  color:#3F010D;
+}
+.stage-welcome .welcome-figure {
+  display:block!important;
+  width:max-content!important;
+  max-width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  margin:clamp(9px,1.8vh,19px) auto clamp(9px,1.5vh,16px)!important;
+  padding:.075em .13em .105em!important;
+  background:none!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  border:none!important;
+  border-radius:0!important;
+  outline:0!important;
+  box-shadow:none!important;
+  color:#D7B052!important;
+  -webkit-text-fill-color:#D7B052!important;
+  text-shadow:none!important;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(145px,17vw,235px)!important;
+  font-weight:400;
+  font-style:italic;
+  line-height:1.02!important;
+  letter-spacing:-.075em;
+  white-space:nowrap;
+  overflow:visible!important;
+  filter:none!important;
+}
+@media(max-width:800px) {
+  .stage-welcome .welcome-figure {
+    font-size:clamp(110px,27vw,177px)!important;
+    padding:.075em .12em .11em!important;
+    margin:10px auto 12px!important;
+  }
+}
+@media(max-width:390px) {
+  .stage-welcome .welcome-figure {
+    font-size:clamp(97px,27vw,126px)!important;
+  }
+}
+@media(max-height:740px) and (min-width:801px) {
+  .stage-welcome .welcome-figure {
+    font-size:clamp(115px,22vh,155px)!important;
+    margin:4px auto 6px!important;
+  }
+}
