@@ -166,7 +166,7 @@ jobs:
                   el.value='34';el.dispatchEvent(new Event('input',{bubbles:true}));
                 });
                 assert.equal(await page.locator('#shared-audio').evaluate(a=>a.volume),.34);
-                assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('golden-wedding-melody-cues-v1'))['0'].answer),'Тестовый артист — Тестовая песня');
+                assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('golden-wedding-melody-cues-v2'))['0'].answer),'Тестовый артист — Тестовая песня');
                 await page.locator('[data-action="melody-clue"]').click();
                 await page.waitForFunction(()=>document.querySelector('[data-melody-status]')?.textContent.includes('Ждём ответы гостей'),{timeout:7000});
                 assert(await page.locator('#shared-audio').evaluate(a=>a.paused),'Verse must stop before chorus');
