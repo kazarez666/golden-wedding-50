@@ -1,0 +1,20 @@
+name: Audit melody uploads
+on:
+  push:
+    paths:
+      - 'scripts/audit-melody-assets.mjs'
+      - '.github/workflows/audit-melody-assets.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  melody-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Audit cloud MP3 asset slots
+        run: node scripts/audit-melody-assets.mjs
