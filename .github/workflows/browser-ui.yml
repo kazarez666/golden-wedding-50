@@ -9,6 +9,7 @@ on:
       - 'cinematic-edition-v1.5.css'
       - 'golden-motion-v1.6.css'
       - 'single-frame-gold-wipes-v1.7.css'
+      - 'melody-show-v1.9.css'
       - '.github/workflows/browser-ui.yml'
   workflow_dispatch:
 permissions:
@@ -130,6 +131,51 @@ jobs:
                 await page.locator('.question-card').waitFor();
                 await page.locator('[data-action="movie-reveal"]').click();
                 await page.locator('.question-card .answer-panel').waitFor();
+                // The melody show uses ONE local recording: a verse that pauses
+                // automatically at the chorus, then a revealed answer starts it again.
+                if(viewport.width<=800)await page.locator('#mobile-stage-select').selectOption('5');
+                else await page.locator('.section-item[data-value="5"]').click();
+                await page.locator('.melody-game-screen').waitFor();
+                assert((await page.locator('.melody-game-screen').textContent()).includes('ТРЕК 01 / 20'));
+                await page.evaluate(()=>{
+                  const samples=24000,rate=8000;
+                  const buffer=new ArrayBuffer(44+samples*2);
+                  const v=new DataView(buffer);
+                  const str=(n,s)=>{for(let i=0;i<s.length;i++)v.setUint8(n+i,s.charCodeAt(i));};
+                  str(0,'RIFF');v.setUint32(4,36+samples*2,true);
+                  str(8,'WAVE');str(12,'fmt ');
+                  v.setUint32(16,16,true);v.setUint16(20,1,true);
+                  v.setUint16(22,1,true);v.setUint32(24,rate,true);
+                  v.setUint32(28,rate*2,true);v.setUint16(32,2,true);
+                  v.setUint16(34,16,true);str(36,'data');
+                  v.setUint32(40,samples*2,true);
+                  for(let i=0;i<samples;i++)
+                    v.setInt16(44+i*2,Math.round(Math.sin(i*2*Math.PI*220/rate)*4000),true);
+                  const wav=URL.createObjectURL(new Blob([buffer],{type:'audio/wav'}));
+                  const old=window.WeddingCloud.fileURL;
+                  window.WeddingCloud.fileURL=(key,fallback)=>key==='melody-0'?wav:old(key,fallback);
+                });
+                await page.locator('.melody-setup summary').click();
+                await page.locator('[data-melody-setting="answer"]').fill('Тестовый артист — Тестовая песня');
+                await page.locator('[data-melody-setting="answer"]').press('Tab');
+                await page.locator('[data-melody-setting="verseStart"]').fill('0.1');
+                await page.locator('[data-melody-setting="verseStart"]').press('Tab');
+                await page.locator('[data-melody-setting="chorusStart"]').fill('1.2');
+                await page.locator('[data-melody-setting="chorusStart"]').press('Tab');
+                await page.locator('[data-melody-volume]').evaluate(el=>{
+                  el.value='34';el.dispatchEvent(new Event('input',{bubbles:true}));
+                });
+                assert.equal(await page.locator('#shared-audio').evaluate(a=>a.volume),.34);
+                assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('golden-wedding-melody-cues-v1'))['0'].answer),'Тестовый артист — Тестовая песня');
+                await page.locator('[data-action="melody-clue"]').click();
+                await page.waitForFunction(()=>document.querySelector('[data-melody-status]')?.textContent.includes('Ждём ответы гостей'),{timeout:7000});
+                assert(await page.locator('#shared-audio').evaluate(a=>a.paused),'Verse must stop before chorus');
+                await page.locator('[data-action="melody-reveal"]').click();
+                await page.locator('.melody-big-answer').waitFor();
+                assert.equal(await page.locator('.melody-big-answer').textContent(),'Тестовый артист — Тестовая песня');
+                assert(await page.locator('#shared-audio').evaluate(a=>a.currentTime>=1.15),'Chorus must start at its cue');
+                await page.locator('[data-action="melody-restart"]').click();
+                assert(!await page.locator('.melody-big-answer').count());
                 // Image/answer change animation stays within the selected contest.
                 if(viewport.width<=800)await page.locator('#mobile-stage-select').selectOption('7');
                 else await page.locator('.section-item[data-value="7"]').click();
