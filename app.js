@@ -389,11 +389,12 @@
     stage.scrollTop = 0;
     updateNavigation();
     syncVideoPrompts();
+    if(key==='melodies')updateMelodyControls();
     if(key==='credits')startCreditsScroll();
     else if(creditsAnimation){creditsAnimation.cancel();creditsAnimation=null;++creditsRenderToken;}
   }
   function stopTimer() { if (silhouetteInterval) {clearInterval(silhouetteInterval);silhouetteInterval=null;} }
-  function stopAudio() { audio.pause();audio.currentTime=0;state.audioPlaying=false;state.audioKey=''; }
+  function stopAudio() { audio.pause();audio.currentTime=0;state.audioPlaying=false;state.audioKey='';state.melodyPhase='idle'; }
   function openAmbient(){
     if(!ambientScreen || !ambientScreen.hidden)return;
     closeHostMenu();
@@ -445,6 +446,134 @@
     if (state.audioKey!==key || !audio.src) {audio.pause();audio.src=fileURL(key,path);audio.load();state.audioKey=key;}
     audio.play().then(()=>{state.audioPlaying=true;render();}).catch(()=>{state.audioPlaying=false;toast('Музыка не найдена. Выберите MP3-файл с ноутбука.');render();});
   }
+  // The master audio element is shared with the entrance march.
+  // For the melody quiz use a single complete track with cue markers.
+  function prepareMelodyAudio(){
+    const key='melody-'+state.melody;
+    const url=fileURL(key,D.melodies[state.melody].src);
+    if(state.audioKey!==key || audio.dataset.melodySource!==url){
+      audio.pause();
+      audio.src=url;
+      audio.dataset.melodySource=url;
+      audio.load();
+    }
+    state.audioKey=key;
+    audio.volume=melodyVolume;
+    audio.muted=false;
+    return key;
+  }
+  function updateMelodyControls(){
+    if(D.sections[state.section].id!=='melodies')return;
+    const key='melody-'+state.melody;
+    const isCurrent=state.audioKey===key;
+    const duration=isCurrent&&Number.isFinite(audio.duration)?audio.duration:null;
+    const time=isCurrent&&Number.isFinite(audio.currentTime)?audio.currentTime:0;
+    const seek=stage.querySelector('[data-melody-seek]');
+    if(seek){
+      seek.max=String(duration&&duration>0?duration:100);
+      seek.value=String(Math.min(duration&&duration>0?duration:100,time));
+    }
+    const currentLabel=stage.querySelector('[data-melody-current]');
+    if(currentLabel)currentLabel.textContent=melodyTime(time);
+    const durationLabel=stage.querySelector('[data-melody-duration]');
+    if(durationLabel)durationLabel.textContent=melodyTime(duration);
+    const statusLabel=stage.querySelector('[data-melody-status]');
+    if(statusLabel){
+      const phase=state.melodyPhase;
+      statusLabel.textContent=phase==='waiting'?'Куплет закончился. Ждём ответы гостей.'
+        : phase==='chorus'?(audio.paused?'Припев на паузе.':'Звучит припев — правильный ответ открыт.')
+        : phase==='clue'?(audio.paused?'Куплет на паузе.':'Звучит куплет — слушаем и угадываем.')
+        : phase==='preview'?(audio.paused?'Прослушивание на паузе.':'Прослушивание полной песни для настройки.')
+        : melodyReady(melodyInfo())?'Готово к игре.':'Установите начало припева в настройках.';
+    }
+    const pause=stage.querySelector('[data-action="melody-pause"]');
+    if(pause){
+      pause.disabled=!isCurrent||state.melodyPhase==='waiting'||state.melodyPhase==='idle';
+      pause.textContent=isCurrent&&!audio.paused?'❚❚ Пауза':'▶ Продолжить';
+    }
+    const art=stage.querySelector('.melody-art');
+    if(art)art.classList.toggle('is-playing',isCurrent&&!audio.paused);
+  }
+  function playMelody(mode){
+    const cfg=melodyInfo();
+    if((mode==='clue'||mode==='chorus')&&!melodyReady(cfg)){
+      toast('Сначала укажите начало куплета и точку начала припева в настройках песни.');
+      if(mode==='chorus'){
+        state.melodyAnswer=true;render({swap:true});
+      }
+      return;
+    }
+    const previousKey=state.audioKey;
+    prepareMelodyAudio();
+    let target=0;
+    if(mode==='clue')target=cfg.verseStart;
+    else if(mode==='chorus')target=cfg.chorusStart;
+    else target=previousKey===state.audioKey && Number.isFinite(audio.currentTime)?audio.currentTime:0;
+    if(Number.isFinite(target)){
+      try{audio.currentTime=target;}catch(_){}
+    }
+    state.melodyPhase=mode;
+    if(mode==='clue')state.melodyAnswer=false;
+    if(mode==='chorus')state.melodyAnswer=true;
+    const promise=audio.play();
+    render({swap:mode==='chorus'});
+    Promise.resolve(promise).then(()=>{
+      state.audioPlaying=true;
+      updateMelodyControls();
+    }).catch(err=>{
+      state.audioPlaying=false;
+      audio.pause();
+      updateMelodyControls();
+      toast('Не удалось воспроизвести песню. Проверьте, что MP3 загружен. '+(err?.message||''));
+    });
+  }
+  function pauseMelody(){
+    if(state.audioKey!=='melody-'+state.melody || state.melodyPhase==='waiting')return;
+    if(!audio.paused){
+      audio.pause();state.audioPlaying=false;updateMelodyControls();return;
+    }
+    audio.play().then(()=>{state.audioPlaying=true;updateMelodyControls();})
+      .catch(()=>toast('Не удалось продолжить запись.'));
+  }
+  function restartMelody(){
+    audio.pause();state.audioPlaying=false;
+    state.melodyPhase='idle';state.melodyAnswer=false;
+    if(state.audioKey==='melody-'+state.melody){
+      try{audio.currentTime=melodyInfo().verseStart;}catch(_){}
+    }
+    render({swap:true});
+  }
+  function revealMelody(){
+    if(state.melodyAnswer){restartMelody();return;}
+    playMelody('chorus');
+  }
+  function markMelodyCue(field){
+    if(state.audioKey!=='melody-'+state.melody || !Number.isFinite(audio.currentTime)){
+      toast('Сначала запустите прослушивание песни, затем поставьте метку.');return;
+    }
+    const seconds=Math.round(audio.currentTime*10)/10;
+    saveMelodySetting(field,seconds);
+    const input=stage.querySelector('[data-melody-setting="'+field+'"]');
+    if(input)input.value=String(seconds);
+    updateMelodyControls();
+    toast((field==='verseStart'?'Начало куплета':'Начало припева')+' — '+melodyTime(seconds)+'. Метка сохранена.');
+  }
+  audio.addEventListener('timeupdate',()=>{
+    if(state.audioKey==='melody-'+state.melody && state.melodyPhase==='clue'){
+      const cfg=melodyInfo();
+      if(melodyReady(cfg)&&audio.currentTime>=cfg.chorusStart-.035){
+        state.melodyPhase='waiting';
+        audio.pause();
+        state.audioPlaying=false;
+        try{audio.currentTime=cfg.chorusStart;}catch(_){}
+      }
+    }
+    updateMelodyControls();
+  });
+  audio.addEventListener('loadedmetadata',updateMelodyControls);
+  audio.addEventListener('durationchange',updateMelodyControls);
+  audio.addEventListener('play',updateMelodyControls);
+  audio.addEventListener('pause',updateMelodyControls);
   let silhouettePreloading=false;
   async function startSilhouette() {
     const round=state.silhouetteRound;
@@ -550,8 +679,15 @@
       case 'movie-reveal':state.movieAnswer=!state.movieAnswer;render({swap:true});break;
       case 'melody-prev':setMelody(state.melody-1);break;
       case 'melody-next':setMelody(state.melody+1);break;
-      case 'melody-toggle':audioToggle(`melody-${state.melody}`,D.melodies[state.melody].src);break;
-      case 'melody-reveal':state.melodyAnswer=!state.melodyAnswer;render({swap:true});break;
+      case 'melody-clue':playMelody('clue');break;
+      case 'melody-preview':playMelody('preview');break;
+      case 'melody-pause':pauseMelody();break;
+      case 'melody-restart':restartMelody();break;
+      case 'melody-reveal':revealMelody();break;
+      case 'melody-hide':restartMelody();break;
+      case 'melody-chorus':playMelody('chorus');break;
+      case 'melody-mark-verse':markMelodyCue('verseStart');break;
+      case 'melody-mark-chorus':markMelodyCue('chorusStart');break;
       case 'salad-prev':setSalad(state.salad-1);break;
       case 'salad-next':setSalad(state.salad+1);break;
       case 'salad-reveal':state.saladAnswer=!state.saladAnswer;render({swap:true});break;
@@ -566,7 +702,33 @@
     if(target){handleAction(target.dataset.action,target.dataset.value);}
     else if(!e.target.closest('#host-menu'))closeHostMenu();
   });
+  document.addEventListener('input',e=>{
+    const seek=e.target.closest('[data-melody-seek]');
+    if(seek && D.sections[state.section].id==='melodies'){
+      prepareMelodyAudio();
+      const value=Number(seek.value);
+      if(Number.isFinite(value)){try{audio.currentTime=value;}catch(_){}}
+      updateMelodyControls();
+      return;
+    }
+    const volume=e.target.closest('[data-melody-volume]');
+    if(volume){
+      melodyVolume=Math.max(0,Math.min(1,Number(volume.value)/100));
+      audio.volume=melodyVolume;
+      audio.muted=false;
+      try{localStorage.setItem(melodyVolumeKey,String(melodyVolume));}catch(_){}
+      const output=stage.querySelector('[data-melody-volume-value]');
+      if(output)output.textContent=Math.round(melodyVolume*100)+'%';
+    }
+  });
   document.addEventListener('change',async e=>{
+    const setting=e.target.closest('[data-melody-setting]');
+    if(setting && D.sections[state.section].id==='melodies'){
+      saveMelodySetting(setting.dataset.melodySetting,setting.value);
+      toast('Настройка песни сохранена в этом браузере.');
+      updateMelodyControls();
+      return;
+    }
     const input=e.target.closest('[data-file-key]');if(!input?.files?.length)return;
     const file=input.files[0],key=input.dataset.fileKey;
     if(window.WeddingCloud?.isMedia(key) && !window.WeddingCloud.ready()){
@@ -612,7 +774,13 @@
     mouseTimeout=setTimeout(()=>document.body.classList.remove('recent-mouse'),2400);
   });
   // Обновление интерфейса при штатном окончании музыки и при ошибке загрузки.
-  audio.addEventListener('ended',()=>{state.audioPlaying=false;render();});
+  audio.addEventListener('ended',()=>{
+    state.audioPlaying=false;
+    if(state.audioKey.startsWith('melody-')){
+      state.melodyPhase='idle';
+      updateMelodyControls();
+    }else render();
+  });
   audio.addEventListener('error',()=>{state.audioPlaying=false;if(state.audioKey)toast('Аудиофайл не загрузился. Выберите MP3 с ноутбука или добавьте его в media/.');});
   // Закрытие dialog по клику за пределами содержимого.
   helpDialog.addEventListener('click',e=>{if(e.target===helpDialog)helpDialog.close();});
