@@ -97,6 +97,11 @@ jobs:
           assert(simulated.window.WeddingCloud.fileURL('march','missing.mp3').endsWith('.mp3'));
           assert(simulated.window.WeddingCloud.fileURL('melody-7','missing.mp3').endsWith('.mp3'));
           assert(simulated.window.WeddingCloud.fileURL('melody-19','missing.mp3').includes('melody20.mp3'));
+          assert(simulated.window.WeddingCloud.hasFile('melody-7'));
+          assert(simulated.window.WeddingCloud.hasFile('melody-19'));
+          assert(!simulated.window.WeddingCloud.hasFile('melody-0'));
+          assert(!simulated.window.WeddingCloud.hasFile('melody-1'));
+          assert(cloud.includes('wjimtrlputewf3i782x2')&&cloud.includes('m0vz7tykuahuyscjjszj'), 'Retired uploads must be filtered');
           assert.equal(simulated.window.WeddingCloud.fileURL('melody-20','missing.mp3'),'missing.mp3');
           assert(simulated.window.WeddingCloud.fileURL('silhouette-0','').endsWith('.png'));
           assert(simulated.window.WeddingCloud.fileURL('silhouette-1','').endsWith('.jpg'));
