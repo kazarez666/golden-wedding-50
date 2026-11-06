@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - 'scripts/suggest-melody-cues.mjs'
+      - 'scripts/inspect-unmatched-cues.mjs'
       - '.github/workflows/suggest-melody-cues.yml'
   workflow_dispatch:
 permissions:
@@ -26,8 +27,10 @@ jobs:
             if(!res.ok){console.log('CLOUDINARY_MANIFEST HTTP',res.status);process.exit(0);}
             const {resources=[]}=await res.json();
             const melodies=resources.filter(x=>x.context?.custom?.slot?.startsWith('melody-')||x.context?.slot?.startsWith('melody-'));
-            console.log('CLOUDINARY_MANIFEST resources',resources.length,'melodies',melodies.length,'slots',melodies.map(x=>x.context?.custom?.slot||x.context?.slot));
+            console.log('CLOUDINARY_MANIFEST resources',resources.length,'melodies',melodies.length,'slots',melodies.map(x=>({slot:x.context?.custom?.slot||x.context?.slot,version:x.version,format:x.format,duration:x.duration})));
           }catch(err){console.log('CLOUDINARY_MANIFEST_ERROR',String(err).slice(0,180))}
           EOF
       - name: Search synchronized lyrics and infer chorus-time candidates
         run: node scripts/suggest-melody-cues.mjs
+      - name: Search alternate artist spellings for unmatched songs
+        run: node scripts/inspect-unmatched-cues.mjs
