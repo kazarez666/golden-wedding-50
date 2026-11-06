@@ -56,14 +56,41 @@ window.SITE_DATA = {
     { artist: 'ВИА «Пламя»', song: 'Снег кружится' },
     { artist: 'Григорий Лепс', song: 'Рюмка водки на столе' },
     { artist: 'Сергей Никитин', song: 'Я спросил у ясеня' }
-  ].map((item, i) => ({
-    ...item,
-    title: `Мелодия ${String(i + 1).padStart(2, '0')}`,
-    answer: item.song ? `${item.artist} — ${item.song}` : 'Название ещё не добавлено',
-    verseStart: 0,
-    chorusStart: null,
-    src: `media/melodies/${String(i + 1).padStart(2, '0')}.mp3`
-  })),
+  ].map((item, i) => {
+    // Первичные метки получены по синхронизированным строкам lyrics LRCLIB.
+    // Это НЕ таймкоды конкретного MP3. Разные издания и исполнения могут
+    // отличаться; метки обязательно проверить после загрузки записи.
+    // Для строк без достоверного совпадения не подставляем случайные секунды.
+    const suggestedCues = {
+      0: [10.6,29.3,180,29992359,'medium'],
+      1: [17.4,58.0,233,30538770,'medium'],
+      2: [9.4,36.3,184,9306006,'medium'],
+      3: [63.5,124.9,298,33260108,'medium'],
+      5: [23.0,65.4,273,18291635,'medium'],
+      8: [19.6,55.4,195,15426334,'low'],
+      9: [59.5,97.6,245,29539598,'medium'],
+      12: [34.2,64.2,211,31252019,'medium'],
+      13: [25.7,51.3,315,37819665,'medium'],
+      14: [37.3,67.5,246,18490450,'medium'],
+      15: [10.7,44.9,261.14575,16323254,'medium'],
+      16: [23.5,39.1,222,6610773,'medium'],
+      17: [7.3,59.9,250,8993707,'medium'],
+      18: [26.7,77.0,271,5508028,'medium']
+    };
+    const cue=suggestedCues[i]||null;
+    return {
+      ...item,
+      title: `Мелодия ${String(i + 1).padStart(2, '0')}`,
+      answer: item.song ? `${item.artist} — ${item.song}` : 'Название ещё не добавлено',
+      verseStart: cue?cue[0]:0,
+      chorusStart: cue?cue[1]:null,
+      cueStatus:cue?'preliminary':'not_found',
+      cueConfidence:cue?cue[4]:null,
+      referenceDuration:cue?cue[2]:null,
+      cueSource:cue?'lrclib:'+cue[3]:null,
+      src: `media/melodies/${String(i + 1).padStart(2, '0')}.mp3`
+    };
+  }),
   // Вопросы пока демонстрационные. Фотографии поместите в media/salads/01.jpg и т. д.
   salads: [
     { title: 'Селёдка под шубой', photo: 'media/salads/01.jpg' },
