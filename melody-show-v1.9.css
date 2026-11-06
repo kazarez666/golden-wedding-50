@@ -288,3 +288,18 @@ body.presentation .melody-setup{display:none}
 @media(prefers-reduced-motion:reduce){
   .melody-big-answer{animation:none!important}
 }
+/* Unambiguous upload status; song labels and time cues are not audio. */
+.melody-file-status{
+  width:100%;padding:11px 17px;margin:0;
+  font-size:13px;line-height:1.45;font-weight:750;
+  border-radius:12px;
+  border:2px solid #D7B052;
+  color:#3F010D!important;
+  background:#FEF4DC!important;
+}
+.melody-file-ready{
+  background:rgba(215,176,82,.35)!important;
+}
+.melody-file-missing{
+  background:rgba(215,176,82,.12)!important;
+}
