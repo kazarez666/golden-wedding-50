@@ -83,6 +83,7 @@ window.SITE_DATA = {
       title: `Мелодия ${String(i + 1).padStart(2, '0')}`,
       answer: item.song ? `${item.artist} — ${item.song}` : 'Название ещё не добавлено',
       verseStart: cue?cue[0]:0,
+      verseEnd: null, // optional stop for a later verse when the chorus occurs earlier
       chorusStart: cue?cue[1]:null,
       cueStatus:cue?'preliminary':'not_found',
       cueConfidence:cue?cue[4]:null,
