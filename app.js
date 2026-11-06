@@ -65,21 +65,29 @@
     const positive=v=>v!==null&&v!==''&&Number.isFinite(Number(v))?Math.max(0,Number(v)):null;
     const verseStart=positive(override.verseStart??base.verseStart)??0;
     const chorusStart=positive(override.chorusStart??base.chorusStart);
+    // The answer chorus can be BEFORE the selected quiz verse in the MP3.
+    // verseEnd is an independent stop marker; existing saved settings remain valid.
+    const verseEnd=positive(override.verseEnd??base.verseEnd);
     return {
       ...base,
       answer:String(override.answer??base.answer??''),
-      cueStatus:override.verseStart!==undefined && override.chorusStart!==undefined ? 'locally_adjusted' : base.cueStatus,
-      verseStart,
-      chorusStart
+      cueStatus:override.verseStart!==undefined || override.verseEnd!==undefined ||
+        override.chorusStart!==undefined ? 'locally_adjusted' : base.cueStatus,
+      verseStart, verseEnd, chorusStart
     };
   }
-  const melodyReady = item => item.chorusStart!==null && item.chorusStart>item.verseStart;
+  // Cue order is independent: only the verse end must follow verse start.
+  const melodyReady = item => item.chorusStart!==null &&
+    Number.isFinite(item.verseStart) && item.verseStart>=0;
+  const melodyClueEnd = item => item.verseEnd!==null && item.verseEnd>item.verseStart
+    ? item.verseEnd : item.chorusStart!==null && item.chorusStart>item.verseStart
+    ? item.chorusStart : item.verseStart+20;
   function saveMelodySetting(field,value){
     const key=String(state.melody);
     const entry={...(melodySettings[key]||{})};
     if(field==='answer'){
       entry.answer=String(value).trim().slice(0,150);
-    }else if(field==='verseStart'||field==='chorusStart'){
+    }else if(field==='verseStart'||field==='verseEnd'||field==='chorusStart'){
       const number=Number(String(value).trim().replace(',','.'));
       entry[field]=String(value).trim()===''||!Number.isFinite(number)||number<0 ? null : Math.round(number*10)/10;
     }else return;
@@ -157,7 +165,8 @@
       : phase==='clue' ? (playing?'Звучит куплет — слушаем и угадываем.':'Куплет на паузе.')
       : phase==='preview' ? (playing?'Режим настройки: прослушивание полной песни.':'Прослушивание на паузе.')
       : !hasFile ? 'MP3 не загружен. Сначала добавьте запись в настройки песни.'
-      : configured ? 'Запись есть. Куплет остановится перед припевом.' : 'Запись загружена. Укажите точку начала припева в настройках.';
+      : configured ? 'Запись есть. Куплет остановится в '+melodyTime(melodyClueEnd(current))+'.'
+        : 'Запись загружена. Укажите начало припева в настройках.';
     return `<section class="stage-content wide compact melody-game-screen">
       ${episode('МУЗЫКАЛЬНЫЙ КОНКУРС','Угадай мелодию',`ТРЕК ${fmt(state.melody+1)} / ${fmt(D.melodies.length)}`)}
       <div class="melody-game-layout">
@@ -195,7 +204,8 @@
         <details class="melody-setup">
           <summary>⚙ Настройка песни и фрагмента</summary>
           <div class="melody-setup-body">
-            <p class="melody-help">Загрузите один полный MP3, включите прослушивание и отметьте начало куплета и припева. Файл заранее резать не нужно.</p>
+            <p class="melody-help">Загрузите один полный MP3 и укажите три независимые точки. Припев может идти РАНЬШЕ куплета — это нормально.</p>
+            <p class="melody-help">Если конец куплета не указан: при обычном порядке музыка остановится перед припевом; если припев раньше куплета, куплет прозвучит 20 секунд. Можно поставить собственный конец отрывка.</p>
             <p class="melody-cue-note" data-cue-warning>${safe(cueNote)}</p>
             ${pick(key,'Загрузить песню MP3','audio/mpeg,.mp3')}
             ${button('▶ Прослушать всю запись','melody-preview','secondary-button')}
@@ -207,6 +217,10 @@
                 <input type="number" min="0" step="0.1" data-melody-setting="verseStart" value="${current.verseStart}"/>
               </label>
               ${button('Отметить начало куплета','melody-mark-verse','small-button')}
+              <label class="melody-config-label">Конец куплета — точка остановки (секунды, необязательно)
+                <input type="number" min="0" step="0.1" data-melody-setting="verseEnd" value="${current.verseEnd===null?'':current.verseEnd}" placeholder="Например: 76.3"/>
+              </label>
+              ${button('Отметить конец куплета','melody-mark-verse-end','small-button')}
               <label class="melody-config-label">Начало припева (секунды)
                 <input type="number" min="0" step="0.1" data-melody-setting="chorusStart" value="${current.chorusStart===null?'':current.chorusStart}" placeholder="Например: 42.5"/>
               </label>
@@ -217,7 +231,7 @@
         </details>
       </div>
       ${stepper('melody-prev','melody-next',state.melody,D.melodies.length)}
-      <p class="fine-print">Сначала звучит куплет и останавливается перед припевом. После раскрытия ответа автоматически начинается припев. До праздника проверьте границы каждого фрагмента.</p>
+      <p class="fine-print">Куплет играет от своей начальной метки до точки остановки. После раскрытия ответа начинается припев со своей метки, даже если в MP3 она находится раньше куплета.</p>
     </section>`;
   }
   function viewPairs() {
@@ -536,7 +550,7 @@
       return;
     }
     if((mode==='clue'||mode==='chorus')&&!melodyReady(cfg)){
-      toast('Сначала укажите начало куплета и точку начала припева в настройках песни.');
+      toast('Укажите начало куплета и начало припева — их порядок может быть любым.');
       if(mode==='chorus'){
         state.melodyAnswer=true;render({swap:true});
       }
@@ -595,16 +609,18 @@
     const input=stage.querySelector('[data-melody-setting="'+field+'"]');
     if(input)input.value=String(seconds);
     updateMelodyControls();
-    toast((field==='verseStart'?'Начало куплета':'Начало припева')+' — '+melodyTime(seconds)+'. Метка сохранена.');
+    const names={verseStart:'Начало куплета',verseEnd:'Конец куплета',chorusStart:'Начало припева'};
+    toast(names[field]+' — '+melodyTime(seconds)+'. Метка сохранена.');
   }
   audio.addEventListener('timeupdate',()=>{
     if(state.audioKey==='melody-'+state.melody && state.melodyPhase==='clue'){
       const cfg=melodyInfo();
-      if(melodyReady(cfg)&&audio.currentTime>=cfg.chorusStart-.035){
+      const end=melodyClueEnd(cfg);
+      if(melodyReady(cfg)&&audio.currentTime>=end-.035){
         state.melodyPhase='waiting';
         audio.pause();
         state.audioPlaying=false;
-        try{audio.currentTime=cfg.chorusStart;}catch(_){}
+        try{audio.currentTime=end;}catch(_){}
       }
     }
     updateMelodyControls();
@@ -726,6 +742,7 @@
       case 'melody-hide':restartMelody();break;
       case 'melody-chorus':playMelody('chorus');break;
       case 'melody-mark-verse':markMelodyCue('verseStart');break;
+      case 'melody-mark-verse-end':markMelodyCue('verseEnd');break;
       case 'melody-mark-chorus':markMelodyCue('chorusStart');break;
       case 'salad-prev':setSalad(state.salad-1);break;
       case 'salad-next':setSalad(state.salad+1);break;
