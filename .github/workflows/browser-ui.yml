@@ -178,6 +178,25 @@ jobs:
                 assert(await page.locator('#shared-audio').evaluate(a=>a.currentTime>=1.15),'Chorus must start at its cue');
                 await page.locator('[data-action="melody-restart"]').click();
                 assert(!await page.locator('.melody-big-answer').count());
+                // Regression: the chorus is earlier in the song than the quiz verse.
+                // The reveal must still seek backwards to the first chorus.
+                await page.locator('.melody-setup summary').click();
+                await page.locator('[data-melody-setting="verseStart"]').fill('0.6');
+                await page.locator('[data-melody-setting="verseStart"]').press('Tab');
+                await page.locator('[data-melody-setting="verseEnd"]').fill('1.5');
+                await page.locator('[data-melody-setting="verseEnd"]').press('Tab');
+                await page.locator('[data-melody-setting="chorusStart"]').fill('0.2');
+                await page.locator('[data-melody-setting="chorusStart"]').press('Tab');
+                const inverted=await page.evaluate(()=>JSON.parse(localStorage.getItem('golden-wedding-melody-cues-v2'))['0']);
+                assert.deepEqual([inverted.verseStart,inverted.verseEnd,inverted.chorusStart],[.6,1.5,.2]);
+                await page.locator('[data-action="melody-clue"]').click();
+                await page.waitForFunction(()=>document.querySelector('[data-melody-status]')?.textContent.includes('Ждём ответы гостей'),null,{timeout:7000});
+                assert(await page.locator('#shared-audio').evaluate(a=>a.paused),'Later verse must stop at independent verse end');
+                assert(Math.abs((await page.locator('#shared-audio').evaluate(a=>a.currentTime))-1.5)<.13,'Verse must stop at 1.5s');
+                await page.locator('[data-action="melody-reveal"]').click();
+                await page.locator('.melody-big-answer').waitFor();
+                assert((await page.locator('#shared-audio').evaluate(a=>a.currentTime))>=.18,'Revealed chorus must seek backwards to 0.2s');
+                await page.locator('[data-action="melody-restart"]').click();
                 // Image/answer change animation stays within the selected contest.
                 if(viewport.width<=800)await page.locator('#mobile-stage-select').selectOption('7');
                 else await page.locator('.section-item[data-value="7"]').click();
