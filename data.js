@@ -31,7 +31,16 @@ window.SITE_DATA = {
     { emoji: '🛸 🏜️ 🪐 🔔', answer: 'Кин-дза-дза!' },
     { emoji: '❤️ ⚗️ 🗿 ✨', answer: 'Формула любви' }
   ],
-  melodies: Array.from({ length: 20 }, (_, i) => ({ title: `Мелодия ${String(i + 1).padStart(2, '0')}`, answer: 'Название ещё не добавлено', src: `media/melodies/${String(i + 1).padStart(2, '0')}.mp3` })),
+  // Для каждой песни: один полный MP3. До раскрытия ответа звучит verseStart..chorusStart;
+  // по нажатию «Показать ответ» проигрывается припев начиная с chorusStart.
+  // Временные метки (в секундах) заполним, когда будут известны конкретные записи.
+  melodies: Array.from({ length: 20 }, (_, i) => ({
+    title: `Мелодия ${String(i + 1).padStart(2, '0')}`,
+    answer: 'Название ещё не добавлено',
+    verseStart: 0,
+    chorusStart: null,
+    src: `media/melodies/${String(i + 1).padStart(2, '0')}.mp3`
+  })),
   // Вопросы пока демонстрационные. Фотографии поместите в media/salads/01.jpg и т. д.
   salads: [
     { title: 'Селёдка под шубой', photo: 'media/salads/01.jpg' },
