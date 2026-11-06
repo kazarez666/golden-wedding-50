@@ -8,7 +8,7 @@
   const ambientScreen = document.getElementById('ambient-screen');
   const state = {
     section: 0, movie: 0, movieAnswer: false, interview: 0,
-    melody: 0, melodyAnswer: false, salad: 0, saladAnswer: false,
+    melody: 0, melodyAnswer: false, melodyPhase: 'idle', salad: 0, saladAnswer: false,
     silhouetteRound: 0, silhouetteStatus: 'ready', silhouetteCounts: false, timerLeft: 15,
     uploads: {}, presentation: false, audioPlaying: false, audioKey: '',
     creditsPaused: false
@@ -37,6 +37,51 @@
   }
   const safe = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const fmt = (n) => String(n).padStart(2, '0');
+  const melodySettingsKey = 'golden-wedding-melody-cues-v1';
+  const melodyVolumeKey = 'golden-wedding-melody-volume-v1';
+  function loadMelodySettings(){
+    try {
+      const value=JSON.parse(localStorage.getItem(melodySettingsKey)||'{}');
+      return value && typeof value==='object' && !Array.isArray(value) ? value : {};
+    }catch(_){return {};}
+  }
+  const melodySettings = loadMelodySettings();
+  let melodyVolume=.8;
+  try {
+    const value=Number(localStorage.getItem(melodyVolumeKey));
+    if(Number.isFinite(value)&&value>=0&&value<=1)melodyVolume=value;
+  }catch(_){}
+  const melodyTime = value => {
+    if(!Number.isFinite(value) || value<0)return '--:--';
+    const n=Math.floor(value);
+    return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0');
+  };
+  function melodyInfo(index=state.melody){
+    const base=D.melodies[index]||{};
+    const override=melodySettings[String(index)]||{};
+    const positive=v=>v!==null&&v!==''&&Number.isFinite(Number(v))?Math.max(0,Number(v)):null;
+    const verseStart=positive(override.verseStart??base.verseStart)??0;
+    const chorusStart=positive(override.chorusStart??base.chorusStart);
+    return {
+      ...base,
+      answer:String(override.answer??base.answer??''),
+      verseStart,
+      chorusStart
+    };
+  }
+  const melodyReady = item => item.chorusStart!==null && item.chorusStart>item.verseStart;
+  function saveMelodySetting(field,value){
+    const key=String(state.melody);
+    const entry={...(melodySettings[key]||{})};
+    if(field==='answer'){
+      entry.answer=String(value).trim().slice(0,150);
+    }else if(field==='verseStart'||field==='chorusStart'){
+      const number=Number(String(value).trim().replace(',','.'));
+      entry[field]=String(value).trim()===''||!Number.isFinite(number)||number<0 ? null : Math.round(number*10)/10;
+    }else return;
+    melodySettings[key]=entry;
+    try{localStorage.setItem(melodySettingsKey,JSON.stringify(melodySettings));}catch(_){}
+  }
   const fileURL = (key, fallback) => window.WeddingCloud?.fileURL(key, state.uploads[key] || fallback) || state.uploads[key] || fallback;
   function toast(message) {
     const node = document.getElementById('toast'); node.textContent = message; node.classList.add('show');
@@ -85,9 +130,77 @@
     return `<section class="stage-content compact"><p class="eyebrow">КОНКУРС · КИНОВИКТОРИНА</p><h1 class="stage-h1">Угадай <em>фильм</em></h1><div class="question-card"><div class="film-flare"></div><div class="question-label">КАКОЙ ФИЛЬМ ЗАГАДАН?</div><div class="emojis">${safe(movie.emoji)}</div>${state.movieAnswer ? `<div class="answer-panel"><p>ПРАВИЛЬНЫЙ ОТВЕТ</p><strong>${safe(movie.answer)}</strong></div>` : `<p class="answer-hidden">Посмотрите на эмодзи и назовите фильм</p>`}</div><div class="stage-actions">${button(state.movieAnswer?'Скрыть ответ':'Показать ответ','movie-reveal')}${button('Следующий фильм →','movie-next','secondary-button',state.movie===D.movies.length-1?'disabled':'')}</div>${stepper('movie-prev','movie-next',state.movie,D.movies.length)}<p class="fine-print">10 фильмов, выбранных для праздничного вечера.</p></section>`;
   }
   function viewMelodies() {
-    const current = D.melodies[state.melody];
-    const playing = state.audioPlaying && state.audioKey === `melody-${state.melody}`;
-    return `<section class="stage-content compact"><p class="eyebrow">МУЗЫКАЛЬНЫЙ КОНКУРС</p><h1 class="stage-h1">Угадай <em>мелодию</em></h1><div class="melody-art ${playing?'is-playing':''}" aria-hidden="true"></div><p class="section-kicker">КОМПОЗИЦИЯ ${fmt(state.melody+1)} ИЗ ${fmt(D.melodies.length)}</p><p class="stage-subtitle">Слушайте отрывок и угадывайте название композиции.</p>${state.melodyAnswer ? `<div class="answer-panel"><p>ОТВЕТ</p><strong class="${current.answer.includes('не добавлено')?'muted-answer':''}">${safe(current.answer)}</strong></div>` : ''}<div class="stage-actions">${button(playing?'❚❚ Пауза':'▶ Запустить мелодию','melody-toggle')}${pick(`melody-${state.melody}`,'Выбрать MP3','audio/*')}${button(state.melodyAnswer?'Скрыть ответ':'Показать ответ','melody-reveal','secondary-button')}</div>${stepper('melody-prev','melody-next',state.melody,D.melodies.length)}<p class="fine-print">Названия и музыка пока не добавлены — кнопки уже работают с вашими файлами.</p></section>`;
+    const current=melodyInfo();
+    const key='melody-'+state.melody;
+    const playing=state.audioKey===key&&!audio.paused&&!audio.ended;
+    const configured=melodyReady(current);
+    const answerDefined=current.answer.trim()&&current.answer!=='Название ещё не добавлено';
+    const phase=state.melodyPhase;
+    const status=phase==='waiting'
+      ? 'Куплет закончился. Ждём ответы гостей.'
+      : phase==='chorus' ? 'Звучит припев — правильный ответ открыт.'
+      : phase==='clue' ? (playing?'Звучит куплет — слушаем и угадываем.':'Куплет на паузе.')
+      : phase==='preview' ? (playing?'Режим настройки: прослушивание полной песни.':'Прослушивание на паузе.')
+      : configured ? 'Готово к игре: куплет остановится перед припевом.' : 'Установите точку начала припева в настройках.';
+    return \`<section class="stage-content wide compact melody-game-screen">
+      \${episode('МУЗЫКАЛЬНЫЙ КОНКУРС','Угадай мелодию',\`ТРЕК \${fmt(state.melody+1)} / \${fmt(D.melodies.length)}\`)}
+      <div class="melody-game-layout">
+        <div class="melody-main-panel">
+          <div class="melody-disc-row">
+            <div class="melody-art \${playing?'is-playing':''}" aria-hidden="true"></div>
+            <div class="melody-live-copy">
+              <p class="melody-phase-label">\${state.melodyAnswer?'ПРАВИЛЬНЫЙ ОТВЕТ':'УГАДАЙТЕ КОМПОЗИЦИЮ'}</p>
+              \${state.melodyAnswer
+                ? \`<div class="melody-big-answer">\${safe(answerDefined?current.answer:'Название ещё не добавлено')}</div>\`
+                : \`<div class="melody-question-mark">♫ <span>Что за песня?</span></div>\`}
+              <p class="melody-play-status" data-melody-status role="status">\${safe(status)}</p>
+            </div>
+          </div>
+          <div class="melody-transport" aria-label="Управление музыкой">
+            <div class="melody-progress-head"><span data-melody-current>00:00</span><span data-melody-duration>--:--</span></div>
+            <input type="range" data-melody-seek min="0" max="100" step="0.1" value="0" aria-label="Перемотка песни" class="melody-range melody-seek" />
+            <div class="melody-transport-buttons">
+              \${button('▶ Куплет','melody-clue','primary-button')}
+              \${button(playing?'❚❚ Пауза':'▶ Продолжить','melody-pause','secondary-button',state.audioKey!==key||phase==='waiting'?'disabled':'')}
+              \${button('↻ Сначала','melody-restart','small-button')}
+            </div>
+            <div class="melody-volume-control">
+              <label for="melody-volume">Громкость</label>
+              <input id="melody-volume" type="range" min="0" max="100" step="1" value="\${Math.round(melodyVolume*100)}" data-melody-volume class="melody-range" aria-label="Громкость музыки"/>
+              <output data-melody-volume-value>\${Math.round(melodyVolume*100)}%</output>
+            </div>
+          </div>
+          <div class="melody-reveal-row">
+            \${button(state.melodyAnswer?'Скрыть ответ':'✦ Показать ответ и включить припев',state.melodyAnswer?'melody-hide':'melody-reveal','primary-button')}
+            \${state.melodyAnswer?button('↻ Повторить припев','melody-chorus','secondary-button'):''}
+          </div>
+        </div>
+        <details class="melody-setup">
+          <summary>⚙ Настройка песни и фрагмента</summary>
+          <div class="melody-setup-body">
+            <p class="melody-help">Загрузите один полный MP3, включите прослушивание и отметьте начало куплета и припева. Файл заранее резать не нужно.</p>
+            \${pick(key,'Загрузить песню MP3','audio/mpeg,.mp3')}
+            \${button('▶ Прослушать всю запись','melody-preview','secondary-button')}
+            <label class="melody-config-label">Исполнитель — название
+              <input data-melody-setting="answer" type="text" value="\${safe(current.answer==='Название ещё не добавлено'?'':current.answer)}" placeholder="Например: Корни — 25 этаж" autocomplete="off"/>
+            </label>
+            <div class="melody-cue-grid">
+              <label class="melody-config-label">Начало куплета (секунды)
+                <input type="number" min="0" step="0.1" data-melody-setting="verseStart" value="\${current.verseStart}"/>
+              </label>
+              \${button('Отметить начало куплета','melody-mark-verse','small-button')}
+              <label class="melody-config-label">Начало припева (секунды)
+                <input type="number" min="0" step="0.1" data-melody-setting="chorusStart" value="\${current.chorusStart===null?'':current.chorusStart}" placeholder="Например: 42.5"/>
+              </label>
+              \${button('Отметить начало припева','melody-mark-chorus','small-button')}
+            </div>
+            <p class="melody-help">Настройки на этой странице сохраняются в браузере устройства. Когда согласуем песни, перенесу ответы и метки в проект, чтобы они работали на всех устройствах.</p>
+          </div>
+        </details>
+      </div>
+      \${stepper('melody-prev','melody-next',state.melody,D.melodies.length)}
+      <p class="fine-print">Сначала звучит куплет и останавливается перед припевом. После раскрытия ответа автоматически начинается припев. До праздника проверьте границы каждого фрагмента.</p>
+    </section>\`;
   }
   function viewPairs() {
     return `<section class="stage-content">${confetti()}<div class="ring-set"><i></i><i></i></div>${lead('А ТЕПЕРЬ · ВРЕМЯ ДЛЯ КОМАНД', 'Парный <em>конкурс</em>', 'Найдите себе пару — начинается следующий конкурс!')}<div class="ornament-line">✦</div><p class="fine-print">Это только заставка для объявления конкурса. Правила озвучит ведущий.</p></section>`;
