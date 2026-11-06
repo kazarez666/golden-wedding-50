@@ -105,6 +105,15 @@ jobs:
           assert.equal(contentEnv.window.SITE_DATA.movies.length,10,'Expected exactly 10 movie clues');
           assert.equal(contentEnv.window.SITE_DATA.melodies.length,20,'Expected exactly 20 melody tracks');
           assert.equal(contentEnv.window.SITE_DATA.melodies[19].src,'media/melodies/20.mp3');
+          const songs=contentEnv.window.SITE_DATA.melodies;
+          assert.equal(songs[0].answer,'Кола Бельды — Увезу тебя я в тундру');
+          assert.equal(songs[5].answer,'Корни — 25 этаж');
+          assert.equal(songs[7].artist,'Гости из будущего');
+          assert.equal(songs[7].answer,'Название ещё не добавлено');
+          assert.equal(songs[19].answer,'Сергей Никитин — Я спросил у ясеня');
+          assert.equal(new Set(songs.map(x=>x.artist+' / '+x.song)).size,20);
+          assert(songs.every((x,i)=>x.src==='media/melodies/'+String(i+1).padStart(2,'0')+'.mp3'));
+
           assert.equal(contentEnv.window.SITE_DATA.movies[0].answer,'Иван Васильевич меняет профессию');
           assert.equal(contentEnv.window.SITE_DATA.movies[9].answer,'Формула любви');
           console.log('20 MP3 melody slots, Cloudinary sync and movie clues verified by mock. Real uploads still need Cloudinary configuration.');
