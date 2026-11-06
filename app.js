@@ -37,7 +37,7 @@
   }
   const safe = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const fmt = (n) => String(n).padStart(2, '0');
-  const melodySettingsKey = 'golden-wedding-melody-cues-v1';
+  const melodySettingsKey = 'golden-wedding-melody-cues-v2';
   const melodyVolumeKey = 'golden-wedding-melody-volume-v1';
   function loadMelodySettings(){
     try {
