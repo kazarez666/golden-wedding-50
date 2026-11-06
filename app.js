@@ -87,6 +87,11 @@
     try{localStorage.setItem(melodySettingsKey,JSON.stringify(melodySettings));}catch(_){}
   }
   const fileURL = (key, fallback) => window.WeddingCloud?.fileURL(key, state.uploads[key] || fallback) || state.uploads[key] || fallback;
+  // Song metadata and tentative cue points are not the audio recording itself.
+  const melodyHasFile = (index=state.melody) => {
+    const key='melody-'+index;
+    return Boolean(state.uploads[key] || window.WeddingCloud?.hasFile?.(key));
+  };
   function toast(message) {
     const node = document.getElementById('toast'); node.textContent = message; node.classList.add('show');
     clearTimeout(toastTimeout); toastTimeout = setTimeout(() => node.classList.remove('show'), 3600);
@@ -138,6 +143,7 @@
     const key='melody-'+state.melody;
     const playing=state.audioKey===key&&!audio.paused&&!audio.ended;
     const configured=melodyReady(current);
+    const hasFile=melodyHasFile();
     const answerDefined=current.answer.trim()&&current.answer!=='Название ещё не добавлено';
     const phase=state.melodyPhase;
     const cueNote=current.cueStatus==='preliminary'
@@ -150,10 +156,12 @@
       : phase==='chorus' ? 'Звучит припев — правильный ответ открыт.'
       : phase==='clue' ? (playing?'Звучит куплет — слушаем и угадываем.':'Куплет на паузе.')
       : phase==='preview' ? (playing?'Режим настройки: прослушивание полной песни.':'Прослушивание на паузе.')
-      : configured ? 'Готово к игре: куплет остановится перед припевом.' : 'Установите точку начала припева в настройках.';
+      : !hasFile ? 'MP3 не загружен. Сначала добавьте запись в настройки песни.'
+      : configured ? 'Запись есть. Куплет остановится перед припевом.' : 'Запись загружена. Укажите точку начала припева в настройках.';
     return `<section class="stage-content wide compact melody-game-screen">
       ${episode('МУЗЫКАЛЬНЫЙ КОНКУРС','Угадай мелодию',`ТРЕК ${fmt(state.melody+1)} / ${fmt(D.melodies.length)}`)}
       <div class="melody-game-layout">
+        <p class="melody-file-status ${hasFile?'melody-file-ready':'melody-file-missing'}" data-melody-file-status>${hasFile?'✓ MP3 для этого задания загружен':'⚠ Для этого задания MP3 ещё не загружен. Название и секунды не являются аудиофайлом.'}</p>
         <div class="melody-main-panel">
           <div class="melody-disc-row">
             <div class="melody-art ${playing?'is-playing':''}" aria-hidden="true"></div>
@@ -522,6 +530,11 @@
   }
   function playMelody(mode){
     const cfg=melodyInfo();
+    if(!melodyHasFile()){
+      toast('Для трека '+fmt(state.melody+1)+' MP3 пока отсутствует. Откройте «Настройка песни и фрагмента» и загрузите запись.');
+      updateMelodyControls();
+      return;
+    }
     if((mode==='clue'||mode==='chorus')&&!melodyReady(cfg)){
       toast('Сначала укажите начало куплета и точку начала припева в настройках песни.');
       if(mode==='chorus'){
@@ -731,6 +744,7 @@
   document.addEventListener('input',e=>{
     const seek=e.target.closest('[data-melody-seek]');
     if(seek && D.sections[state.section].id==='melodies'){
+      if(!melodyHasFile()){toast('В этом задании нет MP3 для перемотки.');return;}
       prepareMelodyAudio();
       const value=Number(seek.value);
       if(Number.isFinite(value)){try{audio.currentTime=value;}catch(_){}}
@@ -807,7 +821,15 @@
       updateMelodyControls();
     }else render();
   });
-  audio.addEventListener('error',()=>{state.audioPlaying=false;if(state.audioKey)toast('Аудиофайл не загрузился. Выберите MP3 с ноутбука или добавьте его в media/.');});
+  audio.addEventListener('error',()=>{
+    state.audioPlaying=false;
+    if(state.audioKey.startsWith('melody-')){
+      toast('Не удалось прочитать этот MP3. Проверьте загрузку файла и обновите страницу.');
+      updateMelodyControls();
+    }else if(state.audioKey){
+      toast('Аудиофайл не загрузился. Проверьте источник записи.');
+    }
+  });
   // Закрытие dialog по клику за пределами содержимого.
   helpDialog.addEventListener('click',e=>{if(e.target===helpDialog)helpDialog.close();});
   document.addEventListener('wedding-cloud-updated',()=>{
