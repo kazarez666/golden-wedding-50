@@ -79,24 +79,33 @@ jobs:
               {public_id:'test/round2',format:'jpg',version:7,context:{custom:{slot:'silhouette-1'}}}
             ]:[
               {public_id:'test/march',format:'mp3',version:5,context:{custom:{slot:'march'}}},
-              {public_id:'test/melody',format:'mp3',version:8,context:{custom:{slot:'melody-7'}}}
+              {public_id:'test/melody',format:'mp3',version:8,context:{custom:{slot:'melody-7'}}},
+              {public_id:'test/melody20',format:'mp3',version:10,context:{custom:{slot:'melody-19'}}}
             ]})})};
           vm.runInNewContext(cloud,simulated,{timeout:2000});
           assert(simulated.window.WeddingCloud.isMedia('march'));
           assert(simulated.window.WeddingCloud.isMedia('melody-7'));
-          assert(!simulated.window.WeddingCloud.isMedia('melody-8'));
+          assert(simulated.window.WeddingCloud.isMedia('melody-8'));
+          assert(simulated.window.WeddingCloud.isMedia('melody-19'));
+          assert(!simulated.window.WeddingCloud.isMedia('melody-20'));
+          assert(!simulated.window.WeddingCloud.isMedia('melody--1'));
+          assert(!simulated.window.WeddingCloud.isMedia('melody-019'));
           assert(simulated.window.WeddingCloud.isImage('silhouette-0'));
           assert(simulated.window.WeddingCloud.isImage('silhouette-1'));
           assert(!simulated.window.WeddingCloud.isImage('silhouette-2'));
           assert(await simulated.window.WeddingCloud.refresh(),'Public MP3 list parsing failed');
           assert(simulated.window.WeddingCloud.fileURL('march','missing.mp3').endsWith('.mp3'));
           assert(simulated.window.WeddingCloud.fileURL('melody-7','missing.mp3').endsWith('.mp3'));
+          assert(simulated.window.WeddingCloud.fileURL('melody-19','missing.mp3').includes('melody20.mp3'));
+          assert.equal(simulated.window.WeddingCloud.fileURL('melody-20','missing.mp3'),'missing.mp3');
           assert(simulated.window.WeddingCloud.fileURL('silhouette-0','').endsWith('.png'));
           assert(simulated.window.WeddingCloud.fileURL('silhouette-1','').endsWith('.jpg'));
           const contentEnv={window:{}};
           vm.runInNewContext(data,contentEnv,{timeout:2000});
           assert.equal(contentEnv.window.SITE_DATA.movies.length,10,'Expected exactly 10 movie clues');
+          assert.equal(contentEnv.window.SITE_DATA.melodies.length,20,'Expected exactly 20 melody tracks');
+          assert.equal(contentEnv.window.SITE_DATA.melodies[19].src,'media/melodies/20.mp3');
           assert.equal(contentEnv.window.SITE_DATA.movies[0].answer,'Иван Васильевич меняет профессию');
           assert.equal(contentEnv.window.SITE_DATA.movies[9].answer,'Формула любви');
-          console.log('Cloudinary MP3 sync and movie clues verified by mock. Real uploads still need Cloudinary configuration.');
+          console.log('20 MP3 melody slots, Cloudinary sync and movie clues verified by mock. Real uploads still need Cloudinary configuration.');
           EOF
