@@ -273,6 +273,18 @@ body.presentation .melody-setup{display:none}
   .melody-question-mark{gap:8px}
   .melody-volume-control{gap:9px}
 }
+.melody-cue-note{
+  flex-basis:100%;
+  font-size:12px;
+  line-height:1.55;
+  font-weight:650;
+  color:#3F010D!important;
+  background:rgba(215,176,82,.22);
+  border-left:4px solid #D7B052;
+  border-radius:6px;
+  padding:11px 14px;
+  margin:0;
+}
 @media(prefers-reduced-motion:reduce){
   .melody-big-answer{animation:none!important}
 }
