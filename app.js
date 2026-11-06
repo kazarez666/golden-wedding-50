@@ -141,8 +141,10 @@
     const answerDefined=current.answer.trim()&&current.answer!=='Название ещё не добавлено';
     const phase=state.melodyPhase;
     const cueNote=current.cueStatus==='preliminary'
-      ? 'Метки выставлены автоматически по синхронизированному тексту. Это ориентир для другой записи — после загрузки MP3 обязательно проверьте их на слух.'
-      : 'Для этой песни не удалось определить надёжные метки. Нужна запись, чтобы найти начало куплета и место раскрытия ответа.';
+      ? 'Метки предварительные: найдены по синхронизированному тексту другой записи. Сверьте с загруженным MP3.'
+      : current.cueStatus==='locally_adjusted'
+      ? 'Метки изменены в этом браузере. Проверьте границу куплета по загруженному MP3.'
+      : 'Для этой песни надёжные метки пока не найдены. Без записи секунды будут выдумкой.';
     const status=phase==='waiting'
       ? 'Куплет закончился. Ждём ответы гостей.'
       : phase==='chorus' ? 'Звучит припев — правильный ответ открыт.'
@@ -480,6 +482,22 @@
     if(seek){
       seek.max=String(duration&&duration>0?duration:100);
       seek.value=String(Math.min(duration&&duration>0?duration:100,time));
+    }
+    const cueWarning=stage.querySelector('[data-cue-warning]');
+    if(cueWarning){
+      const cfg=melodyInfo();
+      if(cfg.cueStatus==='preliminary' && duration && cfg.referenceDuration &&
+         Math.abs(duration-cfg.referenceDuration)>3){
+        cueWarning.textContent='⚠ Длительность загруженного MP3 ('+melodyTime(duration)+
+          ') отличается от версии из синхронизированного текста ('+melodyTime(cfg.referenceDuration)+
+          '). Эти метки не гарантируют остановку перед припевом. Их надо перепроверить.';
+      }else if(cfg.cueStatus==='locally_adjusted'){
+        cueWarning.textContent='Метки изменены в браузере этого устройства. Проверьте, что куплет обрывается до припева.';
+      }else if(cfg.cueStatus==='preliminary'){
+        cueWarning.textContent='Предварительные метки из синхронизированного текста. Прослушайте запись перед праздником.';
+      }else{
+        cueWarning.textContent='Надёжных меток нет. Неизвестна точная версия записи.';
+      }
     }
     const currentLabel=stage.querySelector('[data-melody-current]');
     if(currentLabel)currentLabel.textContent=melodyTime(time);
