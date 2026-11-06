@@ -112,6 +112,18 @@ jobs:
           assert.equal(songs[7].answer,'Название ещё не добавлено');
           assert.equal(songs[19].answer,'Сергей Никитин — Я спросил у ясеня');
           assert.equal(new Set(songs.map(x=>x.artist+' / '+x.song)).size,20);
+          // Only cues with a matching synchronized lyric record were populated.
+          // All markers remain explicitly provisional until the actual recording is checked.
+          assert.equal(songs.filter(x=>x.cueStatus==='preliminary').length,14);
+          assert.equal(songs.filter(x=>x.cueStatus==='not_found').length,6);
+          assert.equal(songs[0].verseStart,10.6);
+          assert.equal(songs[0].chorusStart,29.3);
+          assert.equal(songs[5].chorusStart,65.4);
+          assert.equal(songs[7].chorusStart,null);
+          assert.equal(songs[19].chorusStart,null);
+          assert(songs.every(x=>x.cueStatus!=='preliminary'||x.chorusStart>x.verseStart));
+          assert(songs.every(x=>x.cueStatus!=='preliminary'||x.cueSource.startsWith('lrclib:')));
+
           assert(songs.every((x,i)=>x.src==='media/melodies/'+String(i+1).padStart(2,'0')+'.mp3'));
 
           assert.equal(contentEnv.window.SITE_DATA.movies[0].answer,'Иван Васильевич меняет профессию');
