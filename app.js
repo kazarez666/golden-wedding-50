@@ -48,8 +48,11 @@
   const melodySettings = loadMelodySettings();
   let melodyVolume=.8;
   try {
-    const value=Number(localStorage.getItem(melodyVolumeKey));
-    if(Number.isFinite(value)&&value>=0&&value<=1)melodyVolume=value;
+    const saved=localStorage.getItem(melodyVolumeKey);
+    if(saved!==null){
+      const value=Number(saved);
+      if(Number.isFinite(value)&&value>=0&&value<=1)melodyVolume=value;
+    }
   }catch(_){}
   const melodyTime = value => {
     if(!Number.isFinite(value) || value<0)return '--:--';
