@@ -142,65 +142,65 @@
       : phase==='clue' ? (playing?'Звучит куплет — слушаем и угадываем.':'Куплет на паузе.')
       : phase==='preview' ? (playing?'Режим настройки: прослушивание полной песни.':'Прослушивание на паузе.')
       : configured ? 'Готово к игре: куплет остановится перед припевом.' : 'Установите точку начала припева в настройках.';
-    return \`<section class="stage-content wide compact melody-game-screen">
-      \${episode('МУЗЫКАЛЬНЫЙ КОНКУРС','Угадай мелодию',\`ТРЕК \${fmt(state.melody+1)} / \${fmt(D.melodies.length)}\`)}
+    return `<section class="stage-content wide compact melody-game-screen">
+      ${episode('МУЗЫКАЛЬНЫЙ КОНКУРС','Угадай мелодию',`ТРЕК ${fmt(state.melody+1)} / ${fmt(D.melodies.length)}`)}
       <div class="melody-game-layout">
         <div class="melody-main-panel">
           <div class="melody-disc-row">
-            <div class="melody-art \${playing?'is-playing':''}" aria-hidden="true"></div>
+            <div class="melody-art ${playing?'is-playing':''}" aria-hidden="true"></div>
             <div class="melody-live-copy">
-              <p class="melody-phase-label">\${state.melodyAnswer?'ПРАВИЛЬНЫЙ ОТВЕТ':'УГАДАЙТЕ КОМПОЗИЦИЮ'}</p>
-              \${state.melodyAnswer
-                ? \`<div class="melody-big-answer">\${safe(answerDefined?current.answer:'Название ещё не добавлено')}</div>\`
-                : \`<div class="melody-question-mark">♫ <span>Что за песня?</span></div>\`}
-              <p class="melody-play-status" data-melody-status role="status">\${safe(status)}</p>
+              <p class="melody-phase-label">${state.melodyAnswer?'ПРАВИЛЬНЫЙ ОТВЕТ':'УГАДАЙТЕ КОМПОЗИЦИЮ'}</p>
+              ${state.melodyAnswer
+                ? `<div class="melody-big-answer">${safe(answerDefined?current.answer:'Название ещё не добавлено')}</div>`
+                : `<div class="melody-question-mark">♫ <span>Что за песня?</span></div>`}
+              <p class="melody-play-status" data-melody-status role="status">${safe(status)}</p>
             </div>
           </div>
           <div class="melody-transport" aria-label="Управление музыкой">
             <div class="melody-progress-head"><span data-melody-current>00:00</span><span data-melody-duration>--:--</span></div>
             <input type="range" data-melody-seek min="0" max="100" step="0.1" value="0" aria-label="Перемотка песни" class="melody-range melody-seek" />
             <div class="melody-transport-buttons">
-              \${button('▶ Куплет','melody-clue','primary-button')}
-              \${button(playing?'❚❚ Пауза':'▶ Продолжить','melody-pause','secondary-button',state.audioKey!==key||phase==='waiting'?'disabled':'')}
-              \${button('↻ Сначала','melody-restart','small-button')}
+              ${button('▶ Куплет','melody-clue','primary-button')}
+              ${button(playing?'❚❚ Пауза':'▶ Продолжить','melody-pause','secondary-button',state.audioKey!==key||phase==='waiting'?'disabled':'')}
+              ${button('↻ Сначала','melody-restart','small-button')}
             </div>
             <div class="melody-volume-control">
               <label for="melody-volume">Громкость</label>
-              <input id="melody-volume" type="range" min="0" max="100" step="1" value="\${Math.round(melodyVolume*100)}" data-melody-volume class="melody-range" aria-label="Громкость музыки"/>
-              <output data-melody-volume-value>\${Math.round(melodyVolume*100)}%</output>
+              <input id="melody-volume" type="range" min="0" max="100" step="1" value="${Math.round(melodyVolume*100)}" data-melody-volume class="melody-range" aria-label="Громкость музыки"/>
+              <output data-melody-volume-value>${Math.round(melodyVolume*100)}%</output>
             </div>
           </div>
           <div class="melody-reveal-row">
-            \${button(state.melodyAnswer?'Скрыть ответ':'✦ Показать ответ и включить припев',state.melodyAnswer?'melody-hide':'melody-reveal','primary-button')}
-            \${state.melodyAnswer?button('↻ Повторить припев','melody-chorus','secondary-button'):''}
+            ${button(state.melodyAnswer?'Скрыть ответ':'✦ Показать ответ и включить припев',state.melodyAnswer?'melody-hide':'melody-reveal','primary-button')}
+            ${state.melodyAnswer?button('↻ Повторить припев','melody-chorus','secondary-button'):''}
           </div>
         </div>
         <details class="melody-setup">
           <summary>⚙ Настройка песни и фрагмента</summary>
           <div class="melody-setup-body">
             <p class="melody-help">Загрузите один полный MP3, включите прослушивание и отметьте начало куплета и припева. Файл заранее резать не нужно.</p>
-            \${pick(key,'Загрузить песню MP3','audio/mpeg,.mp3')}
-            \${button('▶ Прослушать всю запись','melody-preview','secondary-button')}
+            ${pick(key,'Загрузить песню MP3','audio/mpeg,.mp3')}
+            ${button('▶ Прослушать всю запись','melody-preview','secondary-button')}
             <label class="melody-config-label">Исполнитель — название
-              <input data-melody-setting="answer" type="text" value="\${safe(current.answer==='Название ещё не добавлено'?'':current.answer)}" placeholder="Например: Корни — 25 этаж" autocomplete="off"/>
+              <input data-melody-setting="answer" type="text" value="${safe(current.answer==='Название ещё не добавлено'?'':current.answer)}" placeholder="Например: Корни — 25 этаж" autocomplete="off"/>
             </label>
             <div class="melody-cue-grid">
               <label class="melody-config-label">Начало куплета (секунды)
-                <input type="number" min="0" step="0.1" data-melody-setting="verseStart" value="\${current.verseStart}"/>
+                <input type="number" min="0" step="0.1" data-melody-setting="verseStart" value="${current.verseStart}"/>
               </label>
-              \${button('Отметить начало куплета','melody-mark-verse','small-button')}
+              ${button('Отметить начало куплета','melody-mark-verse','small-button')}
               <label class="melody-config-label">Начало припева (секунды)
-                <input type="number" min="0" step="0.1" data-melody-setting="chorusStart" value="\${current.chorusStart===null?'':current.chorusStart}" placeholder="Например: 42.5"/>
+                <input type="number" min="0" step="0.1" data-melody-setting="chorusStart" value="${current.chorusStart===null?'':current.chorusStart}" placeholder="Например: 42.5"/>
               </label>
-              \${button('Отметить начало припева','melody-mark-chorus','small-button')}
+              ${button('Отметить начало припева','melody-mark-chorus','small-button')}
             </div>
             <p class="melody-help">Настройки на этой странице сохраняются в браузере устройства. Когда согласуем песни, перенесу ответы и метки в проект, чтобы они работали на всех устройствах.</p>
           </div>
         </details>
       </div>
-      \${stepper('melody-prev','melody-next',state.melody,D.melodies.length)}
+      ${stepper('melody-prev','melody-next',state.melody,D.melodies.length)}
       <p class="fine-print">Сначала звучит куплет и останавливается перед припевом. После раскрытия ответа автоматически начинается припев. До праздника проверьте границы каждого фрагмента.</p>
-    </section>\`;
+    </section>`;
   }
   function viewPairs() {
     return `<section class="stage-content">${confetti()}<div class="ring-set"><i></i><i></i></div>${lead('А ТЕПЕРЬ · ВРЕМЯ ДЛЯ КОМАНД', 'Парный <em>конкурс</em>', 'Найдите себе пару — начинается следующий конкурс!')}<div class="ornament-line">✦</div><p class="fine-print">Это только заставка для объявления конкурса. Правила озвучит ведущий.</p></section>`;
