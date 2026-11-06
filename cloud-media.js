@@ -13,7 +13,7 @@
     /^[A-Za-z0-9_-]{2,120}$/.test(uploadPreset) &&
     /^[A-Za-z0-9_-]{2,120}$/.test(tag);
   const isVideo = key => key === 'wedding' || /^interview-(?:[0-9]|1[0-5])$/.test(key);
-  const isAudio = key => key === 'march' || /^melody-[0-7]$/.test(key);
+  const isAudio = key => key === 'march' || /^melody-(?:[0-9]|1[0-9])$/.test(key);
   const isImage = key => /^silhouette-[01]$/.test(key);
   const isMedia = key => isVideo(key) || isAudio(key) || isImage(key);
   const stored = new Map();
