@@ -154,6 +154,8 @@ jobs:
                   const wav=URL.createObjectURL(new Blob([buffer],{type:'audio/wav'}));
                   const old=window.WeddingCloud.fileURL;
                   window.WeddingCloud.fileURL=(key,fallback)=>key==='melody-0'?wav:old(key,fallback);
+                  const originalHasFile=window.WeddingCloud.hasFile;
+                  window.WeddingCloud.hasFile=key=>key==='melody-0'||originalHasFile(key);
                 });
                 await page.locator('.melody-setup summary').click();
                 await page.locator('[data-melody-setting="answer"]').fill('Тестовый артист — Тестовая песня');
