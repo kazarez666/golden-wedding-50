@@ -16,6 +16,14 @@
   const isAudio = key => key === 'march' || /^melody-(?:[0-9]|1[0-9])$/.test(key);
   const isImage = key => /^silhouette-[01]$/.test(key);
   const isMedia = key => isVideo(key) || isAudio(key) || isImage(key);
+  // Two historical test MP3s were previously uploaded to melody-0.
+  // They must not be reattached to the new shuffled quiz's first song.
+  // This hides them from the site; physical Cloudinary deletion requires
+  // access to the owner's Media Library / authenticated Admin API.
+  const retiredMelodyAssets = new Set([
+    'wjimtrlputewf3i782x2',
+    'm0vz7tykuahuyscjjszj'
+  ]);
   const stored = new Map();
   let busy = false;
   let refreshing = false;
@@ -85,6 +93,7 @@
         for (const asset of assets) {
           const slot = parseSlot(asset);
           if (!slot || isImage(slot) !== (kind === 'image')) continue;
+          if (slot==='melody-0' && retiredMelodyAssets.has(asset.public_id)) continue;
           const url = assetUrl(asset,kind);
           if (!url) continue;
           const version=Number(asset.version)||0;
@@ -184,7 +193,8 @@
   }
 
   window.WeddingCloud = {
-    ready: () => configured, isVideo, isAudio, isImage, isMedia, upload, refresh, fileURL, statusLabel
+    ready: () => configured, isVideo, isAudio, isImage, isMedia, upload, refresh, fileURL,
+    hasFile: slot => stored.has(slot), statusLabel
   };
   if (configured) {
     document.addEventListener('DOMContentLoaded', () => {
