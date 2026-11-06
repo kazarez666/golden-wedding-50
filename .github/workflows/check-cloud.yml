@@ -78,6 +78,8 @@ jobs:
               {public_id:'test/round1',format:'png',version:6,context:{custom:{slot:'silhouette-0'}}},
               {public_id:'test/round2',format:'jpg',version:7,context:{custom:{slot:'silhouette-1'}}}
             ]:[
+              {public_id:'wjimtrlputewf3i782x2',format:'mp3',version:1793958933,context:{custom:{slot:'melody-0'}}},
+              {public_id:'m0vz7tykuahuyscjjszj',format:'mp3',version:1793953966,context:{custom:{slot:'melody-0'}}},
               {public_id:'test/march',format:'mp3',version:5,context:{custom:{slot:'march'}}},
               {public_id:'test/melody',format:'mp3',version:8,context:{custom:{slot:'melody-7'}}},
               {public_id:'test/melody20',format:'mp3',version:10,context:{custom:{slot:'melody-19'}}}
