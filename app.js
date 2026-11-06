@@ -68,6 +68,7 @@
     return {
       ...base,
       answer:String(override.answer??base.answer??''),
+      cueStatus:override.verseStart!==undefined && override.chorusStart!==undefined ? 'locally_adjusted' : base.cueStatus,
       verseStart,
       chorusStart
     };
@@ -139,6 +140,9 @@
     const configured=melodyReady(current);
     const answerDefined=current.answer.trim()&&current.answer!=='Название ещё не добавлено';
     const phase=state.melodyPhase;
+    const cueNote=current.cueStatus==='preliminary'
+      ? 'Метки выставлены автоматически по синхронизированному тексту. Это ориентир для другой записи — после загрузки MP3 обязательно проверьте их на слух.'
+      : 'Для этой песни не удалось определить надёжные метки. Нужна запись, чтобы найти начало куплета и место раскрытия ответа.';
     const status=phase==='waiting'
       ? 'Куплет закончился. Ждём ответы гостей.'
       : phase==='chorus' ? 'Звучит припев — правильный ответ открыт.'
@@ -182,6 +186,7 @@
           <summary>⚙ Настройка песни и фрагмента</summary>
           <div class="melody-setup-body">
             <p class="melody-help">Загрузите один полный MP3, включите прослушивание и отметьте начало куплета и припева. Файл заранее резать не нужно.</p>
+            <p class="melody-cue-note" data-cue-warning>${safe(cueNote)}</p>
             ${pick(key,'Загрузить песню MP3','audio/mpeg,.mp3')}
             ${button('▶ Прослушать всю запись','melody-preview','secondary-button')}
             <label class="melody-config-label">Исполнитель — название
