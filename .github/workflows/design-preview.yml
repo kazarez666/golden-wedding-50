@@ -1,0 +1,45 @@
+name: Verify contest art visually
+on:
+  push:
+    paths:
+      - '.github/workflows/design-preview.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install preview browser
+        run: |
+          npm install --no-save playwright@1.56.0
+          npx playwright install --with-deps chromium
+      - name: Capture ceremony announcement layouts
+        shell: bash
+        run: |
+          python3 -m http.server 8765 >/tmp/golden-preview.log 2>&1 &
+          sleep 2
+          node <<'EOF'
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+            try{
+              const page=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1,reducedMotion:'reduce'});
+              await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
+              for(const idx of [6,7,8]){
+                await page.locator('.section-item[data-value="'+idx+'"]').click();
+                await page.waitForFunction(i=>document.querySelector('.stage')?.dataset.scene===['pairs','salads','word'][i-6],idx);
+                await page.locator('.announcement-title').waitFor();
+                await page.waitForTimeout(150);
+                const shot=await page.screenshot({type:'jpeg',quality:64,animations:'disabled'});
+                console.log('CONTEST_PREVIEW_'+(idx+1)+'='+shot.toString('base64'));
+              }
+              await page.close();
+            }finally{await browser.close()}
+          })().catch(e=>{console.error(e);process.exitCode=1});
+          EOF
