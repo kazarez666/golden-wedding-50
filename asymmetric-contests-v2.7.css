@@ -106,8 +106,8 @@ body.presentation .stage .stage-content.announcement-screen:not(.stage-welcome):
   z-index:1!important;
   pointer-events:none!important;
   transform:none!important;
-  width:clamp(235px,30vw,373px)!important;
-  height:clamp(290px,41vw,485px)!important;
+  width:clamp(220px,27vw,343px)!important;
+  height:clamp(245px,38vh,389px)!important;
   opacity:.92!important;
   filter:none!important;
   background-repeat:no-repeat!important;
@@ -173,8 +173,8 @@ body.presentation .stage .stage-content.announcement-screen:not(.stage-welcome):
   right:auto!important;
   top:clamp(0px,.8vw,10px)!important;
   bottom:auto!important;
-  width:clamp(245px,28vw,342px)!important;
-  height:clamp(302px,43vw,480px)!important;
+  width:clamp(225px,26vw,325px)!important;
+  height:clamp(250px,38vh,389px)!important;
 }
 .stage[data-scene="word"] .announcement-copy {
   margin-left:32%;
