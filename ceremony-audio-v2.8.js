@@ -67,12 +67,17 @@ function setupWedding(){
   if(video!==attachedVideo){
     attachedVideo=video;
     video.addEventListener('play',()=>play('wedding',video.currentTime,video.playbackRate));
-    video.addEventListener('pause',()=>tracks.wedding.pause());
-    video.addEventListener('ended',()=>stop('wedding'));
+    video.addEventListener('pause',()=>{if(!video.ended)tracks.wedding.pause();});
+    // Let the MP3 finish independently after the 30-second video ends.
+    // Do not call stop here: the wedding song may last 36 seconds.
+    video.addEventListener('ended',()=>{
+      const t=tracks.wedding;
+      if(t.paused && !t.ended) t.play().catch(()=>notify('Нажмите воспроизведение музыки ещё раз.'));
+    });
     video.addEventListener('seeking',()=>{try{tracks.wedding.currentTime=video.currentTime;}catch(_){}});
     video.addEventListener('ratechange',()=>tracks.wedding.playbackRate=video.playbackRate);
     video.addEventListener('timeupdate',()=>{const t=tracks.wedding;
-      if(!t.paused&&Math.abs(t.currentTime-video.currentTime)>.25)try{t.currentTime=video.currentTime;}catch(_){}
+      if(!video.ended&&!t.paused&&Math.abs(t.currentTime-video.currentTime)>.25)try{t.currentTime=video.currentTime;}catch(_){}
     });
   }
   const panel=stage.querySelector('.ceremony-video-panel');
