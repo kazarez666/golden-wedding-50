@@ -71,9 +71,9 @@ jobs:
           assert(!app.includes('data-melody-file-status'),'Song player file status banner must be removed');
           assert(app.includes('const roundTotal = 20'),'Silhouette countdown must be twenty seconds');
           assert(app.includes("'silhouette-answer'"),'Silhouette reveal control missing');
-          assert(app.includes("return announcementSlide('Парный конкурс')"),'Pair stage should only announce its contest');
-          assert(app.includes("return announcementSlide('Конкурс «Салаты и закуски»')"),'Salad stage should announce its contest');
-          assert(app.includes("return announcementSlide('Конкурс «Загаданное слово»')"),'Word stage should announce its contest');
+          assert(app.includes("return announcementSlide('Парный конкурс','pairs')"),'Pair stage should only announce its contest');
+          assert(app.includes("return announcementSlide('Конкурс «Салаты и закуски»','salads')"),'Salad stage should announce its contest');
+          assert(app.includes("return announcementSlide('Конкурс «Загаданное слово»','word')"),'Word stage should announce its contest');
           assert(!app.includes('function silhouetteSVG'),'Obsolete demo silhouettes still present');
           assert(index.includes('id="host-menu"'),'Unified controls menu missing');
           assert(index.includes('final-layout-v1.1.css'),'Final backdrop layout missing');
