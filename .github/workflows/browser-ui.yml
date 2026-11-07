@@ -176,7 +176,7 @@ jobs:
                     width:parseFloat(branch.width),image:branch.backgroundImage};
                 });
                 assert(weddingOrnament.right>=0&&weddingOrnament.top>=0,'Wedding botanical should stay inside frame');
-                assert(weddingOrnament.width<85,'Wedding botanical must remain small');
+                assert(weddingOrnament.width>=(viewport.width>800?105:55)&&weddingOrnament.width<180,'Wedding botanical should be clearly visible but stay in its corner');
                 assert((await page.locator('.ceremony-video-upload').textContent()).includes('Загрузить свадебный ролик'));
                 assert.equal(await page.locator('.media-prompt').count(),0);
                 // Validate interview-to-interview transitions, shared volume and no autoplay.
