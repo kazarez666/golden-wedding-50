@@ -321,7 +321,13 @@
             <h3>Павлу Семёновичу<br>и Ольге Леонидовне<br><em>Смурыгиным</em></h3>
             <p>50 лет вместе</p>
           </div>
-          ${D.credits.map(c=>`<div class="credits-block"><span>${safe(c.role)}</span>${c.names.map(n=>`<h3>${safe(n)}</h3>`).join('')}</div>`).join('')}
+          ${D.credits.map(c=>`<div class="credits-block"><span>${safe(c.role)}</span>${c.names.map(n=>`<h3>${safe(n)}</h3>`).join('')}${c.note?`<p class="credits-note-line">${safe(c.note)}</p>`:''}</div>`).join('')}
+          <div class="credits-block credits-award">
+            <span>ГЛАВНАЯ НАГРАДА ВЕЧЕРА</span>
+            <h3>${safe(D.creditsAward.title)}</h3>
+            ${D.creditsAward.names.map(n=>`<h3 class="credits-award-name">${safe(n)}</h3>`).join('')}
+            <p class="credits-note-line">${safe(D.creditsAward.note)}</p>
+          </div>
           <div class="credits-block credits-thanks">
             <span>С ЛЮБОВЬЮ И БЛАГОДАРНОСТЬЮ</span>
             <h3>Спасибо за этот вечер!</h3>
@@ -335,7 +341,7 @@
         ${button('↑ Назад','credits-back','small-button')}
         ${button('↓ Вперёд','credits-forward','small-button')}
       </div>
-      <p class="fine-print credits-note">Титры предварительные — участники и роли будут дополнены перед праздником.</p>
+      <p class="fine-print credits-note">Можно пролистать назад колёсиком мыши или кнопками со стрелками.</p>
     </section>`;
   }
   const views = { entrance:viewEntrance,welcome:viewWelcome,wedding:viewWedding,interviews:viewInterviews,movies:viewMovies,melodies:viewMelodies,pairs:viewPairs,salads:viewSalads,word:viewWord,silhouettes:viewSilhouettes,credits:viewCredits };
@@ -376,7 +382,7 @@
   }
   // 55-second scrolling credits, with native scroll for guests who missed a name.
   let creditFrame=0,creditElapsed=0,creditTimestamp=null;
-  const creditDuration=55000;
+  const creditDuration=110000;
   function updateCreditControl(){
     const el=stage.querySelector('[data-action="credits-pause"]');
     if(el)el.textContent=state.creditsPaused?'▶ Продолжить':'❚❚ Пауза';
