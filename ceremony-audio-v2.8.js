@@ -64,7 +64,7 @@ function setupWedding(){
     btn.type='button';
     btn.addEventListener('click',()=>{
       if(video.ended) video.currentTime=0;
-      play('wedding',video.currentTime,video.playbackRate);
+      // The video's native play event starts the synchronized soundtrack once.
       video.play().catch(()=>{tracks.wedding.pause();notify('Не удалось запустить свадебное видео.');});
     });
     panel.insertAdjacentElement('afterend',btn);
