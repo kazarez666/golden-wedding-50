@@ -1,0 +1,136 @@
+/* V2.8 — cinematic contest intertitles, approved 3-color palette only. */
+.stage[data-scene="pairs"] .stage-content.announcement-screen,
+.stage[data-scene="salads"] .stage-content.announcement-screen,
+.stage[data-scene="word"] .stage-content.announcement-screen{
+  --wine:#3F010D;--ivory:#FEF4DC;--metal:#D7B052;
+  border:3px solid var(--metal)!important;
+  border-radius:4px!important;
+  background:var(--ivory)!important;
+  box-shadow:0 0 0 8px rgba(215,176,82,.10),0 22px 65px rgba(63,1,13,.13)!important;
+  min-height:clamp(410px,62vh,670px)!important;
+  width:min(calc(100% - 48px),1160px)!important;
+  max-height:none!important;
+  padding:clamp(35px,5vw,78px)!important;
+  overflow:hidden!important;
+}
+.stage[data-scene="pairs"] .stage-content.announcement-screen:after,
+.stage[data-scene="salads"] .stage-content.announcement-screen:after,
+.stage[data-scene="word"] .stage-content.announcement-screen:after{
+  content:""!important;display:block!important;
+  position:absolute;inset:15px!important;
+  border:1px solid rgba(215,176,82,.8)!important;
+  background:none!important;opacity:1!important;
+  width:auto!important;height:auto!important;
+  transform:none!important;pointer-events:none;z-index:0;
+}
+.stage .announcement-screen .announcement-copy{
+  z-index:2!important;width:64%!important;
+  gap:clamp(18px,4vh,42px)!important;
+}
+.stage .announcement-screen .announcement-title{
+  color:#3F010D!important;
+  font-weight:400!important;
+  font-size:clamp(48px,5.7vw,96px)!important;
+  line-height:1.07!important;
+  letter-spacing:-.046em!important;
+  text-wrap:balance;
+}
+.stage .announcement-screen .announcement-stroke{
+  width:clamp(115px,15vw,240px)!important;
+  height:3px!important;
+}
+.stage .announcement-screen .announcement-stroke:before{
+  content:"";display:block;position:absolute;
+  left:0;top:50%;width:13px;height:13px;
+  transform:translateY(-50%) rotate(45deg);
+  border:2px solid #D7B052;
+  background:#FEF4DC;
+}
+.stage[data-scene="pairs"] .stage-content.announcement-screen{
+  background:radial-gradient(ellipse at 9% 70%,rgba(215,176,82,.28),transparent 55%),#FEF4DC!important;
+}
+.stage[data-scene="pairs"] .announcement-copy{margin-left:35%!important;width:65%!important;align-items:flex-start!important;text-align:left!important}
+.stage[data-scene="pairs"] .announcement-title{font-size:clamp(62px,6.6vw,112px)!important}
+.stage[data-scene="pairs"] .stage-content.announcement-screen::before{
+  background-image:url("assets/ornament-pairs.svg")!important;
+  width:clamp(270px,34vw,480px)!important;
+  height:clamp(280px,56vh,540px)!important;
+  left:-2%!important;bottom:-7%!important;top:auto!important;
+  opacity:1!important;transform:rotate(-9deg)!important;
+}
+.stage[data-scene="salads"] .stage-content.announcement-screen{
+  background:radial-gradient(ellipse at 91% 25%,rgba(215,176,82,.24),transparent 55%),#FEF4DC!important;
+}
+.stage[data-scene="salads"] .announcement-copy{margin-left:1%!important;width:66%!important}
+.stage[data-scene="salads"] .announcement-title{font-size:clamp(48px,5.5vw,88px)!important}
+.stage[data-scene="salads"] .stage-content.announcement-screen::before{
+  background-image:url("assets/ornament-harvest.svg")!important;
+  width:clamp(280px,35vw,480px)!important;
+  height:clamp(320px,63vh,590px)!important;
+  right:-3%!important;left:auto!important;top:-4%!important;bottom:auto!important;
+  transform:rotate(6deg)!important;opacity:.95!important;
+}
+.stage[data-scene="word"] .stage-content.announcement-screen{
+  background:radial-gradient(ellipse at 13% 20%,rgba(215,176,82,.2),transparent 55%),#FEF4DC!important;
+}
+.stage[data-scene="word"] .announcement-copy{margin-left:34%!important;width:66%!important}
+.stage[data-scene="word"] .announcement-title{font-size:clamp(52px,5.8vw,93px)!important}
+.stage[data-scene="word"] .stage-content.announcement-screen::before{
+  background-image:url("assets/ornament-word.svg")!important;
+  width:clamp(270px,34vw,455px)!important;
+  height:clamp(305px,63vh,570px)!important;
+  left:-3%!important;right:auto!important;top:-7%!important;
+  transform:rotate(-12deg)!important;opacity:1!important;
+}
+/* Keep show-time controls separate from the picture and credits text. */
+.ceremony-soundbar{
+  position:relative;z-index:4;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  flex-wrap:wrap;width:100%;margin:12px auto 0;
+}
+.ceremony-mp3-picker{font-size:clamp(12px,1.1vw,15px)!important;min-height:44px}
+.ceremony-sound-note{font-size:12px;color:#3F010D;opacity:.72}
+.ceremony-credits-sound{flex-basis:100%}
+.ceremony-credits-start{min-height:48px;font-size:clamp(13px,1.3vw,17px)!important}
+.stage[data-scene="credits"] .credits-controls{flex-wrap:wrap}
+@media(max-width:800px){
+  .stage[data-scene="pairs"] .stage-content.announcement-screen,
+  .stage[data-scene="salads"] .stage-content.announcement-screen,
+  .stage[data-scene="word"] .stage-content.announcement-screen{
+    width:calc(100% - 22px)!important;
+    min-height:clamp(420px,66dvh,650px)!important;
+    padding:29px 23px!important;
+  }
+  .stage .announcement-screen .announcement-copy{
+    margin:0!important;width:100%!important;max-width:100%!important;
+    padding:0!important;gap:20px!important;
+  }
+  .stage .announcement-screen .announcement-title{
+    font-size:clamp(37px,9.5vw,65px)!important;
+  }
+  .stage[data-scene="pairs"] .announcement-title{font-size:clamp(46px,11.5vw,76px)!important}
+  .stage[data-scene="salads"] .announcement-title,
+  .stage[data-scene="word"] .announcement-title{font-size:clamp(36px,8.8vw,60px)!important}
+  .stage[data-scene="pairs"] .announcement-copy{align-self:flex-start;margin-top:10px!important;padding-left:12px!important}
+  .stage[data-scene="salads"] .announcement-copy{align-self:flex-end;padding-right:12px!important}
+  .stage[data-scene="word"] .announcement-copy{align-self:flex-end;padding-left:12px!important}
+  .stage[data-scene="pairs"] .stage-content.announcement-screen::before,
+  .stage[data-scene="salads"] .stage-content.announcement-screen::before,
+  .stage[data-scene="word"] .stage-content.announcement-screen::before{
+    width:clamp(170px,48vw,310px)!important;
+    height:clamp(190px,43vh,360px)!important;
+    opacity:.6!important;
+  }
+  .stage[data-scene="pairs"] .stage-content.announcement-screen::before{left:3%!important;bottom:0!important;top:auto!important}
+  .stage[data-scene="salads"] .stage-content.announcement-screen::before{right:1%!important;top:0!important;left:auto!important}
+  .stage[data-scene="word"] .stage-content.announcement-screen::before{left:0!important;top:0!important}
+  .ceremony-sound-note{font-size:11px;text-align:center}
+}
+@media(max-height:690px) and (min-width:801px){
+  .stage[data-scene="pairs"] .stage-content.announcement-screen,
+  .stage[data-scene="salads"] .stage-content.announcement-screen,
+  .stage[data-scene="word"] .stage-content.announcement-screen{min-height:clamp(280px,54vh,420px)!important}
+  .stage[data-scene="pairs"] .announcement-title{font-size:clamp(50px,8vh,80px)!important}
+  .stage[data-scene="salads"] .announcement-title,
+  .stage[data-scene="word"] .announcement-title{font-size:clamp(43px,7vh,70px)!important}
+}
