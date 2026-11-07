@@ -47,6 +47,10 @@ jobs:
                 page.on('pageerror',e=>errors.push(e.message));
                 await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
                 await page.locator('.stage-content').waitFor();
+                // The first slide uses staggered entrance animations; inspect final layout,
+                // not elements mid-transition while they are translated down by 18px.
+                await page.locator('.stage-content').evaluate(el=>Promise.all(
+                  el.getAnimations({subtree:true}).map(animation=>animation.finished.catch(()=>{}))));
                 if(viewport.width>800){
                   const rail=await page.evaluate(()=>{
                     const sidebar=document.querySelector('.sidebar-bottom');
