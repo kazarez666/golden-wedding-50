@@ -314,7 +314,7 @@ body.presentation .stage .melody-game-screen .melody-setup,
     align-items:flex-end!important;
   }
   .stage[data-scene="pairs"] .announcement-copy {margin-top:clamp(12px,4vh,29px)!important}
-  .stage[data-scene="word"] .announcement-copy {margin-top:clamp(75px,18vh,147px)!important}
+  .stage[data-scene="word"] .announcement-copy {margin-top:clamp(155px,24vh,190px)!important}
   .stage[data-scene="pairs"] .announcement-copy,
   .stage[data-scene="word"] .announcement-copy{
     padding-left:clamp(30px,10vw,68px);
