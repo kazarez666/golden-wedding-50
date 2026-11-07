@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - '.github/workflows/design-preview.yml'
+      - 'asymmetric-contests-v2.7.css'
   workflow_dispatch:
 permissions:
   contents: read
