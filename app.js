@@ -321,7 +321,7 @@
             <h3>Павлу Семёновичу<br>и Ольге Леонидовне<br><em>Смурыгиным</em></h3>
             <p>50 лет вместе</p>
           </div>
-          ${D.credits.map(c=>`<div class="credits-block"><span>${safe(c.role)}</span>${c.names.map(n=>`<h3>${safe(n)}</h3>`).join('')}${c.note?`<p class="credits-note-line">${safe(c.note)}</p>`:''}</div>`).join('')}
+          ${D.credits.map(c=>`<div class="credits-block ${c.role==='Лучший актёрский ансамбль'?'credits-ensemble':''}"><span>${safe(c.role)}</span><div class="credits-people">${c.names.map(n=>`<h3>${safe(n)}</h3>`).join('')}</div>${c.note?`<p class="credits-note-line">${safe(c.note)}</p>`:''}</div>`).join('')}
           <div class="credits-block credits-award">
             <span>ГЛАВНАЯ НАГРАДА ВЕЧЕРА</span>
             <h3>${safe(D.creditsAward.title)}</h3>
@@ -382,7 +382,7 @@
   }
   // 55-second scrolling credits, with native scroll for guests who missed a name.
   let creditFrame=0,creditElapsed=0,creditTimestamp=null;
-  const creditDuration=110000;
+  const creditDuration=130000;
   function updateCreditControl(){
     const el=stage.querySelector('[data-action="credits-pause"]');
     if(el)el.textContent=state.creditsPaused?'▶ Продолжить':'❚❚ Пауза';
