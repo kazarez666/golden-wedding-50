@@ -11,6 +11,8 @@ on:
       - 'single-frame-gold-wipes-v1.7.css'
       - 'melody-show-v1.9.css'
       - 'golden-layout-fixes-v2.5.css'
+      - 'ceremony-ornaments-v2.6.css'
+      - 'assets/ornament-*.svg'
       - '.github/workflows/browser-ui.yml'
   workflow_dispatch:
 permissions:
@@ -45,6 +47,20 @@ jobs:
                 page.on('pageerror',e=>errors.push(e.message));
                 await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
                 await page.locator('.stage-content').waitFor();
+                if(viewport.width>800){
+                  const rail=await page.evaluate(()=>{
+                    const sidebar=document.querySelector('.sidebar-bottom');
+                    const bottom=document.querySelector('#controlbar');
+                    return {sidebarY:sidebar.getBoundingClientRect().top,
+                      footerY:bottom.getBoundingClientRect().top,
+                      text:sidebar.textContent.trim(),
+                      line:getComputedStyle(sidebar).borderTopWidth,
+                      footerLine:getComputedStyle(bottom).borderTopWidth};
+                  });
+                  assert.equal(rail.text,'','Version label must not appear in sidebar');
+                  assert(Math.abs(rail.sidebarY-rail.footerY)<1.5,'Sidebar and footer gold lines are not aligned');
+                  assert.equal(rail.line,rail.footerLine);
+                }
                 // Public-facing stage 1 has a march play button, not media-upload controls.
                 assert.equal(await page.locator('[data-action="march-toggle"]').count(),1);
                 assert.equal(await page.locator('.stage-content [data-file-key]').count(),0);
@@ -93,11 +109,12 @@ jobs:
                 assert.equal(screen.numeral,'rgb(215, 176, 82)');
                 assert.equal(screen.numeralFill,'rgb(215, 176, 82)');
                 assert.equal(screen.numeralBackground,'rgba(0, 0, 0, 0)');
+                if(viewport.width>800)assert(screen.panelWidth<=1045,'Welcome border should sit nearer to names');
                 const figureTop=await page.locator('.welcome-figure').evaluate(el=>({
                   marginTop:getComputedStyle(el).marginTop,
                   paddingTop:getComputedStyle(el).paddingTop
                 }));
-                assert.equal(figureTop.marginTop,'0px');
+                assert(parseFloat(figureTop.marginTop)<=0,'Welcome gold 50 needs a compact upper gap');
                 assert.equal(figureTop.paddingTop,'0px');
                 assert.equal(screen.surnameFont,screen.nameFont);
                 assert(screen.surnameSize>screen.nameSize,'Surname should be larger than the names');
@@ -147,6 +164,14 @@ jobs:
                 else await page.locator('.section-item[data-value="2"]').click();
                 await page.locator('video[data-player="wedding"]').waitFor();
                 assert.equal(await page.locator('.ceremony-video-screen [data-file-key="wedding"]').count(),1);
+                assert((await page.locator('.ceremony-video-screen .eyebrow').textContent()).includes('ПАВЛА СЕМЁНОВИЧА И ОЛЬГИ ЛЕОНИДОВНЫ'));
+                const weddingOrnament=await page.locator('.ceremony-video-screen').evaluate(el=>{
+                  const branch=getComputedStyle(el,'::before');
+                  return {right:parseFloat(branch.right),top:parseFloat(branch.top),
+                    width:parseFloat(branch.width),image:branch.backgroundImage};
+                });
+                assert(weddingOrnament.right>=0&&weddingOrnament.top>=0,'Wedding botanical should stay inside frame');
+                assert(weddingOrnament.width<85,'Wedding botanical must remain small');
                 assert((await page.locator('.ceremony-video-upload').textContent()).includes('Загрузить свадебный ролик'));
                 assert.equal(await page.locator('.media-prompt').count(),0);
                 // Validate interview-to-interview transitions, shared volume and no autoplay.
@@ -154,6 +179,7 @@ jobs:
                 else await page.locator('.section-item[data-value="3"]').click();
                 await page.locator('video[data-player="interview-0"]').waitFor();
                 assert.equal(await page.locator('.ceremony-interview-screen [data-file-key]').count(),0);
+                assert.equal((await page.locator('.ceremony-interview-screen .eyebrow').textContent()).trim(),'ВОПРОСЫ И ОТВЕТЫ');
                 assert.equal(await page.locator('.media-prompt').count(),0);
                 await page.locator('video[data-player="interview-0"]').evaluate(v=>{v.volume=0.25;});
                 await page.waitForFunction(()=>JSON.parse(localStorage.getItem('golden-wedding-video-sound-v1')||'{}').volume===0.25);
@@ -254,7 +280,8 @@ jobs:
                 await page.locator('[data-action="melody-restart"]').click();
                 // Three in-person competitions are title screens: no demo answers,
                 // descriptions, image uploads or per-question controls.
-                for(const [index,title] of [[6,'Парный конкурс'],[7,'Конкурс «Салаты и закуски»'],[8,'Конкурс «Загаданное слово»']]){
+                const ornaments=[];
+                for(const [index,title,asset] of [[6,'Парный конкурс','ornament-pairs.svg'],[7,'Конкурс «Салаты и закуски»','ornament-harvest.svg'],[8,'Конкурс «Загаданное слово»','ornament-word.svg']]){
                   if(viewport.width<=800)await page.locator('#mobile-stage-select').selectOption(String(index));
                   else await page.locator('.section-item[data-value="'+index+'"]').click();
                   await page.waitForFunction(expected=>
@@ -264,8 +291,16 @@ jobs:
                   assert.equal(await page.locator('.announcement-screen [data-file-key]').count(),0);
                   assert.equal(await page.locator('.announcement-screen img').count(),0);
                   assert.equal(await page.locator('.announcement-screen p').count(),0);
+                  const decoration=await page.locator('.announcement-screen').evaluate(el=>{
+                    const style=getComputedStyle(el,'::before');
+                    return {image:style.backgroundImage,left:parseFloat(style.left),top:parseFloat(style.top)};
+                  });
+                  assert(decoration.image.includes(asset),'Announcement ornament does not match '+title);
+                  assert(decoration.left>=0&&decoration.top>=0,'Announcement ornament escapes frame');
+                  ornaments.push(decoration.image);
                   assert((await page.locator('.announcement-title').evaluate(el=>getComputedStyle(el).fontSize))!=='16px');
                 }
+                assert.equal(new Set(ornaments).size,3,'Each announcement must have distinct ornaments');
                 // Silhouette remains interactive (20 seconds / two rounds) but media
                 // upload and cloud notices must be absent from its show screen.
                 if(viewport.width<=800)await page.locator('#mobile-stage-select').selectOption('9');
