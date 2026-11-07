@@ -9,10 +9,10 @@ window.SITE_DATA = {
     { id: 'wedding', title: 'Свадебный ролик', subtitle: 'Воспоминания', icon: '▶' },
     { id: 'interviews', title: 'Интервью', subtitle: '16 видеороликов', icon: '▣' },
     { id: 'movies', title: 'Фильмы по эмодзи', subtitle: 'Киноконкурс', icon: '✳' },
-    { id: 'melodies', title: 'Угадай мелодию', subtitle: 'Музыкальный конкурс', icon: '♫' },
+    { id: 'melodies', title: 'Продолжи песню', subtitle: 'Музыкальный конкурс', icon: '♫' },
     { id: 'pairs', title: 'Парный конкурс', subtitle: 'Объявление', icon: '♧' },
-    { id: 'salads', title: 'Салаты и закуски', subtitle: 'Кулинарная викторина', icon: '❀' },
-    { id: 'word', title: 'Загаданное слово', subtitle: 'Правила уточняются', icon: '✧' },
+    { id: 'salads', title: 'Салаты и закуски', subtitle: 'Конкурс', icon: '❀' },
+    { id: 'word', title: 'Загаданное слово', subtitle: 'Конкурс', icon: '✧' },
     { id: 'silhouettes', title: 'Силуэты', subtitle: 'Игра на память', icon: '◐' },
     { id: 'credits', title: 'Финальные титры', subtitle: 'Спасибо за вечер', icon: '★' }
   ],
@@ -92,14 +92,6 @@ window.SITE_DATA = {
       src: `media/melodies/${String(i + 1).padStart(2, '0')}.mp3`
     };
   }),
-  // Вопросы пока демонстрационные. Фотографии поместите в media/salads/01.jpg и т. д.
-  salads: [
-    { title: 'Селёдка под шубой', photo: 'media/salads/01.jpg' },
-    { title: 'Оливье', photo: 'media/salads/02.jpg' },
-    { title: 'Мимоза', photo: 'media/salads/03.jpg' },
-    { title: 'Винегрет', photo: 'media/salads/04.jpg' },
-    { title: 'Крабовый салат', photo: 'media/salads/05.jpg' }
-  ],
   // Пока известна только подтверждённая роль Дарьи Павловны.
   credits: [
     { role: 'В главных ролях', names: ['Павел Семёнович', 'Ольга Леонидовна'] },
