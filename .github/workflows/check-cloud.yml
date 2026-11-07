@@ -67,9 +67,13 @@ jobs:
           assert(!app.includes('Загрузить картинку раунда'),'Silhouette upload must be hidden during the celebration');
           assert(!app.includes('Выбрать видео для этого интервью'),'Interview uploads must be hidden');
           assert(!app.includes('Загрузить музыку'),'March upload must be hidden');
+          assert(app.includes("pick('wedding','Загрузить свадебный ролик'"),'Wedding video upload must be restored');
+          assert(!app.includes('data-melody-file-status'),'Song player file status banner must be removed');
+          assert(app.includes('const roundTotal = 20'),'Silhouette countdown must be twenty seconds');
+          assert(app.includes("'silhouette-answer'"),'Silhouette reveal control missing');
           assert(app.includes("return announcementSlide('Парный конкурс')"),'Pair stage should only announce its contest');
-          assert(app.includes("return announcementSlide('Салаты и закуски')"),'Salad stage should only announce its contest');
-          assert(app.includes("return announcementSlide('Загаданное слово')"),'Word stage should only announce its contest');
+          assert(app.includes("return announcementSlide('Конкурс «Салаты и закуски»')"),'Salad stage should announce its contest');
+          assert(app.includes("return announcementSlide('Конкурс «Загаданное слово»')"),'Word stage should announce its contest');
           assert(!app.includes('function silhouetteSVG'),'Obsolete demo silhouettes still present');
           assert(index.includes('id="host-menu"'),'Unified controls menu missing');
           assert(index.includes('final-layout-v1.1.css'),'Final backdrop layout missing');
@@ -118,6 +122,10 @@ jobs:
           assert.equal(contentEnv.window.SITE_DATA.melodies.length,20,'Expected exactly 20 melody tracks');
           assert.equal(contentEnv.window.SITE_DATA.sections[5].title,'Продолжи песню');
           assert.equal(contentEnv.window.SITE_DATA.sections[7].title,'Салаты и закуски');
+          const rounds=contentEnv.window.SITE_DATA.silhouetteAnswers;
+          assert.equal(rounds.length,2);
+          assert.deepEqual(Array.from(rounds[0],x=>x.count),[12,10,8,10,4]);
+          assert.deepEqual(Array.from(rounds[1],x=>x.count),[8,5,4,5,5,4,9]);
           assert.equal(contentEnv.window.SITE_DATA.melodies[19].src,'media/melodies/20.mp3');
           const songs=contentEnv.window.SITE_DATA.melodies;
           assert.equal(songs[0].answer,'Кола Бельды — Увезу тебя я в тундру');
