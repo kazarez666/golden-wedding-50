@@ -230,7 +230,7 @@
           </div>
         </div>
         <details class="melody-setup">
-          <summary>⚙ Настройка песни и фрагмента</summary>
+          <summary aria-label="Настройки MP3, ответов и фрагментов песни">⚙ Настроить аудиофайл и фрагмент</summary>
           <div class="melody-setup-body">
             <p class="melody-help">Загрузите один полный MP3 и укажите три независимые точки. Припев может идти РАНЬШЕ куплета — это нормально.</p>
             <p class="melody-help">Если конец куплета не указан: при обычном порядке музыка остановится перед припевом; если припев раньше куплета, куплет прозвучит 20 секунд. Можно поставить собственный конец отрывка.</p>
@@ -264,14 +264,18 @@
   }
   // These three competitions are hosted in person; the site only announces
   // which stage is next, without displaying rules, examples or answers.
-  function announcementSlide(title) {
-    return `<section class="stage-content announcement-screen">
-      <h1 class="announcement-title">${safe(title)}</h1>
+  function announcementSlide(title,kind) {
+    // Individual asymmetric composition; only the contest name is public text.
+    return `<section class="stage-content announcement-screen announcement-${kind}">
+      <div class="announcement-copy">
+        <span class="announcement-stroke" aria-hidden="true"></span>
+        <h1 class="announcement-title">${safe(title)}</h1>
+      </div>
     </section>`;
   }
-  function viewPairs() { return announcementSlide('Парный конкурс'); }
-  function viewSalads() { return announcementSlide('Конкурс «Салаты и закуски»'); }
-  function viewWord() { return announcementSlide('Конкурс «Загаданное слово»'); }
+  function viewPairs() { return announcementSlide('Парный конкурс','pairs'); }
+  function viewSalads() { return announcementSlide('Конкурс «Салаты и закуски»','salads'); }
+  function viewWord() { return announcementSlide('Конкурс «Загаданное слово»','word'); }
   function viewSilhouettes() {
     const round=state.silhouetteRound;
     const key='silhouette-'+round;
