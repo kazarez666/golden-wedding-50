@@ -304,6 +304,17 @@ body.presentation .stage .melody-game-screen .melody-setup,
   .stage[data-scene="word"] .announcement-title{
     font-size:clamp(33px,8.3vw,56px)!important;
   }
+  .stage[data-scene="pairs"] .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen),
+  .stage[data-scene="word"] .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen){
+    justify-content:flex-start!important;
+    align-items:flex-start!important;
+  }
+  .stage[data-scene="salads"] .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen){
+    justify-content:flex-end!important;
+    align-items:flex-end!important;
+  }
+  .stage[data-scene="pairs"] .announcement-copy {margin-top:clamp(12px,4vh,29px)!important}
+  .stage[data-scene="word"] .announcement-copy {margin-top:clamp(75px,18vh,147px)!important}
   .stage[data-scene="pairs"] .announcement-copy,
   .stage[data-scene="word"] .announcement-copy{
     padding-left:clamp(30px,10vw,68px);
@@ -319,13 +330,13 @@ body.presentation .stage .melody-game-screen .melody-setup,
     opacity:.55!important;
   }
   .stage[data-scene="pairs"] .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen)::before{
-    left:-22px!important;bottom:3px!important;top:auto!important;
+    left:6px!important;bottom:6px!important;top:auto!important;
   }
   .stage[data-scene="salads"] .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen)::before{
-    right:-21px!important;top:7px!important;left:auto!important;
+    right:6px!important;top:7px!important;left:auto!important;
   }
   .stage[data-scene="word"] .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen)::before{
-    left:-22px!important;top:5px!important;bottom:auto!important;
+    left:6px!important;top:5px!important;bottom:auto!important;
   }
   .stage[data-scene="wedding"] .stage-content:not(.stage-welcome):not(.credits-screen)::before,
   .stage[data-scene="interviews"] .stage-content:not(.stage-welcome):not(.credits-screen)::before,
