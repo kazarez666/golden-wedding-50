@@ -9,7 +9,7 @@
   const state = {
     section: 0, movie: 0, movieAnswer: false, interview: 0,
     melody: 0, melodyAnswer: false, melodyPhase: 'idle',
-    silhouetteRound: 0, silhouetteStatus: 'ready', silhouetteCounts: false, timerLeft: 15,
+    silhouetteRound: 0, silhouetteStatus: 'ready', silhouetteAnswer: false, silhouetteCounts: false, timerLeft: 20,
     uploads: {}, presentation: false, audioPlaying: false, audioKey: '',
     creditsPaused: false
   };
@@ -110,7 +110,7 @@
   const stepper = (prev, next, current, total) => `<div class="number-stepper">${button('←', prev, '', `aria-label="Предыдущее задание" ${current <= 0 ? 'disabled' : ''}`)}<span class="step-current">${fmt(current+1)} / ${fmt(total)}</span>${button('→', next, '', `aria-label="Следующее задание" ${current >= total-1 ? 'disabled' : ''}`)}</div>`;
   const confetti = () => `<div class="confetti" aria-hidden="true">${Array.from({ length: 26 }, (_, i) => `<i style="left:${(i * 53) % 101}%;animation-delay:${-(i * 0.63)}s;animation-duration:${6 + i % 5}s"></i>`).join('')}</div>`;
   const episode = (kicker, title, count) => `<div class="episode-meta"><div><p class="eyebrow">${safe(kicker)}</p><h1>${safe(title)}</h1></div>${count ? `<span class="counter-pill">${safe(count)}</span>` : ''}</div>`;
-  const roundTotal = 15;
+  const roundTotal = 20;
   function viewEntrance() {
     const playing = state.audioPlaying && state.audioKey === 'march';
     return `<section class="stage-content">
@@ -147,6 +147,7 @@
     return `<section class="stage-content wide ceremony-video-screen">
       ${episode('НАША ИСТОРИЯ', 'Свадебный ролик', 'ВИДЕО')}
       <div class="ceremony-video-panel">${videoPlayer('wedding', D.files.wedding)}</div>
+      <div class="ceremony-video-upload">${pick('wedding','Загрузить свадебный ролик','video/*')}</div>
     </section>`;
   }
   function viewInterviews() {
@@ -198,7 +199,6 @@
     return `<section class="stage-content wide compact melody-game-screen">
       ${episode('МУЗЫКАЛЬНЫЙ КОНКУРС','Продолжи песню',`ТРЕК ${fmt(state.melody+1)} / ${fmt(D.melodies.length)}`)}
       <div class="melody-game-layout">
-        <p class="melody-file-status ${hasFile?'melody-file-ready':'melody-file-missing'}" data-melody-file-status>${hasFile?'✓ MP3 для этого задания загружен':'⚠ Для этого задания MP3 ещё не загружен. Название и секунды не являются аудиофайлом.'}</p>
         <div class="melody-main-panel">
           <div class="melody-disc-row">
             <div class="melody-art ${playing?'is-playing':''}" aria-hidden="true"></div>
@@ -270,23 +270,35 @@
     </section>`;
   }
   function viewPairs() { return announcementSlide('Парный конкурс'); }
-  function viewSalads() { return announcementSlide('Салаты и закуски'); }
-  function viewWord() { return announcementSlide('Загаданное слово'); }
+  function viewSalads() { return announcementSlide('Конкурс «Салаты и закуски»'); }
+  function viewWord() { return announcementSlide('Конкурс «Загаданное слово»'); }
   function viewSilhouettes() {
     const round=state.silhouetteRound;
     const key='silhouette-'+round;
     const url=fileURL(key,'');
     const showing=state.silhouetteStatus==='showing';
     const done=state.silhouetteStatus==='done';
-    const board=showing && url
+    const answersVisible=done&&state.silhouetteAnswer;
+    const answers=D.silhouetteAnswers?.[round]||[];
+    // The quiz photo is hidden once the countdown ends. Correct counts remain
+    // secret until the presenter explicitly reveals them.
+    const board=answersVisible
+      ? `<div class="silhouette-answers-board" aria-label="Ответы раунда ${round+1}">
+           <h2 class="silhouette-answers-heading">Правильные ответы</h2>
+           <div class="silhouette-answers-grid">
+             ${answers.map(item=>`<div class="silhouette-answer-item"><strong>${Number(item.count)}</strong><span>${safe(item.label)}</span></div>`).join('')}
+           </div>
+         </div>`
+      : showing && url
       ? `<div class="silhouette-board silhouette-image-board"><img class="silhouette-user-image" src="${safe(url)}" alt="Изображение с силуэтами, раунд ${round+1}" draggable="false"></div>`
       : `<div class="silhouette-board silhouette-covered"><span class="cover-icon" aria-hidden="true">${done?'⌛':'◈'}</span><strong>${done?'Время вышло!':'Раунд '+(round+1)}</strong></div>`;
-    return `<section class="stage-content wide compact">
+    return `<section class="stage-content wide compact silhouette-game-screen">
       ${episode('КОНКУРС НА ВНИМАТЕЛЬНОСТЬ','Силуэты',`РАУНД ${round+1} / 2`)}
       ${board}
       <div class="timer-track"><div id="timer-bar" style="width:${showing?state.timerLeft/roundTotal*100:0}%"></div></div>
-      <div class="stage-actions">
-        ${showing?`<span class="timer-display" id="timer-display">${state.timerLeft.toFixed(1)} с</span>`:button(done?'Повторить раунд':'Начать просмотр · 15 сек','silhouette-start','primary-button',url?'':'disabled')}
+      <div class="stage-actions silhouette-controls">
+        ${showing?`<span class="timer-display" id="timer-display">${state.timerLeft.toFixed(1)} с</span>`:button(done?'Повторить раунд':'Начать просмотр · 20 сек','silhouette-start','primary-button',url?'':'disabled')}
+        ${done?button(answersVisible?'Скрыть ответы':'Показать ответы','silhouette-answer','secondary-button'):''}
         ${!showing?button(round===0?'Раунд 2 →':'← Раунд 1','silhouette-next','small-button'):''}
       </div>
     </section>`;
@@ -456,7 +468,7 @@
     stage.querySelectorAll('video').forEach(video=>video.pause());
     stopAudio();
     if(state.silhouetteStatus==='showing'){
-      stopTimer();state.silhouetteStatus='ready';state.timerLeft=roundTotal;render();
+      stopTimer();state.silhouetteStatus='ready';state.silhouetteAnswer=false;state.timerLeft=roundTotal;render();
     }
     ambientScreen.hidden=false;
     ambientScreen.setAttribute('aria-hidden','false');
@@ -660,7 +672,7 @@
     silhouettePreloading=true;
     toast('Подготавливаем изображение для показа…');
     try {
-      // Start the 15-second timer only after the whole image has loaded.
+      // Start the 20-second timer only after the whole image has loaded.
       const img=new Image();
       img.src=url;
       if(img.decode) await img.decode();
@@ -669,7 +681,7 @@
         img.onload=resolve;img.onerror=()=>reject(new Error('Изображение не загрузилось'));
       });
       if(state.silhouetteRound!==round||D.sections[state.section].id!=='silhouettes')return;
-      stopTimer();state.silhouetteStatus='showing';state.silhouetteCounts=false;state.timerLeft=roundTotal;render();
+      stopTimer();state.silhouetteStatus='showing';state.silhouetteAnswer=false;state.silhouetteCounts=false;state.timerLeft=roundTotal;render();
       const finishAt=performance.now()+roundTotal*1000;
       silhouetteInterval=setInterval(()=>{
         const left=Math.max(0,(finishAt-performance.now())/1000);state.timerLeft=left;
@@ -680,7 +692,7 @@
     }catch(e){toast('Не удалось показать картинку: '+(e.message||'ошибка загрузки'));}
     finally {silhouettePreloading=false;}
   }
-  function resetSilhouette(round){stopTimer();state.silhouetteRound=round;state.silhouetteStatus='ready';state.silhouetteCounts=false;state.timerLeft=roundTotal;render({swap:true});}
+  function resetSilhouette(round){stopTimer();state.silhouetteRound=round;state.silhouetteStatus='ready';state.silhouetteAnswer=false;state.silhouetteCounts=false;state.timerLeft=roundTotal;render({swap:true});}
   async function switchWithinStage(kind, selector, apply){
     const section=state.section;
     if(D.sections[section].id!==kind)return;
@@ -763,6 +775,7 @@
       case 'melody-mark-verse-end':markMelodyCue('verseEnd');break;
       case 'melody-mark-chorus':markMelodyCue('chorusStart');break;
       case 'silhouette-start':startSilhouette();break;
+      case 'silhouette-answer':if(state.silhouetteStatus==='done'){state.silhouetteAnswer=!state.silhouetteAnswer;render({swap:true});}break;
       case 'silhouette-next':resetSilhouette(state.silhouetteRound===0?1:0);break;
       case 'credits-pause':toggleCreditsPause();break;
       case 'credits-restart':restartCredits();break;
