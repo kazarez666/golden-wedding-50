@@ -1,0 +1,417 @@
+/* Golden wedding v2.5 — refined frames, balanced stage spacing, decorative gold.
+   Strict palette: burgundy #3F010D, cream #FEF4DC, gold #D7B052.
+   Decorative foliage stays INSIDE a single frame; text remains readable. */
+
+/* Old generic min-height:100% made every frame stretch from roof to floor.
+   Let each stage frame wrap its actual content and center within the TV. */
+.stage .stage-content:not(.stage-welcome):not(.credits-screen),
+body.presentation .stage .stage-content:not(.stage-welcome):not(.credits-screen) {
+  box-sizing:border-box;
+  width:min(calc(100% - 42px), 1240px)!important;
+  min-height:0!important;
+  height:auto!important;
+  margin:clamp(16px,2.3vh,30px) auto!important;
+  padding:clamp(22px,3.3vh,42px) clamp(23px,3.5vw,60px)!important;
+  border:2px solid #D7B052!important;
+  border-radius:21px!important;
+  outline:none!important;
+  box-shadow:0 14px 38px rgba(63,1,13,.09)!important;
+}
+/* No double frame, ever. */
+.stage::before,.stage::after{
+  display:none!important;
+  content:none!important;
+}
+/* Botanicals must not poke above/below the gold border as they used to
+   (old CSS used top:-25px/left:-20px). They sit in the corner gutters. */
+.stage .stage-content:not(.stage-welcome):not(.credits-screen)::before,
+.stage .stage-content:not(.stage-welcome):not(.credits-screen)::after{
+  content:"";
+  position:absolute;
+  background:url('assets/gold-botanical.svg') no-repeat center / contain!important;
+  display:block!important;
+  width:clamp(78px,10vw,150px)!important;
+  height:clamp(130px,18vw,245px)!important;
+  opacity:.52!important;
+  pointer-events:none!important;
+  border:0!important;
+  z-index:0!important;
+  left:clamp(8px,1.4vw,23px)!important;
+  right:auto!important;
+  top:clamp(9px,1.3vw,20px)!important;
+  bottom:auto!important;
+}
+.stage .stage-content:not(.stage-welcome):not(.credits-screen)::after{
+  left:auto!important;
+  right:clamp(8px,1.4vw,23px)!important;
+  top:auto!important;
+  bottom:clamp(9px,1.3vw,20px)!important;
+  transform:rotate(180deg);
+}
+.stage .stage-content:not(.stage-welcome):not(.credits-screen)>*{
+  position:relative;
+  z-index:1;
+}
+/* For high-density content, keep ornament strokes quiet and away from UI. */
+.stage[data-scene="interviews"] .stage-content::before,
+.stage[data-scene="interviews"] .stage-content::after,
+.stage[data-scene="melodies"] .stage-content::before,
+.stage[data-scene="melodies"] .stage-content::after {
+  opacity:.28!important;
+}
+
+/* FIRST STAGE: keep a compact ornamental frame around the heading and button. */
+.stage[data-scene="entrance"] .stage-content{
+  width:min(calc(100% - 50px), 910px)!important;
+  padding:clamp(29px,4.2vh,49px) clamp(24px,4vw,60px)!important;
+  gap:0;
+  justify-content:center;
+}
+.stage[data-scene="entrance"] .stage-content .ring-set{
+  margin:0 auto clamp(8px,1.2vh,14px)!important;
+}
+.stage[data-scene="entrance"] .stage-h1{
+  margin:clamp(8px,1.5vh,19px) auto 5px!important;
+  line-height:1.08;
+}
+.stage[data-scene="entrance"] .ornament-line{
+  margin:clamp(8px,1.6vh,18px) auto 0!important;
+}
+.stage[data-scene="entrance"] .stage-actions{
+  margin:clamp(15px,2.5vh,28px) auto 0!important;
+  position:relative;
+}
+.stage[data-scene="entrance"] .stage-bottom-fine{
+  position:static!important;
+  inset:auto!important;
+  display:block;
+  text-align:center;
+  margin:clamp(17px,2.7vh,31px) auto 0!important;
+  color:#3F010D!important;
+  letter-spacing:.11em;
+  line-height:1.45;
+  font-size:clamp(10px,.95vw,13px);
+  opacity:.82;
+}
+/* More gold close to the text rather than floating outside the frame. */
+.stage[data-scene="entrance"] .stage-content::before,
+.stage[data-scene="entrance"] .stage-content::after{
+  width:clamp(95px,12vw,162px)!important;
+  height:clamp(155px,20vw,250px)!important;
+  opacity:.48!important;
+}
+
+/* WELCOME STAGE: bring the prominent gold 50 closer to the eyebrow. */
+.stage-welcome .welcome-figure{
+  margin-top:0!important;
+  margin-bottom:clamp(1px,.6vh,7px)!important;
+  padding-top:0!important;
+  padding-bottom:.055em!important;
+}
+.stage-welcome .welcome-overline{margin-bottom:0!important;}
+.stage-welcome .welcome-editorial{
+  padding-top:clamp(18px,2.8vh,30px)!important;
+}
+
+/* VIDEO AND EMOJI STAGES: frames follow contents. */
+.stage[data-scene="wedding"] .stage-content,
+.stage[data-scene="movies"] .stage-content{
+  width:min(calc(100% - 44px),1160px)!important;
+}
+.stage[data-scene="movies"] .stage-content{
+  padding:clamp(23px,3vh,40px) clamp(22px,3vw,44px)!important;
+}
+.stage[data-scene="movies"] .stage-content .stage-h1{
+  margin:clamp(5px,1vh,14px) auto;
+}
+.stage[data-scene="movies"] .stage-content .question-card{
+  margin-top:clamp(8px,1.4vh,19px);
+}
+.ceremony-video-upload{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:clamp(10px,2vh,22px) auto 0;
+  position:relative;
+}
+.ceremony-video-upload .file-picker{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:43px;
+  font-size:clamp(12px,1.1vw,16px);
+  color:#3F010D!important;
+  background:#D7B052!important;
+  border:2px solid #D7B052!important;
+  border-radius:100px;
+  padding:10px 20px;
+  font-weight:750;
+}
+.ceremony-video-upload .file-picker:hover{
+  background:#FEF4DC!important;
+}
+.ceremony-video-upload .cloud-sync-note{
+  font-size:11px;
+}
+
+/* SONG GAME: the heading and playback panel align to the SAME x coordinate.
+   Previous width/margins placed the title far left of the player. */
+.stage .stage-content.melody-game-screen{
+  width:min(calc(100% - 44px),1240px)!important;
+  padding:clamp(18px,2.8vh,33px) clamp(18px,2.7vw,42px)!important;
+  gap:clamp(8px,1.2vh,15px)!important;
+}
+.stage[data-scene="melodies"] .episode-meta,
+.stage[data-scene="melodies"] .melody-game-layout{
+  width:min(100%,1120px)!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  box-sizing:border-box;
+}
+.stage[data-scene="melodies"] .episode-meta{
+  padding-inline:clamp(12px,1.6vw,26px);
+  margin-bottom:clamp(2px,.6vh,8px)!important;
+  text-align:left!important;
+}
+.stage[data-scene="melodies"] .episode-meta>div,
+.stage[data-scene="melodies"] .episode-meta h1{
+  text-align:left!important;
+}
+.stage[data-scene="melodies"] .melody-game-layout{
+  gap:clamp(8px,1.1vh,12px);
+}
+.stage[data-scene="melodies"] .melody-main-panel{
+  box-shadow:0 9px 22px rgba(63,1,13,.08)!important;
+}
+/* The file-success banner was explicitly removed from the show. */
+
+/* ANNOUNCEMENT SLIDES: one beautifully compact gold frame, more filigree,
+   yet still JUST the title and no hidden rules or text. */
+.stage .stage-content.announcement-screen{
+  width:min(calc(100% - 50px),1000px)!important;
+  min-height:clamp(325px,50vh,550px)!important;
+  padding:clamp(34px,5vh,60px) clamp(21px,4vw,70px)!important;
+  background:
+    radial-gradient(ellipse at 50% 30%,rgba(215,176,82,.14),transparent 72%),
+    radial-gradient(ellipse at 50% 80%,rgba(215,176,82,.11),transparent 66%),
+    #FEF4DC!important;
+}
+.stage .stage-content.announcement-screen::before,
+.stage .stage-content.announcement-screen::after{
+  width:clamp(120px,15vw,190px)!important;
+  height:clamp(180px,24vw,275px)!important;
+  opacity:.64!important;
+  top:clamp(14px,2.5vw,30px)!important;
+  bottom:auto!important;
+  left:clamp(10px,1.7vw,24px)!important;
+  right:auto!important;
+  transform:none;
+}
+.stage .stage-content.announcement-screen::after{
+  left:auto!important;
+  right:clamp(10px,1.7vw,24px)!important;
+  top:auto!important;
+  bottom:clamp(14px,2.5vw,30px)!important;
+  transform:rotate(180deg);
+}
+.stage .announcement-title{
+  color:#3F010D!important;
+  max-width:18ch;
+  text-wrap:balance;
+  font-size:clamp(47px,6.2vw,101px);
+  line-height:1.12;
+}
+.stage .announcement-title::before,
+.stage .announcement-title::after{
+  content:"✧  ✦  ✧";
+  display:block;
+  width:auto;
+  height:auto;
+  color:#D7B052;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(23px,2.6vw,40px);
+  letter-spacing:.23em;
+  background:none;
+  margin:0 auto clamp(17px,2.9vh,33px);
+}
+.stage .announcement-title::after{
+  margin:clamp(17px,2.9vh,33px) auto 0;
+}
+
+/* SILHOUETTES: answers replace the hidden picture, they never spoil the
+   memory challenge during the 20-second countdown. */
+.silhouette-answers-board{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  width:min(100%,980px);
+  min-height:clamp(235px,39vh,480px);
+  padding:clamp(20px,3vh,33px) clamp(16px,2.7vw,37px);
+  border:3px solid #D7B052;
+  border-radius:14px;
+  background:
+    radial-gradient(ellipse at 50% 10%,rgba(215,176,82,.26),transparent 65%),
+    #FEF4DC;
+  box-shadow:0 12px 28px rgba(63,1,13,.09);
+  text-align:center;
+  animation:silhouette-answer-show .55s cubic-bezier(.22,.74,.32,1) both;
+}
+@keyframes silhouette-answer-show{
+  from{opacity:0;transform:translateY(10px) scale(.985)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+.silhouette-answers-heading{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(28px,3.2vw,46px);
+  font-weight:400;
+  line-height:1.15;
+  color:#3F010D!important;
+  margin:0 0 clamp(16px,2.3vh,26px);
+}
+.silhouette-answers-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  width:100%;
+  gap:clamp(8px,1.3vw,15px);
+  align-items:stretch;
+}
+.silhouette-answers-board:has(.silhouette-answer-item:nth-child(5):last-child) .silhouette-answers-grid{
+  grid-template-columns:repeat(5,minmax(0,1fr));
+}
+.silhouette-answer-item{
+  min-width:0;
+  min-height:clamp(95px,11vh,128px);
+  padding:clamp(12px,1.3vw,18px) 7px;
+  background:#FEF4DC;
+  border:1.5px solid #D7B052;
+  border-radius:12px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:5px;
+}
+.silhouette-answer-item strong{
+  font-family:Georgia,"Times New Roman",serif;
+  font-weight:400;
+  color:#D7B052!important;
+  font-size:clamp(43px,4.8vw,72px);
+  line-height:1;
+  font-variant-numeric:tabular-nums;
+}
+.silhouette-answer-item span{
+  color:#3F010D!important;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(16px,1.5vw,24px);
+  line-height:1.22;
+}
+.stage .silhouette-controls{
+  gap:clamp(9px,1.5vw,18px);
+  margin:clamp(13px,2vh,22px) auto 0!important;
+}
+.stage .silhouette-controls button{
+  min-height:46px;
+  font-weight:700;
+}
+@media(max-width:800px){
+  .stage .stage-content:not(.stage-welcome):not(.credits-screen),
+  body.presentation .stage .stage-content:not(.stage-welcome):not(.credits-screen) {
+    width:calc(100% - 22px)!important;
+    min-height:0!important;
+    height:auto!important;
+    margin:11px auto!important;
+    padding:clamp(21px,4vw,33px) clamp(15px,4vw,28px)!important;
+    border-radius:15px!important;
+  }
+  .stage .stage-content:not(.stage-welcome):not(.credits-screen)::before,
+  .stage .stage-content:not(.stage-welcome):not(.credits-screen)::after{
+    width:clamp(47px,12vw,85px)!important;
+    height:clamp(82px,22vw,125px)!important;
+    opacity:.34!important;
+    left:8px!important;top:9px!important;
+  }
+  .stage .stage-content:not(.stage-welcome):not(.credits-screen)::after{
+    left:auto!important;top:auto!important;
+    right:8px!important;bottom:9px!important;
+  }
+  .stage[data-scene="entrance"] .stage-content{
+    width:calc(100% - 24px)!important;
+    padding:clamp(30px,7vh,50px) 20px!important;
+  }
+  .stage[data-scene="entrance"] .stage-bottom-fine{
+    font-size:10px;
+    letter-spacing:.035em;
+  }
+  .stage-welcome .welcome-figure{
+    margin-top:0!important;
+    padding-top:0!important;
+  }
+  .stage .stage-content.announcement-screen{
+    width:calc(100% - 24px)!important;
+    min-height:clamp(295px,49dvh,470px)!important;
+  }
+  .stage .stage-content.announcement-screen::before,
+  .stage .stage-content.announcement-screen::after{
+    width:70px!important;height:115px!important;opacity:.37!important;
+  }
+  .stage .announcement-title{
+    font-size:clamp(35px,8vw,63px);
+    max-width:17ch;
+  }
+  .stage .announcement-title::before,
+  .stage .announcement-title::after{
+    font-size:24px;
+    letter-spacing:.15em;
+    margin-bottom:17px;
+  }
+  .stage .announcement-title::after{margin-top:17px;margin-bottom:0}
+  .stage[data-scene="melodies"] .episode-meta{
+    padding-inline:clamp(5px,2vw,15px)!important;
+    text-align:left!important;
+    gap:8px;
+  }
+  .silhouette-answers-board{
+    min-height:250px;
+    padding:20px 11px;
+  }
+  .silhouette-answers-grid,
+  .silhouette-answers-board:has(.silhouette-answer-item:nth-child(5):last-child) .silhouette-answers-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .silhouette-answer-item{min-height:92px;padding:10px 4px}
+  .silhouette-answer-item strong{font-size:clamp(40px,11vw,58px)}
+  .silhouette-answer-item span{font-size:clamp(15px,4.2vw,20px)}
+  .silhouette-answers-heading{font-size:clamp(27px,7vw,34px)}
+}
+@media(max-width:390px){
+  .stage .announcement-title{font-size:clamp(30px,8.3vw,42px)}
+  .silhouette-answers-board{padding:14px 8px}
+}
+@media(max-height:690px) and (min-width:801px){
+  .stage .stage-content:not(.stage-welcome):not(.credits-screen),
+  body.presentation .stage .stage-content:not(.stage-welcome):not(.credits-screen){
+    padding:clamp(12px,2.1vh,23px) clamp(20px,3vw,45px)!important;
+    margin:8px auto!important;
+  }
+  .stage[data-scene="entrance"] .stage-content{
+    padding:clamp(16px,2.4vh,25px) 42px!important;
+  }
+  .stage[data-scene="entrance"] .stage-h1{
+    font-size:clamp(37px,7vh,61px)!important;
+  }
+  .stage[data-scene="entrance"] .stage-bottom-fine{
+    margin-top:clamp(8px,1.5vh,14px)!important;
+  }
+  .stage .stage-content.announcement-screen{
+    min-height:clamp(265px,57vh,390px)!important;
+  }
+  .stage .announcement-title{font-size:clamp(39px,7.5vh,66px)}
+  .silhouette-answers-board{min-height:230px;padding:15px}
+  .silhouette-answer-item{min-height:75px}
+  .silhouette-answer-item strong{font-size:47px}
+}
+@media(prefers-reduced-motion:reduce){
+  .silhouette-answers-board{animation:none!important}
+}
