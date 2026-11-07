@@ -1,0 +1,26 @@
+/* Ensemble credits v3.2: twelve guests, two readable columns on TV. */
+.stage[data-scene="credits"] .credits-ensemble{
+  width:min(100%,860px)!important;
+  margin:54px auto 65px!important;
+}
+.stage[data-scene="credits"] .credits-ensemble > span{
+  display:block;
+  margin-bottom:23px;
+  color:#D7B052!important;
+}
+.stage[data-scene="credits"] .credits-ensemble .credits-people{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-items:center;
+  gap:14px 24px;
+}
+.stage[data-scene="credits"] .credits-ensemble .credits-people h3{
+  margin:0!important;
+  font-size:clamp(24px,2.55vw,38px)!important;
+  line-height:1.23!important;
+  color:#FEF4DC!important;
+}
+@media(max-width:600px){
+  .stage[data-scene="credits"] .credits-ensemble .credits-people{gap:10px 13px}
+  .stage[data-scene="credits"] .credits-ensemble .credits-people h3{font-size:clamp(18px,4.7vw,27px)!important}
+}
