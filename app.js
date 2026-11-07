@@ -314,11 +314,11 @@
         <div class="credits-headline"><span class="credits-gold-mark" aria-hidden="true">✦</span><h1>История любви <em>длиною в полвека</em></h1><span class="credits-gold-mark" aria-hidden="true">✦</span></div>
         <div class="credits-subtitle">Павел Семёнович и Ольга Леонидовна ${safe(D.names.family||'Смурыгины')}</div>
       </div>
-      <div class="credits-viewport" aria-label="Титры участников праздника">
+      <div class="credits-viewport" tabindex="0" aria-label="Титры. Можно прокручивать колесом мыши, жестом и стрелками вверх и вниз">
         <div class="credits-inner">
           <div class="credits-block credits-lead">
             <span>ЭТОТ ВЕЧЕР ПОСВЯЩАЕТСЯ</span>
-            <h3>Павлу Семёновичу<br>и Ольге Леонидовне</h3>
+            <h3>Павлу Семёновичу<br>и Ольге Леонидовне<br><em>Смурыгиным</em></h3>
             <p>50 лет вместе</p>
           </div>
           ${D.credits.map(c=>`<div class="credits-block"><span>${safe(c.role)}</span>${c.names.map(n=>`<h3>${safe(n)}</h3>`).join('')}</div>`).join('')}
@@ -332,6 +332,8 @@
       <div class="stage-actions credits-controls">
         ${button(state.creditsPaused?'▶ Продолжить':'❚❚ Пауза','credits-pause','secondary-button')}
         ${button('↻ С начала','credits-restart','small-button')}
+        ${button('↑ Назад','credits-back','small-button')}
+        ${button('↓ Вперёд','credits-forward','small-button')}
       </div>
       <p class="fine-print credits-note">Титры предварительные — участники и роли будут дополнены перед праздником.</p>
     </section>`;
@@ -372,40 +374,54 @@
       if (video.readyState >= 1) loaded();
     });
   }
-  function startCreditsScroll() {
-    const token = ++creditsRenderToken;
-    if(creditsAnimation){ creditsAnimation.cancel(); creditsAnimation=null; }
+  // 55-second scrolling credits, with native scroll for guests who missed a name.
+  let creditFrame=0,creditElapsed=0,creditTimestamp=null;
+  const creditDuration=55000;
+  function updateCreditControl(){
+    const el=stage.querySelector('[data-action="credits-pause"]');
+    if(el)el.textContent=state.creditsPaused?'▶ Продолжить':'❚❚ Пауза';
+  }
+  function creditTick(now){
+    if(state.creditsPaused || D.sections[state.section].id!=='credits')return;
+    if(creditTimestamp!==null)creditElapsed+=Math.max(0,Math.min(100,now-creditTimestamp));
+    creditTimestamp=now;
+    const viewport=stage.querySelector('.credits-viewport');if(!viewport)return;
+    viewport.scrollTop=Math.max(0,viewport.scrollHeight-viewport.clientHeight)*Math.min(creditElapsed/creditDuration,1);
+    if(creditElapsed>=creditDuration){state.creditsPaused=true;updateCreditControl();return;}
+    creditFrame=requestAnimationFrame(creditTick);
+  }
+  function startCreditsScroll(){
+    cancelAnimationFrame(creditFrame);creditTimestamp=null;creditElapsed=0;
     if(D.sections[state.section].id!=='credits')return;
     requestAnimationFrame(()=>{
-      if(token!==creditsRenderToken||D.sections[state.section].id!=='credits')return;
+      if(D.sections[state.section].id!=='credits')return;
       const viewport=stage.querySelector('.credits-viewport');
-      const inner=stage.querySelector('.credits-inner');
-      if(!viewport||!inner||reduceMotion())return;
-      const distance=Math.ceil(inner.scrollHeight+viewport.clientHeight);
-      const duration=55000; // Fixed 55-second credits sequence for the anniversary show.
-      creditsAnimation=inner.animate([
-        {transform:'translateY(0)'},
-        {transform:'translateY(-'+distance+'px)'}
-      ],{duration,delay:1100,easing:'linear',fill:'forwards',iterations:1});
-      if(state.creditsPaused)creditsAnimation.pause();
+      if(viewport)viewport.scrollTop=0;
+      if(!state.creditsPaused)creditFrame=requestAnimationFrame(creditTick);
     });
   }
-  function toggleCreditsPause() {
+  function toggleCreditsPause(){
     if(D.sections[state.section].id!=='credits')return;
-    state.creditsPaused=!state.creditsPaused;
-    if(creditsAnimation){
-      if(state.creditsPaused)creditsAnimation.pause();
-      else creditsAnimation.play();
-    }
-    const btn=stage.querySelector('[data-action="credits-pause"]');
-    if(btn)btn.textContent=state.creditsPaused?'▶ Продолжить':'❚❚ Пауза';
+    state.creditsPaused=!state.creditsPaused;creditTimestamp=null;
+    if(state.creditsPaused)cancelAnimationFrame(creditFrame);
+    else creditFrame=requestAnimationFrame(creditTick);
+    updateCreditControl();
   }
   function restartCredits(){
     if(D.sections[state.section].id!=='credits')return;
-    state.creditsPaused=false;
-    const btn=stage.querySelector('[data-action="credits-pause"]');
-    if(btn)btn.textContent='❚❚ Пауза';
-    startCreditsScroll();
+    state.creditsPaused=false;updateCreditControl();startCreditsScroll();
+  }
+  function moveCredits(direction){
+    if(D.sections[state.section].id!=='credits')return;
+    const viewport=stage.querySelector('.credits-viewport');if(!viewport)return;
+    if(!state.creditsPaused)stage.querySelector('[data-action="credits-pause"]')?.click();
+    viewport.scrollBy({top:direction*Math.max(150,viewport.clientHeight*.55),behavior:'smooth'});
+  }
+  for(const type of ['wheel','touchstart']){
+    stage.addEventListener(type,e=>{
+      if(D.sections[state.section].id!=='credits'||!e.target.closest('.credits-viewport'))return;
+      if(!state.creditsPaused)stage.querySelector('[data-action="credits-pause"]')?.click();
+    },{passive:true});
   }
   // One gold wipe for navigation and item changes. Unlike subtle fading,
   // it visibly crosses the whole stage, then reveals the next frame.
@@ -461,7 +477,7 @@
     syncVideoPrompts();
     if(key==='melodies')updateMelodyControls();
     if(key==='credits')startCreditsScroll();
-    else if(creditsAnimation){creditsAnimation.cancel();creditsAnimation=null;++creditsRenderToken;}
+    else {cancelAnimationFrame(creditFrame);creditTimestamp=null;++creditsRenderToken;}
   }
   function stopTimer() { if (silhouetteInterval) {clearInterval(silhouetteInterval);silhouetteInterval=null;} }
   function stopAudio() { audio.pause();audio.currentTime=0;state.audioPlaying=false;state.audioKey='';state.melodyPhase='idle'; }
@@ -783,6 +799,8 @@
       case 'silhouette-next':resetSilhouette(state.silhouetteRound===0?1:0);break;
       case 'credits-pause':toggleCreditsPause();break;
       case 'credits-restart':restartCredits();break;
+      case 'credits-back':moveCredits(-1);break;
+      case 'credits-forward':moveCredits(1);break;
     }
   }
   document.addEventListener('click',e=>{
@@ -856,6 +874,7 @@
     }
     if(e.target.closest('input,textarea,select')||helpDialog.open)return;
     if(e.key.toLowerCase()==='b'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();openAmbient();return;}
+    if(D.sections[state.section].id==='credits'&&(e.key==='ArrowUp'||e.key==='ArrowDown')){e.preventDefault();moveCredits(e.key==='ArrowUp'?-1:1);return;}
     if(e.key==='ArrowRight'){e.preventDefault();goTo(state.section+1);}
     else if(e.key==='ArrowLeft'){e.preventDefault();goTo(state.section-1);}
     else if(e.key.toLowerCase()==='h'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();togglePresentation();}
