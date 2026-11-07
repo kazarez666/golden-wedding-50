@@ -113,7 +113,14 @@
   const roundTotal = 15;
   function viewEntrance() {
     const playing = state.audioPlaying && state.audioKey === 'march';
-    return `<section class="stage-content">${confetti()}<div class="ring-set" aria-hidden="true"><i></i><i></i></div><p class="eyebrow">ПЕРВЫЙ АККОРД ЭТОГО ВЕЧЕРА</p><h1 class="stage-h1 entrance-h1">Торжественная<br><em>встреча</em></h1><div class="ornament-line">✦</div><p class="stage-subtitle">Встречаем наших главных героев. Пусть вечер начнётся с музыки.</p><div class="stage-actions">${button(playing ? '❚❚ &nbsp; Пауза' : '▶ &nbsp; Марш Мендельсона', 'march-toggle')}${pick('march','Загрузить музыку','audio/*')}</div><p class="intro-note">Звук запускается только по нажатию. Добавьте свой аудиофайл MP3.</p><div class="stage-bottom-fine">ЗОЛОТАЯ СВАДЬБА · 50 ЛЕТ ВМЕСТЕ</div></section>`;
+    return `<section class="stage-content">
+      <div class="ring-set" aria-hidden="true"><i></i><i></i></div>
+      <p class="eyebrow">ПЕРВЫЙ АККОРД ЭТОГО ВЕЧЕРА</p>
+      <h1 class="stage-h1 entrance-h1">Торжественная<br><em>встреча</em></h1>
+      <div class="ornament-line" aria-hidden="true">✦</div>
+      <div class="stage-actions">${button(playing ? '❚❚ &nbsp; Пауза' : '▶ &nbsp; Марш Мендельсона', 'march-toggle')}</div>
+      <div class="stage-bottom-fine">ЗОЛОТАЯ СВАДЬБА · 50 ЛЕТ ВМЕСТЕ</div>
+    </section>`;
   }
   function viewWelcome() {
     return `<section class="stage-content stage-welcome">
@@ -133,14 +140,35 @@
     </section>`;
   }
   function videoPlayer(key, path) {
-    return `<div class="media-window"><video controls playsinline preload="metadata" src="${safe(fileURL(key,path))}" data-player="${safe(key)}"></video><div class="media-prompt" data-video-prompt="${safe(key)}"><div class="prompt-symbol">▶</div><strong>Здесь будет ваше видео</strong><small>Добавьте файл или выберите его с ноутбука</small></div></div>`;
+    // Media assets were uploaded in advance. Only playback belongs on the show screen.
+    return `<div class="media-window"><video controls playsinline preload="metadata" src="${safe(fileURL(key,path))}" data-player="${safe(key)}"></video></div>`;
   }
   function viewWedding() {
-    return `<section class="stage-content wide">${episode('НАША ИСТОРИЯ', 'Свадебный ролик', 'ВИДЕО')}<div class="media-layout">${videoPlayer('wedding', D.files.wedding)}<div class="media-side"><p class="eyebrow">ВОСПОМИНАНИЯ</p><h3>История, которую хочется пересматривать</h3><div class="marker-line"></div><p>Готовое свадебное видео появится здесь. Его можно воспроизвести на телевизоре одним нажатием.</p>${pick('wedding','Выбрать свадебное видео','video/*')}<span class="small-note">Поддерживаемый вариант: MP4 (H.264 + AAC).</span></div></div></section>`;
+    return `<section class="stage-content wide ceremony-video-screen">
+      ${episode('НАША ИСТОРИЯ', 'Свадебный ролик', 'ВИДЕО')}
+      <div class="ceremony-video-panel">${videoPlayer('wedding', D.files.wedding)}</div>
+    </section>`;
   }
   function viewInterviews() {
     const item = D.interviews[state.interview];
-    return `<section class="stage-content wide compact">${episode('ГОЛОСА И ВОСПОМИНАНИЯ', 'Интервью', `${fmt(state.interview+1)} / ${fmt(D.interviews.length)}`)}<div class="media-layout">${videoPlayer(`interview-${state.interview}`,item.src)}<div class="media-side"><p class="eyebrow">ВИДЕО ${fmt(state.interview+1)}</p><h3>${safe(item.title)}</h3><div class="marker-line"></div><p>Переключайте короткие интервью по очереди. Выбранный ролик запускается вручную.</p>${pick(`interview-${state.interview}`,'Выбрать видео для этого интервью','video/*')}<div class="mini-transport">${button('← Предыдущее','interview-prev','small-button',state.interview===0?'disabled':'')}${button('Следующее →','interview-next','small-button',state.interview===D.interviews.length-1?'disabled':'')}</div></div></div><div class="video-switcher">${D.interviews.map((x,i)=>`<button type="button" data-action="interview-jump" data-value="${i}" class="clip-button ${i===state.interview?'active':''}" title="${safe(x.title)}">${fmt(i+1)}</button>`).join('')}</div></section>`;
+    return `<section class="stage-content wide compact ceremony-interview-screen">
+      ${episode('ГОЛОСА И ВОСПОМИНАНИЯ', 'Интервью', `${fmt(state.interview+1)} / ${fmt(D.interviews.length)}`)}
+      <div class="media-layout">
+        ${videoPlayer(`interview-${state.interview}`,item.src)}
+        <div class="media-side">
+          <p class="eyebrow">ВИДЕО ${fmt(state.interview+1)}</p>
+          <h3>${safe(item.title)}</h3>
+          <div class="marker-line" aria-hidden="true"></div>
+          <div class="mini-transport">
+            ${button('← Предыдущее','interview-prev','small-button',state.interview===0?'disabled':'')}
+            ${button('Следующее →','interview-next','small-button',state.interview===D.interviews.length-1?'disabled':'')}
+          </div>
+        </div>
+      </div>
+      <div class="video-switcher">
+        ${D.interviews.map((x,i)=>`<button type="button" data-action="interview-jump" data-value="${i}" class="clip-button ${i===state.interview?'active':''}" title="${safe(x.title)}">${fmt(i+1)}</button>`).join('')}
+      </div>
+    </section>`;
   }
   function viewMovies() {
     const movie = D.movies[state.movie];
@@ -168,7 +196,7 @@
       : configured ? 'Запись есть. Куплет остановится в '+melodyTime(melodyClueEnd(current))+'.'
         : 'Запись загружена. Укажите начало припева в настройках.';
     return `<section class="stage-content wide compact melody-game-screen">
-      ${episode('МУЗЫКАЛЬНЫЙ КОНКУРС','Угадай мелодию',`ТРЕК ${fmt(state.melody+1)} / ${fmt(D.melodies.length)}`)}
+      ${episode('МУЗЫКАЛЬНЫЙ КОНКУРС','Продолжи песню',`ТРЕК ${fmt(state.melody+1)} / ${fmt(D.melodies.length)}`)}
       <div class="melody-game-layout">
         <p class="melody-file-status ${hasFile?'melody-file-ready':'melody-file-missing'}" data-melody-file-status>${hasFile?'✓ MP3 для этого задания загружен':'⚠ Для этого задания MP3 ещё не загружен. Название и секунды не являются аудиофайлом.'}</p>
         <div class="melody-main-panel">
@@ -234,16 +262,16 @@
       <p class="fine-print">Куплет играет от своей начальной метки до точки остановки. После раскрытия ответа начинается припев со своей метки, даже если в MP3 она находится раньше куплета.</p>
     </section>`;
   }
-  function viewPairs() {
-    return `<section class="stage-content">${confetti()}<div class="ring-set"><i></i><i></i></div>${lead('А ТЕПЕРЬ · ВРЕМЯ ДЛЯ КОМАНД', 'Парный <em>конкурс</em>', 'Найдите себе пару — начинается следующий конкурс!')}<div class="ornament-line">✦</div><p class="fine-print">Это только заставка для объявления конкурса. Правила озвучит ведущий.</p></section>`;
+  // These three competitions are hosted in person; the site only announces
+  // which stage is next, without displaying rules, examples or answers.
+  function announcementSlide(title) {
+    return `<section class="stage-content announcement-screen">
+      <h1 class="announcement-title">${safe(title)}</h1>
+    </section>`;
   }
-  function viewSalads() {
-    const item = D.salads[state.salad];
-    return `<section class="stage-content wide compact">${episode('КУЛИНАРНАЯ ВИКТОРИНА', 'Салаты и закуски', `ЗАДАНИЕ ${fmt(state.salad+1)} / ${fmt(D.salads.length)}`)}<div class="salad-display"><div class="salad-frame">${state.saladAnswer?`<img src="${safe(item.photo)}" alt="${safe(item.title)}" data-salad-photo><div class="salad-placeholder" data-photo-placeholder hidden><span>❀</span>Фото блюда добавим позже<small>${safe(item.photo)}</small></div>`:`<div class="salad-placeholder"><span>?</span>Что это за блюдо?<small>Дарья Павловна зачитывает описание вслух</small></div>`}</div><div><p class="eyebrow">УГАДАЙТЕ БЛЮДО</p>${state.saladAnswer?`<div class="salad-reveal-title">${safe(item.title)}</div><p class="salad-lead">Правильный ответ!</p>`:`<div class="salad-reveal-title" style="color:#69323B">Слушаем<br>описание...</div><p class="salad-lead">Ответ появится только после нажатия кнопки ведущим.</p>`}<div class="stage-actions" style="justify-content:flex-start">${button(state.saladAnswer?'Скрыть ответ':'Показать блюдо','salad-reveal')}${button('Следующее →','salad-next','secondary-button',state.salad===D.salads.length-1?'disabled':'')}</div></div></div>${stepper('salad-prev','salad-next',state.salad,D.salads.length)}<p class="fine-print">Пять примерных блюд. Фото и окончательный список добавим после согласования.</p></section>`;
-  }
-  function viewWord() {
-    return `<section class="stage-content">${lead('ЕЩЁ ОДИН СЮРПРИЗ', 'Загаданное <em>слово</em>', 'Здесь появится следующий конкурс, когда согласуем его правила.')}<div class="callout-panel"><div class="ornament-line">?</div><p>Этот раздел уже есть в программе. Когда узнаем механику, добавим подсказки, таймер, буквы или другую нужную интерактивность.</p></div><p class="fine-print">Заглушка черновой версии — конкурс пока не реализован.</p></section>`;
-  }
+  function viewPairs() { return announcementSlide('Парный конкурс'); }
+  function viewSalads() { return announcementSlide('Салаты и закуски'); }
+  function viewWord() { return announcementSlide('Загаданное слово'); }
   function viewSilhouettes() {
     const round=state.silhouetteRound;
     const key='silhouette-'+round;
@@ -252,15 +280,15 @@
     const done=state.silhouetteStatus==='done';
     const board=showing && url
       ? `<div class="silhouette-board silhouette-image-board"><img class="silhouette-user-image" src="${safe(url)}" alt="Изображение с силуэтами, раунд ${round+1}" draggable="false"></div>`
-      : `<div class="silhouette-board silhouette-covered"><span class="cover-icon">${done?'⌛':'◈'}</span><strong>${done?'Время вышло!':url?'Картинка готова':'Добавьте картинку раунда'}</strong><p class="stage-subtitle">${done?'Теперь задавайте командам вопросы по увиденным силуэтам':url?'Нажмите «Начать», когда все будут готовы':'Понадобится изображение PNG, JPG или WebP'}</p></div>`;
-    return `<section class="stage-content wide compact">${episode('КОНКУРС НА ВНИМАТЕЛЬНОСТЬ','Силуэты',`РАУНД ${round+1} / 2`)}${board}
+      : `<div class="silhouette-board silhouette-covered"><span class="cover-icon" aria-hidden="true">${done?'⌛':'◈'}</span><strong>${done?'Время вышло!':'Раунд '+(round+1)}</strong></div>`;
+    return `<section class="stage-content wide compact">
+      ${episode('КОНКУРС НА ВНИМАТЕЛЬНОСТЬ','Силуэты',`РАУНД ${round+1} / 2`)}
+      ${board}
       <div class="timer-track"><div id="timer-bar" style="width:${showing?state.timerLeft/roundTotal*100:0}%"></div></div>
       <div class="stage-actions">
         ${showing?`<span class="timer-display" id="timer-display">${state.timerLeft.toFixed(1)} с</span>`:button(done?'Повторить раунд':'Начать просмотр · 15 сек','silhouette-start','primary-button',url?'':'disabled')}
-        ${!showing?pick(key,'Загрузить картинку раунда','image/png,image/jpeg,image/webp'):''}
         ${!showing?button(round===0?'Раунд 2 →':'← Раунд 1','silhouette-next','small-button'):''}
       </div>
-      <p class="fine-print">Ваше изображение видно только во время 15-секундного отсчёта. После таймера оно скрывается. Вопросы и правильные количества ведущий сообщает самостоятельно.</p>
     </section>`;
   }
   function viewCredits() {
