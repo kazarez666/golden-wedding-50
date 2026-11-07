@@ -275,7 +275,10 @@ jobs:
                 assert(!await page.locator('.melody-big-answer').count());
                 // Regression: the chorus is earlier in the song than the quiz verse.
                 // The reveal must still seek backwards to the first chorus.
-                await page.locator('.melody-setup summary').click();
+                // The settings drawer now intentionally stays open across player renders.
+                if(!await page.locator('.melody-setup').evaluate(el=>el.open)){
+                  await page.locator('.melody-setup summary').click();
+                }
                 await page.locator('[data-melody-setting="verseStart"]').fill('0.6');
                 await page.locator('[data-melody-setting="verseStart"]').press('Tab');
                 await page.locator('[data-melody-setting="verseEnd"]').fill('1.5');
