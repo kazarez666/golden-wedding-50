@@ -1,0 +1,375 @@
+/* GOLDEN ANNIVERSARY / editorial title cards v2.7
+   Three different asymmetrical compositions, never mirrored.
+   Palette: #3F010D burgundy, #FEF4DC cream, #D7B052 gold. */
+
+/* A title card is the *announcement*, not an explanatory slide.
+   Keep the single gold outline and use one large focal artwork only. */
+.stage .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen),
+body.presentation .stage .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen){
+  box-sizing:border-box;
+  width:min(calc(100% - 50px),1050px)!important;
+  min-height:clamp(355px,53vh,535px)!important;
+  max-height:none!important;
+  padding:clamp(38px,5vw,72px) clamp(26px,5vw,75px)!important;
+  margin:clamp(16px,3vh,32px) auto!important;
+  background:#FEF4DC!important;
+  border:3px solid #D7B052!important;
+  border-radius:19px!important;
+  box-shadow:0 13px 34px rgba(63,1,13,.085)!important;
+  overflow:hidden!important;
+  position:relative!important;
+  isolation:isolate;
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+}
+/* Reset old paired ornaments, old centered gold glyph pairs and mirroring. */
+.stage[data-scene="pairs"] .stage-content.announcement-screen::after,
+.stage[data-scene="salads"] .stage-content.announcement-screen::after,
+.stage[data-scene="word"] .stage-content.announcement-screen::after{
+  display:none!important;
+  content:none!important;
+  background:none!important;
+}
+.stage[data-scene="pairs"] .announcement-title::before,
+.stage[data-scene="pairs"] .announcement-title::after,
+.stage[data-scene="salads"] .announcement-title::before,
+.stage[data-scene="salads"] .announcement-title::after,
+.stage[data-scene="word"] .announcement-title::before,
+.stage[data-scene="word"] .announcement-title::after{
+  display:none!important;
+  content:none!important;
+  width:0!important;
+  height:0!important;
+}
+.stage .announcement-screen .announcement-copy{
+  position:relative;
+  z-index:3;
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:clamp(19px,3vh,38px);
+  width:65%;
+  max-width:700px;
+  min-width:0;
+  text-align:left;
+}
+.stage .announcement-screen .announcement-stroke{
+  position:relative;
+  display:block;
+  flex:0 0 auto;
+  height:2px;
+  width:clamp(75px,10vw,128px);
+  background:#D7B052;
+}
+.stage .announcement-screen .announcement-stroke::after{
+  content:"";
+  display:block;
+  position:absolute;
+  top:50%;
+  right:-6px;
+  width:10px;
+  height:10px;
+  background:#D7B052;
+  transform:translateY(-50%) rotate(45deg);
+}
+.stage .announcement-screen .announcement-title{
+  box-sizing:border-box;
+  color:#3F010D!important;
+  font-family:Georgia,"Times New Roman",serif!important;
+  font-size:clamp(48px,5.3vw,86px)!important;
+  font-style:normal;
+  font-weight:400!important;
+  line-height:1.11!important;
+  letter-spacing:-.035em!important;
+  display:block;
+  text-align:left!important;
+  max-width:100%!important;
+  width:100%!important;
+  padding:0!important;
+  margin:0!important;
+  overflow-wrap:normal;
+  text-wrap:balance;
+  text-shadow:none;
+}
+/* The gold is large enough to be seen from the television, but stays
+   confined to its own side. Every card has exactly one illustration. */
+.stage[data-scene="pairs"] .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen)::before,
+.stage[data-scene="salads"] .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen)::before,
+.stage[data-scene="word"] .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen)::before {
+  content:""!important;
+  display:block!important;
+  position:absolute!important;
+  z-index:1!important;
+  pointer-events:none!important;
+  transform:none!important;
+  width:clamp(235px,30vw,373px)!important;
+  height:clamp(290px,41vw,485px)!important;
+  opacity:.92!important;
+  filter:none!important;
+  background-repeat:no-repeat!important;
+  background-size:contain!important;
+  background-position:center!important;
+}
+
+/* 7. Two rings / an intimate botanical scroll.
+   Artwork sits low LEFT; the name rises on the RIGHT. */
+.stage[data-scene="pairs"] .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen){
+  background:
+    radial-gradient(ellipse at 14% 85%,rgba(215,176,82,.16),transparent 57%),
+    #FEF4DC!important;
+}
+.stage[data-scene="pairs"] .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen)::before{
+  background-image:url('assets/ornament-pairs.svg')!important;
+  left:clamp(4px,1vw,18px)!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:clamp(2px,.7vw,13px)!important;
+}
+.stage[data-scene="pairs"] .announcement-copy{
+  margin-left:32%;
+  width:68%;
+}
+.stage[data-scene="pairs"] .announcement-title{
+  font-size:clamp(57px,6vw,99px)!important;
+}
+
+/* 8. Ears, shoots and leaves on the RIGHT; the title stays LEFT.
+   No mirrored leaves and no second botanical in the opposite corner. */
+.stage[data-scene="salads"] .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen){
+  background:
+    radial-gradient(ellipse at 94% 14%,rgba(215,176,82,.17),transparent 59%),
+    #FEF4DC!important;
+}
+.stage[data-scene="salads"] .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen)::before {
+  background-image:url('assets/ornament-harvest.svg')!important;
+  left:auto!important;
+  right:clamp(4px,.8vw,14px)!important;
+  top:clamp(2px,.5vw,10px)!important;
+  bottom:auto!important;
+}
+.stage[data-scene="salads"] .announcement-copy{
+  margin-left:clamp(4px,1vw,14px);
+  width:67%;
+  max-width:690px;
+}
+.stage[data-scene="salads"] .announcement-title{
+  font-size:clamp(49px,5.15vw,80px)!important;
+}
+
+/* 9. A sweeping quill on the LEFT, text offset to the RIGHT.
+   More spacious, typographic, almost like a book opening. */
+.stage[data-scene="word"] .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen){
+  background:
+    radial-gradient(ellipse at 9% 11%,rgba(215,176,82,.14),transparent 58%),
+    #FEF4DC!important;
+}
+.stage[data-scene="word"] .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen)::before{
+  background-image:url('assets/ornament-word.svg')!important;
+  left:clamp(9px,1.1vw,20px)!important;
+  right:auto!important;
+  top:clamp(0px,.8vw,10px)!important;
+  bottom:auto!important;
+  width:clamp(245px,28vw,342px)!important;
+  height:clamp(302px,43vw,480px)!important;
+}
+.stage[data-scene="word"] .announcement-copy {
+  margin-left:32%;
+  width:68%;
+}
+.stage[data-scene="word"] .announcement-title{
+  font-size:clamp(51px,5.15vw,84px)!important;
+}
+
+/* The other ceremonial screens need a legible real-size branch rather
+   than the 30–70px barely-visible clipart from the previous revision.
+   ONE upper-right branch, no mirrored lower-left copy. */
+.stage[data-scene="wedding"] .stage-content:not(.stage-welcome):not(.credits-screen)::before,
+.stage[data-scene="interviews"] .stage-content:not(.stage-welcome):not(.credits-screen)::before,
+.stage[data-scene="melodies"] .stage-content:not(.stage-welcome):not(.credits-screen)::before,
+.stage[data-scene="silhouettes"] .stage-content:not(.stage-welcome):not(.credits-screen)::before {
+  content:""!important;
+  display:block!important;
+  position:absolute!important;
+  top:clamp(11px,1.4vw,19px)!important;
+  right:clamp(12px,1.6vw,23px)!important;
+  left:auto!important;
+  bottom:auto!important;
+  width:clamp(112px,10vw,151px)!important;
+  height:clamp(128px,12vw,175px)!important;
+  opacity:.72!important;
+  background:url('assets/gold-botanical.svg') no-repeat center / contain!important;
+  transform:scaleX(-1)!important;
+  pointer-events:none!important;
+  z-index:0!important;
+}
+.stage[data-scene="wedding"] .stage-content:not(.stage-welcome):not(.credits-screen)::after,
+.stage[data-scene="interviews"] .stage-content:not(.stage-welcome):not(.credits-screen)::after,
+.stage[data-scene="melodies"] .stage-content:not(.stage-welcome):not(.credits-screen)::after,
+.stage[data-scene="silhouettes"] .stage-content:not(.stage-welcome):not(.credits-screen)::after {
+  display:none!important;
+  content:none!important;
+  background:none!important;
+}
+.stage[data-scene="wedding"] .episode-meta,
+.stage[data-scene="interviews"] .episode-meta,
+.stage[data-scene="melodies"] .episode-meta,
+.stage[data-scene="silhouettes"] .episode-meta {
+  box-sizing:border-box;
+  padding-right:clamp(160px,15vw,205px)!important;
+  min-height:clamp(117px,12.5vh,154px);
+  position:relative;
+  z-index:1;
+}
+/* Keep the song title lined up with the audio panel as before. */
+.stage[data-scene="melodies"] .episode-meta {
+  padding-left:clamp(12px,1.6vw,26px)!important;
+}
+/* Settings remain available both in normal mode and TV presentation. */
+body.presentation .stage .melody-game-screen .melody-setup,
+.stage .melody-game-screen .melody-setup{
+  display:block!important;
+  width:100%!important;
+  background:transparent!important;
+  border:none!important;
+  border-radius:0!important;
+  padding:0!important;
+}
+.stage .melody-game-screen .melody-setup > summary{
+  cursor:pointer;
+  box-sizing:border-box;
+  display:inline-flex;
+  align-items:center;
+  width:auto;
+  max-width:100%;
+  min-height:46px;
+  border:1.5px solid #D7B052!important;
+  border-radius:100px!important;
+  background:#FEF4DC!important;
+  color:#3F010D!important;
+  font-size:clamp(12px,1vw,15px);
+  font-weight:750;
+  padding:11px 19px!important;
+  list-style:none;
+}
+.stage .melody-game-screen .melody-setup > summary::-webkit-details-marker{display:none}
+.stage .melody-game-screen .melody-setup > summary:hover{
+  background:rgba(215,176,82,.27)!important;
+}
+.stage .melody-game-screen .melody-setup > summary:focus-visible{
+  outline:3px solid #D7B052;
+  outline-offset:4px;
+}
+.stage .melody-game-screen .melody-setup[open]{
+  background:#FEF4DC!important;
+  border:1.5px solid #D7B052!important;
+  border-radius:14px!important;
+}
+.stage .melody-game-screen .melody-setup[open] > summary{
+  border:0!important;
+  border-radius:12px 12px 0 0!important;
+  background:rgba(215,176,82,.18)!important;
+  width:100%;
+}
+/* Small screens: asymmetric, not mirrored; illustration still clearly
+   visible but intentionally separate from the reading area. */
+@media(max-width:800px){
+  .stage .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen),
+  body.presentation .stage .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen) {
+    width:calc(100% - 24px)!important;
+    min-height:clamp(330px,55dvh,520px)!important;
+    margin:12px auto!important;
+    padding:34px 17px!important;
+    border-radius:15px!important;
+  }
+  .stage .announcement-screen .announcement-copy{
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    margin:0!important;
+    gap:16px;
+  }
+  .stage .announcement-screen .announcement-stroke{
+    width:clamp(59px,17vw,85px);
+  }
+  .stage .announcement-screen .announcement-title{
+    font-size:clamp(38px,9.5vw,66px)!important;
+    line-height:1.13!important;
+    max-width:100%!important;
+  }
+  .stage[data-scene="salads"] .announcement-title,
+  .stage[data-scene="word"] .announcement-title{
+    font-size:clamp(33px,8.3vw,56px)!important;
+  }
+  .stage[data-scene="pairs"] .announcement-copy,
+  .stage[data-scene="word"] .announcement-copy{
+    padding-left:clamp(30px,10vw,68px);
+  }
+  .stage[data-scene="salads"] .announcement-copy{
+    padding-right:clamp(30px,10vw,68px);
+  }
+  .stage[data-scene="pairs"] .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen)::before,
+  .stage[data-scene="salads"] .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen)::before,
+  .stage[data-scene="word"] .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen)::before{
+    width:clamp(116px,33vw,182px)!important;
+    height:clamp(165px,48vw,242px)!important;
+    opacity:.55!important;
+  }
+  .stage[data-scene="pairs"] .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen)::before{
+    left:-22px!important;bottom:3px!important;top:auto!important;
+  }
+  .stage[data-scene="salads"] .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen)::before{
+    right:-21px!important;top:7px!important;left:auto!important;
+  }
+  .stage[data-scene="word"] .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen)::before{
+    left:-22px!important;top:5px!important;bottom:auto!important;
+  }
+  .stage[data-scene="wedding"] .stage-content:not(.stage-welcome):not(.credits-screen)::before,
+  .stage[data-scene="interviews"] .stage-content:not(.stage-welcome):not(.credits-screen)::before,
+  .stage[data-scene="melodies"] .stage-content:not(.stage-welcome):not(.credits-screen)::before,
+  .stage[data-scene="silhouettes"] .stage-content:not(.stage-welcome):not(.credits-screen)::before{
+    width:clamp(65px,16vw,88px)!important;
+    height:clamp(78px,20vw,112px)!important;
+    top:9px!important;
+    right:10px!important;
+    opacity:.7!important;
+  }
+  .stage[data-scene="wedding"] .episode-meta,
+  .stage[data-scene="interviews"] .episode-meta,
+  .stage[data-scene="melodies"] .episode-meta,
+  .stage[data-scene="silhouettes"] .episode-meta{
+    padding-right:0!important;
+    padding-top:clamp(42px,8vw,58px)!important;
+    min-height:0!important;
+  }
+  .stage .melody-game-screen .melody-setup > summary{
+    min-height:44px;
+    font-size:13px;
+    padding:10px 15px!important;
+  }
+}
+@media(max-width:390px){
+  .stage .announcement-screen .announcement-title{
+    font-size:clamp(34px,9vw,45px)!important;
+  }
+  .stage[data-scene="salads"] .announcement-title,
+  .stage[data-scene="word"] .announcement-title{
+    font-size:clamp(30px,8vw,42px)!important;
+  }
+}
+@media(max-height:690px) and (min-width:801px){
+  .stage .stage-content.announcement-screen:not(.stage-welcome):not(.credits-screen){
+    min-height:clamp(280px,53vh,395px)!important;
+    padding:21px 36px!important;
+  }
+  .stage[data-scene="pairs"] .announcement-title{font-size:clamp(49px,7vh,69px)!important}
+  .stage[data-scene="salads"] .announcement-title,
+  .stage[data-scene="word"] .announcement-title{font-size:clamp(42px,6.6vh,65px)!important}
+  .stage[data-scene="wedding"] .episode-meta,
+  .stage[data-scene="interviews"] .episode-meta,
+  .stage[data-scene="melodies"] .episode-meta,
+  .stage[data-scene="silhouettes"] .episode-meta{min-height:110px}
+}
