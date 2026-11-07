@@ -141,7 +141,7 @@
   }
   function videoPlayer(key, path) {
     // Media assets were uploaded in advance. Only playback belongs on the show screen.
-    return `<div class="media-window"><video ${key==='wedding'?'':'controls'} playsinline preload="metadata" src="${safe(fileURL(key,path))}" data-player="${safe(key)}"></video></div>`;
+    return `<div class="media-window"><video controls playsinline preload="metadata" src="${safe(fileURL(key,path))}" data-player="${safe(key)}"></video></div>`;
   }
   function viewWedding() {
     return `<section class="stage-content wide ceremony-video-screen">
