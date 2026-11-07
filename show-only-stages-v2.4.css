@@ -1,0 +1,146 @@
+/* Golden wedding v2.4 — presentation-only stage slides.
+   Palette limited to approved burgundy, cream, and gold. */
+
+/* Contest mechanics are held off-screen, not inside the website. */
+.stage .stage-content.announcement-screen{
+  width:100%;
+  min-height:100%;
+  padding:clamp(35px,6vw,110px) clamp(20px,5vw,80px)!important;
+  background:
+    radial-gradient(ellipse at 50% 49%,rgba(215,176,82,.16),transparent 72%),
+    #FEF4DC!important;
+  color:#3F010D!important;
+  border:2px solid #D7B052!important;
+  box-shadow:0 14px 35px rgba(63,1,13,.08)!important;
+  text-align:center;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.announcement-title{
+  color:#3F010D!important;
+  font-family:Georgia,"Times New Roman",serif;
+  font-weight:400;
+  font-style:normal;
+  letter-spacing:-.035em;
+  line-height:1.08;
+  font-size:clamp(57px,7.1vw,122px);
+  max-width:18ch;
+  width:100%;
+  margin:0 auto;
+  text-wrap:balance;
+  position:relative;
+  z-index:2;
+}
+.announcement-title::before,
+.announcement-title::after{
+  content:"";
+  display:block;
+  width:clamp(90px,12vw,225px);
+  height:2px;
+  background:linear-gradient(90deg,transparent,#D7B052,transparent);
+  margin:0 auto clamp(25px,4vh,56px);
+}
+.announcement-title::after{
+  margin:clamp(25px,4vh,56px) auto 0;
+}
+/* Keep gold foliage at the outside gutters. Never cover the title. */
+.stage .announcement-screen::before,
+.stage .announcement-screen::after{
+  opacity:.32!important;
+  max-width:14vw;
+}
+
+/* Show-only video slide: one centered player, no upload panels. */
+.stage .stage-content.ceremony-video-screen{
+  gap:clamp(12px,2vh,28px);
+}
+.ceremony-video-panel{
+  width:min(100%,1180px);
+  max-height:min(65vh,680px);
+  margin:0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.ceremony-video-panel .media-window{
+  width:100%;
+  max-height:min(65vh,680px);
+  aspect-ratio:16/9;
+  border:3px solid #D7B052!important;
+  box-shadow:0 15px 40px rgba(63,1,13,.14)!important;
+}
+.ceremony-video-panel video{
+  object-fit:contain;
+  height:100%;
+  max-height:min(65vh,680px);
+}
+
+/* Interview player remains easy to navigate on TV, without setup notices. */
+.ceremony-interview-screen .media-layout{
+  grid-template-columns:minmax(0,1.6fr) minmax(210px,.65fr);
+  align-items:center;
+}
+.ceremony-interview-screen .media-side{
+  gap:clamp(14px,2.5vh,30px);
+  padding:clamp(17px,2vw,34px);
+  text-align:center;
+  align-items:center;
+}
+.ceremony-interview-screen .media-side h3{
+  color:#3F010D!important;
+  font-size:clamp(27px,2.5vw,41px)!important;
+  line-height:1.18;
+  margin:0;
+}
+.ceremony-interview-screen .mini-transport{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:9px;
+  width:100%;
+}
+.ceremony-interview-screen .mini-transport button{
+  flex:1 1 auto;
+  min-width:105px;
+  min-height:42px;
+}
+.ceremony-interview-screen .video-switcher{
+  margin-top:clamp(10px,2vh,22px);
+}
+
+/* Silhouette image and round controls need no cloud-upload banner. */
+.stage[data-scene="silhouettes"] .silhouette-covered strong{
+  font-size:clamp(34px,4vw,64px);
+}
+@media(max-width:800px){
+  .stage .stage-content.announcement-screen{
+    min-height:calc(100dvh - 130px);
+    padding:28px 13px!important;
+  }
+  .announcement-title{
+    font-size:clamp(43px,9.2vw,76px);
+    max-width:14ch;
+  }
+  .announcement-title::before,.announcement-title::after{
+    width:clamp(80px,27vw,160px);
+    margin-bottom:26px;
+  }
+  .announcement-title::after{margin-top:26px;margin-bottom:0}
+  .ceremony-video-panel{max-height:57vh}
+  .ceremony-video-panel .media-window,.ceremony-video-panel video{max-height:57vh}
+  .ceremony-interview-screen .media-layout{grid-template-columns:1fr}
+  .ceremony-interview-screen .media-side{padding:13px;gap:10px}
+  .ceremony-interview-screen .media-side h3{font-size:clamp(24px,6vw,33px)!important}
+  .ceremony-interview-screen .mini-transport button{min-height:39px}
+}
+@media(max-width:390px){
+  .announcement-title{font-size:clamp(37px,9.5vw,54px)}
+  .ceremony-video-panel,.ceremony-video-panel .media-window,.ceremony-video-panel video{max-height:43vh}
+}
+@media(max-height:650px) and (min-width:801px){
+  .announcement-title{font-size:clamp(47px,9vh,79px)}
+  .ceremony-video-panel,.ceremony-video-panel .media-window,.ceremony-video-panel video{max-height:53vh}
+  .ceremony-interview-screen .media-side{gap:8px;padding:12px}
+  .ceremony-interview-screen .media-side h3{font-size:28px!important}
+}
