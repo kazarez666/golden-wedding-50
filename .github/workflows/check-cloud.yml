@@ -64,7 +64,12 @@ jobs:
           assert(cloud.includes("(imageFile ? 'image' : 'video')"),'Dynamic Cloudinary endpoint selector missing');
           assert(cloud.includes("loadList('image')"),'Image list endpoint missing');
           assert(cloud.includes("const isImage = key"),'Silhouette Cloudinary slot support missing');
-          assert(app.includes('Загрузить картинку раунда'),'Silhouette image picker missing');
+          assert(!app.includes('Загрузить картинку раунда'),'Silhouette upload must be hidden during the celebration');
+          assert(!app.includes('Выбрать видео для этого интервью'),'Interview uploads must be hidden');
+          assert(!app.includes('Загрузить музыку'),'March upload must be hidden');
+          assert(app.includes("return announcementSlide('Парный конкурс')"),'Pair stage should only announce its contest');
+          assert(app.includes("return announcementSlide('Салаты и закуски')"),'Salad stage should only announce its contest');
+          assert(app.includes("return announcementSlide('Загаданное слово')"),'Word stage should only announce its contest');
           assert(!app.includes('function silhouetteSVG'),'Obsolete demo silhouettes still present');
           assert(index.includes('id="host-menu"'),'Unified controls menu missing');
           assert(index.includes('final-layout-v1.1.css'),'Final backdrop layout missing');
@@ -111,6 +116,8 @@ jobs:
           vm.runInNewContext(data,contentEnv,{timeout:2000});
           assert.equal(contentEnv.window.SITE_DATA.movies.length,10,'Expected exactly 10 movie clues');
           assert.equal(contentEnv.window.SITE_DATA.melodies.length,20,'Expected exactly 20 melody tracks');
+          assert.equal(contentEnv.window.SITE_DATA.sections[5].title,'Продолжи песню');
+          assert.equal(contentEnv.window.SITE_DATA.sections[7].title,'Салаты и закуски');
           assert.equal(contentEnv.window.SITE_DATA.melodies[19].src,'media/melodies/20.mp3');
           const songs=contentEnv.window.SITE_DATA.melodies;
           assert.equal(songs[0].answer,'Кола Бельды — Увезу тебя я в тундру');
