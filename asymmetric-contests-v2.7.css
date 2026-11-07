@@ -108,6 +108,8 @@ body.presentation .stage .stage-content.announcement-screen:not(.stage-welcome):
   transform:none!important;
   width:clamp(220px,27vw,343px)!important;
   height:clamp(245px,38vh,389px)!important;
+  max-width:none!important;
+  max-height:none!important;
   opacity:.92!important;
   filter:none!important;
   background-repeat:no-repeat!important;
