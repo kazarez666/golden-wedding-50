@@ -115,6 +115,45 @@ body.presentation .stage .stage-content:not(.stage-welcome):not(.credits-screen)
   padding-top:clamp(18px,2.8vh,30px)!important;
 }
 
+/* Keep the movie card cinematic but much shorter than the old fullscreen frame.
+   Reduce interior whitespace instead of shrinking the readable answer text. */
+.stage[data-scene="movies"] .stage-content .question-card{
+  width:min(100%,870px)!important;
+  padding:clamp(21px,2.9vh,34px) clamp(20px,2.8vw,40px)!important;
+}
+.stage[data-scene="movies"] .stage-content .emojis{
+  font-size:clamp(47px,6vw,100px)!important;
+  line-height:1.26!important;
+  margin:clamp(9px,1.3vh,15px) auto!important;
+}
+.stage[data-scene="movies"] .stage-content .answer-hidden{
+  margin:clamp(9px,1.2vh,14px) auto 0!important;
+}
+.stage[data-scene="movies"] .stage-content .stage-h1{
+  font-size:clamp(43px,4.5vw,74px)!important;
+  line-height:1.03!important;
+}
+.stage[data-scene="movies"] .stage-content .stage-actions{
+  margin:clamp(9px,1.5vh,16px) auto 0!important;
+}
+.stage[data-scene="movies"] .stage-content .number-stepper{
+  margin:clamp(10px,1.5vh,16px) auto 0!important;
+}
+.stage[data-scene="movies"] .stage-content .fine-print{
+  margin:clamp(6px,1.1vh,12px) auto 0!important;
+}
+@media(max-width:800px){
+  .stage[data-scene="movies"] .stage-content .question-card{
+    padding:clamp(16px,3vh,24px) 11px!important;
+  }
+  .stage[data-scene="movies"] .stage-content .emojis{
+    font-size:clamp(39px,10.5vw,62px)!important;
+    line-height:1.25!important;
+  }
+  .stage[data-scene="movies"] .stage-content .stage-h1{
+    font-size:clamp(35px,9vw,55px)!important;
+  }
+}
 /* VIDEO AND EMOJI STAGES: frames follow contents. */
 .stage[data-scene="wedding"] .stage-content:not(.stage-welcome):not(.credits-screen),
 .stage[data-scene="movies"] .stage-content:not(.stage-welcome):not(.credits-screen){
