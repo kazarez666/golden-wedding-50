@@ -8,7 +8,7 @@
   const ambientScreen = document.getElementById('ambient-screen');
   const state = {
     section: 0, movie: 0, movieAnswer: false, interview: 0,
-    melody: 0, melodyAnswer: false, melodyPhase: 'idle', salad: 0, saladAnswer: false,
+    melody: 0, melodyAnswer: false, melodyPhase: 'idle',
     silhouetteRound: 0, silhouetteStatus: 'ready', silhouetteCounts: false, timerLeft: 15,
     uploads: {}, presentation: false, audioPlaying: false, audioKey: '',
     creditsPaused: false
@@ -354,12 +354,6 @@
       video.addEventListener('loadedmetadata',loaded,{once:true});
       video.addEventListener('error',errored);
       if (video.readyState >= 1) loaded();
-    });
-    stage.querySelectorAll('img[data-salad-photo]').forEach(img => {
-      const placeholder = stage.querySelector('[data-photo-placeholder]');
-      const onerr = () => { img.style.display='none'; if (placeholder) placeholder.hidden = false; };
-      img.addEventListener('error',onerr,{once:true});
-      if (img.complete && !img.naturalWidth) onerr();
     });
   }
   function startCreditsScroll() {
@@ -718,10 +712,6 @@
     if(index<0||index>=D.melodies.length||index===state.melody)return;
     switchWithinStage('melodies','.melody-art',()=>{state.melody=index;state.melodyAnswer=false});
   }
-  function setSalad(index){
-    if(index<0||index>=D.salads.length||index===state.salad)return;
-    switchWithinStage('salads','.salad-display',()=>{state.salad=index;state.saladAnswer=false});
-  }
   function togglePresentation() {
     state.presentation=!state.presentation;document.body.classList.toggle('presentation',state.presentation);
     if (state.presentation) {document.documentElement.requestFullscreen?.().catch(()=>{});} 
@@ -772,9 +762,6 @@
       case 'melody-mark-verse':markMelodyCue('verseStart');break;
       case 'melody-mark-verse-end':markMelodyCue('verseEnd');break;
       case 'melody-mark-chorus':markMelodyCue('chorusStart');break;
-      case 'salad-prev':setSalad(state.salad-1);break;
-      case 'salad-next':setSalad(state.salad+1);break;
-      case 'salad-reveal':state.saladAnswer=!state.saladAnswer;render({swap:true});break;
       case 'silhouette-start':startSilhouette();break;
       case 'silhouette-next':resetSilhouette(state.silhouetteRound===0?1:0);break;
       case 'credits-pause':toggleCreditsPause();break;
