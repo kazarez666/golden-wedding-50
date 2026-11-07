@@ -44,6 +44,10 @@ jobs:
                 page.on('pageerror',e=>errors.push(e.message));
                 await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
                 await page.locator('.stage-content').waitFor();
+                // Public-facing stage 1 has a march play button, not media-upload controls.
+                assert.equal(await page.locator('[data-action="march-toggle"]').count(),1);
+                assert.equal(await page.locator('.stage-content [data-file-key]').count(),0);
+                assert(!((await page.locator('.stage-content').textContent()).includes('Загрузить музыку')));
                 await page.keyboard.press('ArrowRight');
                 await page.locator('.gold-wipe-scene').waitFor({state:'visible'});
                 await page.locator('.gold-wipe-scene').waitFor({state:'detached'});
@@ -113,10 +117,18 @@ jobs:
                 assert(!(await page.locator('#host-menu').evaluate(el=>el.hidden)));
                 await page.keyboard.press('Escape');
                 assert(await page.locator('#host-menu').evaluate(el=>el.hidden));
+                // Wedding-video screen is playback only, without upload prompts.
+                if(viewport.width<=800)await page.locator('#mobile-stage-select').selectOption('2');
+                else await page.locator('.section-item[data-value="2"]').click();
+                await page.locator('video[data-player="wedding"]').waitFor();
+                assert.equal(await page.locator('.ceremony-video-screen [data-file-key]').count(),0);
+                assert.equal(await page.locator('.media-prompt').count(),0);
                 // Validate interview-to-interview transitions, shared volume and no autoplay.
                 if(viewport.width<=800)await page.locator('#mobile-stage-select').selectOption('3');
                 else await page.locator('.section-item[data-value="3"]').click();
                 await page.locator('video[data-player="interview-0"]').waitFor();
+                assert.equal(await page.locator('.ceremony-interview-screen [data-file-key]').count(),0);
+                assert.equal(await page.locator('.media-prompt').count(),0);
                 await page.locator('video[data-player="interview-0"]').evaluate(v=>{v.volume=0.25;});
                 await page.waitForFunction(()=>JSON.parse(localStorage.getItem('golden-wedding-video-sound-v1')||'{}').volume===0.25);
                 await page.locator('[data-action="interview-next"]').click();
@@ -137,6 +149,8 @@ jobs:
                 else await page.locator('.section-item[data-value="5"]').click();
                 await page.locator('.melody-game-screen').waitFor();
                 assert((await page.locator('.melody-game-screen').textContent()).includes('ТРЕК 01 / 20'));
+                assert.equal((await page.locator('.melody-game-screen .episode-meta h1').textContent()).trim(),'Продолжи песню');
+                assert.equal((await page.locator('#mobile-stage-select option[value="5"]').textContent()).includes('Продолжи песню'),true);
                 await page.evaluate(()=>{
                   const samples=24000,rate=8000;
                   const buffer=new ArrayBuffer(44+samples*2);
@@ -197,15 +211,39 @@ jobs:
                 await page.locator('.melody-big-answer').waitFor();
                 assert((await page.locator('#shared-audio').evaluate(a=>a.currentTime))>=.18,'Revealed chorus must seek backwards to 0.2s');
                 await page.locator('[data-action="melody-restart"]').click();
-                // Image/answer change animation stays within the selected contest.
-                if(viewport.width<=800)await page.locator('#mobile-stage-select').selectOption('7');
-                else await page.locator('.section-item[data-value="7"]').click();
-                await page.locator('[data-action="salad-reveal"]').click();
-                await page.locator('.salad-reveal-title').waitFor();
-                assert((await page.locator('.salad-reveal-title').textContent()).includes('Селёдка под шубой'));
-                await page.locator('.stage-actions [data-action="salad-next"]').click();
-                await page.waitForFunction(()=>document.querySelector('.salad-reveal-title')?.textContent.includes('Слушаем'));
-                assert.equal(await page.locator('.salad-frame img').count(),0);
+                // Three in-person competitions are title screens: no demo answers,
+                // descriptions, image uploads or per-question controls.
+                for(const [index,title] of [[6,'Парный конкурс'],[7,'Салаты и закуски'],[8,'Загаданное слово']]){
+                  if(viewport.width<=800)await page.locator('#mobile-stage-select').selectOption(String(index));
+                  else await page.locator('.section-item[data-value="'+index+'"]').click();
+                  await page.locator('.announcement-title').waitFor();
+                  assert.equal((await page.locator('.announcement-title').textContent()).trim(),title);
+                  assert.equal(await page.locator('.announcement-screen button').count(),0);
+                  assert.equal(await page.locator('.announcement-screen [data-file-key]').count(),0);
+                  assert.equal(await page.locator('.announcement-screen img').count(),0);
+                  assert.equal(await page.locator('.announcement-screen p').count(),0);
+                  assert((await page.locator('.announcement-title').evaluate(el=>getComputedStyle(el).fontSize))!=='16px');
+                }
+                // Silhouette remains interactive (15 seconds / two rounds) but media
+                // upload and cloud notices must be absent from its show screen.
+                if(viewport.width<=800)await page.locator('#mobile-stage-select').selectOption('9');
+                else await page.locator('.section-item[data-value="9"]').click();
+                await page.locator('.silhouette-board').waitFor();
+                assert.equal(await page.locator('.stage-content [data-file-key]').count(),0);
+                assert.equal(await page.locator('.stage-content .cloud-sync-note').count(),0);
+                // Test an uploaded image with an isolated in-memory visual, not a network file.
+                await page.evaluate(()=>{
+                  const original=window.WeddingCloud.fileURL;
+                  const svg='<svg xmlns="http://www.w3.org/2000/svg" width="800" height="430"><rect width="800" height="430" fill="#FEF4DC"/></svg>';
+                  const picture='data:image/svg+xml,'+encodeURIComponent(svg);
+                  window.WeddingCloud.fileURL=(key,fallback)=>key.startsWith('silhouette-')?picture:original(key,fallback);
+                  document.dispatchEvent(new Event('wedding-cloud-updated'));
+                });
+                await page.locator('[data-action="silhouette-start"]').click();
+                await page.locator('.silhouette-image-board img').waitFor();
+                await page.locator('#timer-display').waitFor();
+                assert(await page.locator('#timer-display').textContent());
+                assert.equal(await page.locator('.stage-content [data-file-key]').count(),0);
                 // Closing credits must be readable and the rolling film credits
                 // must pause/resume without starting over or re-rendering.
                 if(viewport.width<=800) await page.locator('#mobile-stage-select').selectOption('10');
