@@ -12,6 +12,7 @@ on:
       - 'melody-show-v1.9.css'
       - 'golden-layout-fixes-v2.5.css'
       - 'ceremony-ornaments-v2.6.css'
+      - 'asymmetric-contests-v2.7.css'
       - 'assets/ornament-*.svg'
       - '.github/workflows/browser-ui.yml'
   workflow_dispatch:
@@ -215,6 +216,15 @@ jobs:
                 assert((await page.locator('.melody-game-screen').textContent()).includes('ТРЕК 01 / 20'));
                 assert.equal((await page.locator('.melody-game-screen .episode-meta h1').textContent()).trim(),'Продолжи песню');
                 assert.equal(await page.locator('.melody-file-status').count(),0);
+                // Emergency song settings must remain accessible in TV/presentation mode.
+                await page.evaluate(()=>document.body.classList.add('presentation'));
+                assert(await page.locator('.melody-setup summary').isVisible(),'MP3 settings control is hidden in show mode');
+                await page.locator('.melody-setup summary').click();
+                assert(await page.locator('.melody-setup').evaluate(el=>el.open),'The settings drawer should open');
+                assert.equal(await page.locator('.melody-setup [data-melody-setting="verseEnd"]').count(),1);
+                assert.equal(await page.locator('.melody-setup [data-file-key="melody-0"]').count(),1);
+                await page.locator('.melody-setup summary').click();
+                await page.evaluate(()=>document.body.classList.remove('presentation'));
                 const alignment=await page.evaluate(()=>{
                   const title=document.querySelector('.melody-game-screen .episode-meta');
                   const player=document.querySelector('.melody-game-layout');
@@ -297,10 +307,22 @@ jobs:
                   assert.equal(await page.locator('.announcement-screen p').count(),0);
                   const decoration=await page.locator('.announcement-screen').evaluate(el=>{
                     const style=getComputedStyle(el,'::before');
-                    return {image:style.backgroundImage,left:parseFloat(style.left),top:parseFloat(style.top)};
+                    const second=getComputedStyle(el,'::after');
+                    const title=el.querySelector('.announcement-title').getBoundingClientRect();
+                    const box=el.getBoundingClientRect();
+                    const artWidth=parseFloat(style.width),artHeight=parseFloat(style.height);
+                    const left=style.left==='auto'?box.width-parseFloat(style.right)-artWidth:parseFloat(style.left);
+                    const top=style.top==='auto'?box.height-parseFloat(style.bottom)-artHeight:parseFloat(style.top);
+                    const intersect=Math.max(0,Math.min(title.right,box.left+left+artWidth)-Math.max(title.left,box.left+left))*
+                      Math.max(0,Math.min(title.bottom,box.top+top+artHeight)-Math.max(title.top,box.top+top));
+                    return {image:style.backgroundImage,secondDisplay:second.display,
+                      left,top,artWidth,artHeight,intersect};
                   });
                   assert(decoration.image.includes(asset),'Announcement ornament does not match '+title);
-                  assert(decoration.left>=0&&decoration.top>=0,'Announcement ornament escapes frame');
+                  assert.equal(decoration.secondDisplay,'none','Mirrored ornament must be removed');
+                  assert(decoration.left>=0&&decoration.top>=0,'Announcement ornament escapes its frame');
+                  assert(decoration.artWidth>=110&&decoration.artHeight>=160,'The main artwork must be visible from a television');
+                  assert(decoration.intersect<220,'The ornament covers the announcement heading');
                   ornaments.push(decoration.image);
                   assert((await page.locator('.announcement-title').evaluate(el=>getComputedStyle(el).fontSize))!=='16px');
                 }
