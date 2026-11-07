@@ -1,0 +1,61 @@
+/* Credits v3.0 — restore burgundy cinema presentation and native manual rewind. */
+.stage[data-scene="credits"] .stage-content.credits-screen{
+  background:radial-gradient(ellipse at 50% 18%,rgba(215,176,82,.13),transparent 61%),#3F010D!important;
+  border-color:#D7B052!important;
+  color:#FEF4DC!important;
+  box-shadow:0 0 0 5px rgba(215,176,82,.17),0 20px 75px rgba(63,1,13,.24)!important;
+}
+.stage[data-scene="credits"] .credits-head{border-bottom-color:#D7B052!important}
+.stage[data-scene="credits"] .credits-headline h1,
+.stage[data-scene="credits"] .credits-overline,
+.stage[data-scene="credits"] .credits-subtitle,
+.stage[data-scene="credits"] .credits-block h3,
+.stage[data-scene="credits"] .credits-final,
+.stage[data-scene="credits"] .credits-block p{
+  color:#FEF4DC!important;opacity:1!important;
+}
+.stage[data-scene="credits"] .credits-block span,
+.stage[data-scene="credits"] .credits-headline em,
+.stage[data-scene="credits"] .credits-lead em,
+.stage[data-scene="credits"] .credits-gold-mark{
+  color:#D7B052!important;opacity:1!important;
+}
+.stage[data-scene="credits"] .credits-note{color:#FEF4DC!important;opacity:.88!important}
+.stage[data-scene="credits"] .credits-viewport{
+  overflow-y:auto!important;overscroll-behavior:contain;
+  scrollbar-width:thin;scrollbar-color:#D7B052 #3F010D;
+  mask-image:linear-gradient(transparent,#000 8%,#000 90%,transparent);
+  padding:0 12px;
+  touch-action:pan-y;
+}
+.stage[data-scene="credits"] .credits-viewport:focus-visible{outline:2px solid #D7B052;outline-offset:3px}
+.stage[data-scene="credits"] .credits-viewport::-webkit-scrollbar{width:9px}
+.stage[data-scene="credits"] .credits-viewport::-webkit-scrollbar-thumb{background:#D7B052;border-radius:20px}
+.stage[data-scene="credits"] .credits-inner{
+  position:relative!important;top:auto!important;left:auto!important;
+  transform:none!important;animation:none!important;
+  padding-top:clamp(145px,28vh,290px)!important;
+  padding-bottom:clamp(180px,33vh,340px)!important;
+  box-sizing:border-box;
+}
+.stage[data-scene="credits"] .credits-block{position:relative}
+.stage[data-scene="credits"] .credits-block::after{
+  content:"✦";display:block;margin:24px auto 0;
+  color:#D7B052;font:20px Georgia,serif;
+}
+.stage[data-scene="credits"] .credits-final{padding-bottom:20px}
+.stage[data-scene="credits"] .credits-controls button{
+  border:1.5px solid #D7B052!important;
+  background:#D7B052!important;color:#3F010D!important;
+  min-height:44px;
+}
+.stage[data-scene="credits"] .credits-controls .ceremony-mp3-picker{
+  background:#FEF4DC!important;color:#3F010D!important;
+}
+.stage[data-scene="credits"] .ceremony-sound-note{color:#FEF4DC!important;opacity:.85}
+@media(max-width:800px){
+  .stage[data-scene="credits"] .credits-viewport{padding:0 4px!important}
+  .stage[data-scene="credits"] .credits-inner{padding-top:22vh!important;padding-bottom:28vh!important}
+  .stage[data-scene="credits"] .credits-controls{gap:7px!important}
+  .stage[data-scene="credits"] .credits-controls button{font-size:12px!important;padding:10px!important}
+}
