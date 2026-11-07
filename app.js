@@ -404,7 +404,12 @@
     if(D.sections[state.section].id!=='credits')return;
     state.creditsPaused=!state.creditsPaused;creditTimestamp=null;
     if(state.creditsPaused)cancelAnimationFrame(creditFrame);
-    else creditFrame=requestAnimationFrame(creditTick);
+    else {
+      const viewport=stage.querySelector('.credits-viewport');
+      const max=viewport?Math.max(1,viewport.scrollHeight-viewport.clientHeight):1;
+      creditElapsed=viewport?Math.min(creditDuration,Math.max(0,viewport.scrollTop/max*creditDuration)):creditElapsed;
+      creditFrame=requestAnimationFrame(creditTick);
+    }
     updateCreditControl();
   }
   function restartCredits(){
