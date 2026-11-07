@@ -64,3 +64,41 @@
  .stage[data-scene="silhouettes"] .silhouette-picker{padding:10px;gap:7px}
  .stage[data-scene="silhouettes"] .silhouette-choice{font-size:16px;min-height:45px;padding:8px 12px}
 }
+
+/* Wedding launch: clear hover, focus and press feedback for the host. */
+.stage[data-scene="wedding"] .ceremony-wedding-start{
+ position:relative;
+ overflow:hidden;
+ cursor:pointer;
+ transform:translateY(0) scale(1);
+ transition:transform .22s ease,box-shadow .22s ease,background-color .22s ease,color .22s ease,border-color .22s ease!important;
+}
+.stage[data-scene="wedding"] .ceremony-wedding-start::before{
+ content:"";
+ position:absolute;
+ top:0;bottom:0;left:-78%;
+ width:65%;
+ pointer-events:none;
+ background:linear-gradient(105deg,transparent,rgba(254,244,220,.24),transparent);
+ transform:skewX(-20deg);
+ transition:left .52s ease;
+}
+.stage[data-scene="wedding"] .ceremony-wedding-start:hover,
+.stage[data-scene="wedding"] .ceremony-wedding-start:focus-visible{
+ transform:translateY(-4px) scale(1.035)!important;
+ background:#D7B052!important;
+ color:#3F010D!important;
+ box-shadow:0 12px 26px rgba(63,1,13,.32),0 0 0 4px rgba(215,176,82,.18)!important;
+}
+.stage[data-scene="wedding"] .ceremony-wedding-start:hover::before,
+.stage[data-scene="wedding"] .ceremony-wedding-start:focus-visible::before{
+ left:130%;
+}
+.stage[data-scene="wedding"] .ceremony-wedding-start:active{
+ transform:translateY(1px) scale(.98)!important;
+ box-shadow:0 3px 10px rgba(63,1,13,.24)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ .stage[data-scene="wedding"] .ceremony-wedding-start,
+ .stage[data-scene="wedding"] .ceremony-wedding-start::before{transition:none!important}
+}
