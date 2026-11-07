@@ -186,6 +186,14 @@ body.presentation .stage .stage-content.announcement-screen:not(.stage-welcome):
   font-size:clamp(51px,5.15vw,84px)!important;
 }
 
+/* If a media-heavy slide is taller than the workspace, safe alignment must
+   scroll downwards from its REAL top instead of cropping the heading above it. */
+.stage[data-scene="wedding"] .stage-content:not(.stage-welcome):not(.credits-screen),
+.stage[data-scene="interviews"] .stage-content:not(.stage-welcome):not(.credits-screen),
+.stage[data-scene="melodies"] .stage-content:not(.stage-welcome):not(.credits-screen),
+.stage[data-scene="silhouettes"] .stage-content:not(.stage-welcome):not(.credits-screen) {
+  align-self:safe center!important;
+}
 /* The other ceremonial screens need a legible real-size branch rather
    than the 30–70px barely-visible clipart from the previous revision.
    ONE upper-right branch, no mirrored lower-left copy. */
