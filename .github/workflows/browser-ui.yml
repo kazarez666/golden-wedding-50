@@ -179,7 +179,7 @@ jobs:
                 else await page.locator('.section-item[data-value="3"]').click();
                 await page.locator('video[data-player="interview-0"]').waitFor();
                 assert.equal(await page.locator('.ceremony-interview-screen [data-file-key]').count(),0);
-                assert.equal((await page.locator('.ceremony-interview-screen .eyebrow').textContent()).trim(),'ВОПРОСЫ И ОТВЕТЫ');
+                assert.equal((await page.locator('.ceremony-interview-screen .episode-meta .eyebrow').textContent()).trim(),'ВОПРОСЫ И ОТВЕТЫ');
                 assert.equal(await page.locator('.media-prompt').count(),0);
                 await page.locator('video[data-player="interview-0"]').evaluate(v=>{v.volume=0.25;});
                 await page.waitForFunction(()=>JSON.parse(localStorage.getItem('golden-wedding-video-sound-v1')||'{}').volume===0.25);
