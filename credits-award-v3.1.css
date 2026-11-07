@@ -1,0 +1,49 @@
+/* Final credits v3.1 — anniversary award and supporting labels. */
+.stage[data-scene="credits"] .credits-note-line{
+ color:#D7B052!important;
+ font-family:Georgia,"Times New Roman",serif;
+ font-size:clamp(16px,1.7vw,23px)!important;
+ line-height:1.45!important;
+ margin:13px auto 0!important;
+ text-align:center;
+}
+.stage[data-scene="credits"] .credits-award{
+ margin:65px auto 75px!important;
+ padding:24px clamp(12px,3vw,38px)!important;
+ position:relative;
+}
+.stage[data-scene="credits"] .credits-award::before{
+ content:"✦  ✧  ✦";
+ color:#D7B052;
+ display:block;
+ font:clamp(25px,3vw,38px) Georgia,serif;
+ letter-spacing:15px;
+ margin:0 auto 30px;
+}
+.stage[data-scene="credits"] .credits-award > span{
+ color:#D7B052!important;
+ font-size:clamp(13px,1.4vw,18px)!important;
+ letter-spacing:.19em!important;
+}
+.stage[data-scene="credits"] .credits-award > h3:not(.credits-award-name){
+ color:#D7B052!important;
+ font-size:clamp(32px,3.55vw,55px)!important;
+ line-height:1.17!important;
+ margin:18px auto 29px!important;
+ max-width:800px;
+}
+.stage[data-scene="credits"] .credits-award .credits-award-name{
+ color:#FEF4DC!important;
+ font-size:clamp(37px,4vw,64px)!important;
+ line-height:1.13!important;
+}
+.stage[data-scene="credits"] .credits-thanks h3{
+ color:#FEF4DC!important;
+}
+.stage[data-scene="credits"] .credits-block h3{
+ overflow-wrap:anywhere;
+}
+@media(max-width:800px){
+ .stage[data-scene="credits"] .credits-award{padding:20px 4px!important}
+ .stage[data-scene="credits"] .credits-award::before{letter-spacing:8px}
+}
