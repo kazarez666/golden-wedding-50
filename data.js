@@ -100,14 +100,15 @@ window.SITE_DATA = {
       { label: 'Бутылки', count: 10 },
       { label: 'Индюки', count: 8 },
       { label: 'Тыквы', count: 10 },
-      { label: 'Яблоки', count: 4 }
+      { label: 'Яблоки', count: 4 },
+      { label: 'Ружья', count: 8 }
     ],
     [
       { label: 'Пятки', count: 8 },
-      { label: 'Звоны', count: 5 },
+      { label: 'Слоны', count: 5 },
       { label: 'Листья', count: 4 },
-      { label: 'Кристаллы', count: 5 },
-      { label: 'Приставки', count: 5 },
+      { label: 'Бриллианты', count: 5 },
+      { label: 'Геймпады / джойстики', count: 5 },
       { label: 'Обезьяны', count: 4 },
       { label: 'Усы', count: 9 }
     ]
