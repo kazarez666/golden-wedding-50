@@ -11,7 +11,7 @@
     melody: 0, melodyAnswer: false, melodyPhase: 'idle',
     silhouetteRound: 0, silhouetteStatus: 'ready', silhouetteAnswer: false, silhouetteCounts: false, timerLeft: 20,
     uploads: {}, presentation: false, audioPlaying: false, audioKey: '',
-    creditsPaused: false
+    creditsPaused: true
   };
   let silhouetteInterval = null;
   let toastTimeout = null;
@@ -382,7 +382,7 @@
       const inner=stage.querySelector('.credits-inner');
       if(!viewport||!inner||reduceMotion())return;
       const distance=Math.ceil(inner.scrollHeight+viewport.clientHeight);
-      const duration=Math.max(42000,Math.round(distance/33*1000));
+      const duration=55000; // Fixed 55-second credits sequence for the anniversary show.
       creditsAnimation=inner.animate([
         {transform:'translateY(0)'},
         {transform:'translateY(-'+distance+'px)'}
