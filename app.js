@@ -145,7 +145,7 @@
   }
   function viewWedding() {
     return `<section class="stage-content wide ceremony-video-screen">
-      ${episode('НАША ИСТОРИЯ', 'Свадебный ролик', 'ВИДЕО')}
+      ${episode('ИСТОРИЯ ПАВЛА СЕМЁНОВИЧА И ОЛЬГИ ЛЕОНИДОВНЫ', 'Свадебный ролик', 'ВИДЕО')}
       <div class="ceremony-video-panel">${videoPlayer('wedding', D.files.wedding)}</div>
       <div class="ceremony-video-upload">${pick('wedding','Загрузить свадебный ролик','video/*')}</div>
     </section>`;
@@ -153,7 +153,7 @@
   function viewInterviews() {
     const item = D.interviews[state.interview];
     return `<section class="stage-content wide compact ceremony-interview-screen">
-      ${episode('ГОЛОСА И ВОСПОМИНАНИЯ', 'Интервью', `${fmt(state.interview+1)} / ${fmt(D.interviews.length)}`)}
+      ${episode('ВОПРОСЫ И ОТВЕТЫ', 'Интервью', `${fmt(state.interview+1)} / ${fmt(D.interviews.length)}`)}
       <div class="media-layout">
         ${videoPlayer(`interview-${state.interview}`,item.src)}
         <div class="media-side">
