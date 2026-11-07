@@ -9,7 +9,7 @@
   const state = {
     section: 0, movie: 0, movieAnswer: false, interview: 0,
     melody: 0, melodyAnswer: false, melodyPhase: 'idle',
-    silhouetteRound: 0, silhouetteStatus: 'ready', silhouetteAnswer: false, silhouetteCounts: false, timerLeft: 20,
+    silhouetteRound: 0, silhouetteStatus: 'ready', silhouetteAnswer: false, silhouetteSelected: null, silhouetteCounts: false, timerLeft: 20,
     uploads: {}, presentation: false, audioPlaying: false, audioKey: '',
     creditsPaused: true
   };
@@ -141,13 +141,12 @@
   }
   function videoPlayer(key, path) {
     // Media assets were uploaded in advance. Only playback belongs on the show screen.
-    return `<div class="media-window"><video controls playsinline preload="metadata" src="${safe(fileURL(key,path))}" data-player="${safe(key)}"></video></div>`;
+    return `<div class="media-window"><video ${key==='wedding'?'':'controls'} playsinline preload="metadata" src="${safe(fileURL(key,path))}" data-player="${safe(key)}"></video></div>`;
   }
   function viewWedding() {
     return `<section class="stage-content wide ceremony-video-screen">
       ${episode('ИСТОРИЯ ПАВЛА СЕМЁНОВИЧА И ОЛЬГИ ЛЕОНИДОВНЫ', 'Свадебный ролик', 'ВИДЕО')}
       <div class="ceremony-video-panel">${videoPlayer('wedding', D.files.wedding)}</div>
-      <div class="ceremony-video-upload">${pick('wedding','Загрузить свадебный ролик','video/*')}</div>
     </section>`;
   }
   function viewInterviews() {
@@ -282,29 +281,26 @@
     const url=fileURL(key,'');
     const showing=state.silhouetteStatus==='showing';
     const done=state.silhouetteStatus==='done';
-    const answersVisible=done&&state.silhouetteAnswer;
     const answers=D.silhouetteAnswers?.[round]||[];
-    // The quiz photo is hidden once the countdown ends. Correct counts remain
-    // secret until the presenter explicitly reveals them.
-    const board=answersVisible
-      ? `<div class="silhouette-answers-board" aria-label="Ответы раунда ${round+1}">
-           <h2 class="silhouette-answers-heading">Правильные ответы</h2>
-           <div class="silhouette-answers-grid">
-             ${answers.map(item=>`<div class="silhouette-answer-item"><strong>${Number(item.count)}</strong><span>${safe(item.label)}</span></div>`).join('')}
-           </div>
+    const selected=Number.isInteger(state.silhouetteSelected)?answers[state.silhouetteSelected]:null;
+    // Keep the photo covered; the host can reveal only one selected count.
+    const board=done
+      ? `<div class="silhouette-board silhouette-covered silhouette-result-board">
+           ${selected?`<span class="silhouette-result-label">${safe(selected.label)}</span><strong class="silhouette-result-count">${Number(selected.count)}</strong>`:`<span class="cover-icon" aria-hidden="true">⌛</span><strong>Время вышло!</strong>`}
          </div>`
       : showing && url
       ? `<div class="silhouette-board silhouette-image-board"><img class="silhouette-user-image" src="${safe(url)}" alt="Изображение с силуэтами, раунд ${round+1}" draggable="false"></div>`
-      : `<div class="silhouette-board silhouette-covered"><span class="cover-icon" aria-hidden="true">${done?'⌛':'◈'}</span><strong>${done?'Время вышло!':'Раунд '+(round+1)}</strong></div>`;
+      : `<div class="silhouette-board silhouette-covered"><span class="cover-icon" aria-hidden="true">◈</span><strong>Раунд ${round+1}</strong></div>`;
     return `<section class="stage-content wide compact silhouette-game-screen">
       ${episode('КОНКУРС НА ВНИМАТЕЛЬНОСТЬ','Силуэты',`РАУНД ${round+1} / 2`)}
       ${board}
       <div class="timer-track"><div id="timer-bar" style="width:${showing?state.timerLeft/roundTotal*100:0}%"></div></div>
       <div class="stage-actions silhouette-controls">
         ${showing?`<span class="timer-display" id="timer-display">${state.timerLeft.toFixed(1)} с</span>`:button(done?'Повторить раунд':'Начать просмотр · 20 сек','silhouette-start','primary-button',url?'':'disabled')}
-        ${done?button(answersVisible?'Скрыть ответы':'Показать ответы','silhouette-answer','secondary-button'):''}
+        ${done?button(state.silhouetteAnswer?'Скрыть выбор':'Показать ответ','silhouette-answer','secondary-button'):''}
         ${!showing?button(round===0?'Раунд 2 →':'← Раунд 1','silhouette-next','small-button'):''}
       </div>
+      ${done&&state.silhouetteAnswer?`<div class="silhouette-picker" aria-label="Выберите предмет">${answers.map((item,i)=>`<button class="silhouette-choice ${state.silhouetteSelected===i?'is-selected':''}" type="button" data-action="silhouette-pick" data-value="${i}">${safe(item.label)}</button>`).join('')}</div>`:''}
     </section>`;
   }
   function viewCredits() {
@@ -337,11 +333,7 @@
       </div>
       <div class="stage-actions credits-controls">
         ${button(state.creditsPaused?'▶ Продолжить':'❚❚ Пауза','credits-pause','secondary-button')}
-        ${button('↻ С начала','credits-restart','small-button')}
-        ${button('↑ Назад','credits-back','small-button')}
-        ${button('↓ Вперёд','credits-forward','small-button')}
       </div>
-      <p class="fine-print credits-note">Можно пролистать назад колёсиком мыши или кнопками со стрелками.</p>
     </section>`;
   }
   const views = { entrance:viewEntrance,welcome:viewWelcome,wedding:viewWedding,interviews:viewInterviews,movies:viewMovies,melodies:viewMelodies,pairs:viewPairs,salads:viewSalads,word:viewWord,silhouettes:viewSilhouettes,credits:viewCredits };
@@ -712,7 +704,7 @@
         img.onload=resolve;img.onerror=()=>reject(new Error('Изображение не загрузилось'));
       });
       if(state.silhouetteRound!==round||D.sections[state.section].id!=='silhouettes')return;
-      stopTimer();state.silhouetteStatus='showing';state.silhouetteAnswer=false;state.silhouetteCounts=false;state.timerLeft=roundTotal;render();
+      stopTimer();state.silhouetteStatus='showing';state.silhouetteAnswer=false;state.silhouetteSelected=null;state.silhouetteCounts=false;state.timerLeft=roundTotal;render();
       const finishAt=performance.now()+roundTotal*1000;
       silhouetteInterval=setInterval(()=>{
         const left=Math.max(0,(finishAt-performance.now())/1000);state.timerLeft=left;
@@ -723,7 +715,7 @@
     }catch(e){toast('Не удалось показать картинку: '+(e.message||'ошибка загрузки'));}
     finally {silhouettePreloading=false;}
   }
-  function resetSilhouette(round){stopTimer();state.silhouetteRound=round;state.silhouetteStatus='ready';state.silhouetteAnswer=false;state.silhouetteCounts=false;state.timerLeft=roundTotal;render({swap:true});}
+  function resetSilhouette(round){stopTimer();state.silhouetteRound=round;state.silhouetteStatus='ready';state.silhouetteAnswer=false;state.silhouetteSelected=null;state.silhouetteCounts=false;state.timerLeft=roundTotal;render({swap:true});}
   async function switchWithinStage(kind, selector, apply){
     const section=state.section;
     if(D.sections[section].id!==kind)return;
@@ -806,7 +798,8 @@
       case 'melody-mark-verse-end':markMelodyCue('verseEnd');break;
       case 'melody-mark-chorus':markMelodyCue('chorusStart');break;
       case 'silhouette-start':startSilhouette();break;
-      case 'silhouette-answer':if(state.silhouetteStatus==='done'){state.silhouetteAnswer=!state.silhouetteAnswer;render({swap:true});}break;
+      case 'silhouette-answer':if(state.silhouetteStatus==='done'){state.silhouetteAnswer=!state.silhouetteAnswer;render();}break;
+      case 'silhouette-pick':if(state.silhouetteStatus==='done'){const index=Number(value);if(Number.isInteger(index)&&index>=0&&index<(D.silhouetteAnswers?.[state.silhouetteRound]||[]).length){state.silhouetteSelected=index;state.silhouetteAnswer=false;render();}}break;
       case 'silhouette-next':resetSilhouette(state.silhouetteRound===0?1:0);break;
       case 'credits-pause':toggleCreditsPause();break;
       case 'credits-restart':restartCredits();break;
