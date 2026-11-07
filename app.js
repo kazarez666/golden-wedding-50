@@ -229,7 +229,7 @@
             ${state.melodyAnswer?button('↻ Повторить припев','melody-chorus','secondary-button'):''}
           </div>
         </div>
-        <details class="melody-setup">
+        <details class="melody-setup" ${state.melodySetupOpen?'open':''}>
           <summary aria-label="Настройки MP3, ответов и фрагментов песни">⚙ Настроить аудиофайл и фрагмент</summary>
           <div class="melody-setup-body">
             <p class="melody-help">Загрузите один полный MP3 и укажите три независимые точки. Припев может идти РАНЬШЕ куплета — это нормально.</p>
@@ -790,6 +790,10 @@
     if(target){handleAction(target.dataset.action,target.dataset.value);}
     else if(!e.target.closest('#host-menu'))closeHostMenu();
   });
+  // Keep the emergency MP3 controls open across player re-renders.
+  document.addEventListener('toggle',e=>{
+    if(e.target.matches?.('.melody-setup'))state.melodySetupOpen=e.target.open;
+  },true);
   document.addEventListener('input',e=>{
     const seek=e.target.closest('[data-melody-seek]');
     if(seek && D.sections[state.section].id==='melodies'){
