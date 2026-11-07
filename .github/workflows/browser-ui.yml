@@ -216,7 +216,8 @@ jobs:
                 for(const [index,title] of [[6,'Парный конкурс'],[7,'Салаты и закуски'],[8,'Загаданное слово']]){
                   if(viewport.width<=800)await page.locator('#mobile-stage-select').selectOption(String(index));
                   else await page.locator('.section-item[data-value="'+index+'"]').click();
-                  await page.locator('.announcement-title').waitFor();
+                  await page.waitForFunction(expected=>
+                    document.querySelector('.announcement-title')?.textContent.trim()===expected,title,{timeout:10000});
                   assert.equal((await page.locator('.announcement-title').textContent()).trim(),title);
                   assert.equal(await page.locator('.announcement-screen button').count(),0);
                   assert.equal(await page.locator('.announcement-screen [data-file-key]').count(),0);
