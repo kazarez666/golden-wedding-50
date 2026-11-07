@@ -10,6 +10,8 @@ body.presentation .stage .stage-content:not(.stage-welcome):not(.credits-screen)
   width:min(calc(100% - 42px), 1240px)!important;
   min-height:0!important;
   height:auto!important;
+  align-self:center!important;
+  flex:0 0 auto!important;
   margin:clamp(16px,2.3vh,30px) auto!important;
   padding:clamp(22px,3.3vh,42px) clamp(23px,3.5vw,60px)!important;
   border:2px solid #D7B052!important;
