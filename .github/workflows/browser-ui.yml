@@ -10,6 +10,7 @@ on:
       - 'golden-motion-v1.6.css'
       - 'single-frame-gold-wipes-v1.7.css'
       - 'melody-show-v1.9.css'
+      - 'golden-layout-fixes-v2.5.css'
       - '.github/workflows/browser-ui.yml'
   workflow_dispatch:
 permissions:
@@ -48,6 +49,24 @@ jobs:
                 assert.equal(await page.locator('[data-action="march-toggle"]').count(),1);
                 assert.equal(await page.locator('.stage-content [data-file-key]').count(),0);
                 assert(!((await page.locator('.stage-content').textContent()).includes('Загрузить музыку')));
+                const opening=await page.evaluate(()=>{
+                  const card=document.querySelector('.stage-content');
+                  const button=card.querySelector('[data-action="march-toggle"]');
+                  const footer=card.querySelector('.stage-bottom-fine');
+                  const stage=document.querySelector('.stage');
+                  const ornament=getComputedStyle(card,'::before');
+                  return {
+                    cardH:card.getBoundingClientRect().height,
+                    stageH:stage.getBoundingClientRect().height,
+                    btnBottom:button.getBoundingClientRect().bottom,
+                    footerTop:footer.getBoundingClientRect().top,
+                    ornamentTop:parseFloat(ornament.top),
+                    ornamentLeft:parseFloat(ornament.left)
+                  };
+                });
+                assert(opening.footerTop>=opening.btnBottom+5,'Opening footer overlaps the Mendelssohn button');
+                assert(opening.ornamentTop>=0&&opening.ornamentLeft>=0,'Botanical ornament escapes the first frame');
+                if(viewport.width>800)assert(opening.cardH<opening.stageH*.94,'Opening frame is still excessively tall');
                 await page.keyboard.press('ArrowRight');
                 await page.locator('.gold-wipe-scene').waitFor({state:'visible'});
                 await page.locator('.gold-wipe-scene').waitFor({state:'detached'});
@@ -74,6 +93,12 @@ jobs:
                 assert.equal(screen.numeral,'rgb(215, 176, 82)');
                 assert.equal(screen.numeralFill,'rgb(215, 176, 82)');
                 assert.equal(screen.numeralBackground,'rgba(0, 0, 0, 0)');
+                const figureTop=await page.locator('.welcome-figure').evaluate(el=>({
+                  marginTop:getComputedStyle(el).marginTop,
+                  paddingTop:getComputedStyle(el).paddingTop
+                }));
+                assert.equal(figureTop.marginTop,'0px');
+                assert.equal(figureTop.paddingTop,'0px');
                 assert.equal(screen.surnameFont,screen.nameFont);
                 assert(screen.surnameSize>screen.nameSize,'Surname should be larger than the names');
                 assert.equal(screen.panelOutline,'none');
@@ -121,7 +146,8 @@ jobs:
                 if(viewport.width<=800)await page.locator('#mobile-stage-select').selectOption('2');
                 else await page.locator('.section-item[data-value="2"]').click();
                 await page.locator('video[data-player="wedding"]').waitFor();
-                assert.equal(await page.locator('.ceremony-video-screen [data-file-key]').count(),0);
+                assert.equal(await page.locator('.ceremony-video-screen [data-file-key="wedding"]').count(),1);
+                assert((await page.locator('.ceremony-video-upload').textContent()).includes('Загрузить свадебный ролик'));
                 assert.equal(await page.locator('.media-prompt').count(),0);
                 // Validate interview-to-interview transitions, shared volume and no autoplay.
                 if(viewport.width<=800)await page.locator('#mobile-stage-select').selectOption('3');
@@ -141,6 +167,14 @@ jobs:
                 if(viewport.width<=800) await page.locator('#mobile-stage-select').selectOption('4');
                 else await page.locator('.section-item[data-value="4"]').click();
                 await page.locator('.question-card').waitFor();
+                const movieFrame=await page.locator('.stage-content').evaluate(el=>({
+                  height:el.getBoundingClientRect().height,
+                  stageHeight:el.closest('.stage').getBoundingClientRect().height,
+                  branchTop:parseFloat(getComputedStyle(el,'::before').top),
+                  branchLeft:parseFloat(getComputedStyle(el,'::before').left)
+                }));
+                assert(movieFrame.branchTop>=0&&movieFrame.branchLeft>=0,'Film ornaments escape frame');
+                if(viewport.width>800)assert(movieFrame.height<movieFrame.stageHeight*.97,'Film frame still fills the full stage');
                 await page.locator('[data-action="movie-reveal"]').click();
                 await page.locator('.question-card .answer-panel').waitFor();
                 // The melody show uses ONE local recording: a verse that pauses
@@ -150,6 +184,13 @@ jobs:
                 await page.locator('.melody-game-screen').waitFor();
                 assert((await page.locator('.melody-game-screen').textContent()).includes('ТРЕК 01 / 20'));
                 assert.equal((await page.locator('.melody-game-screen .episode-meta h1').textContent()).trim(),'Продолжи песню');
+                assert.equal(await page.locator('.melody-file-status').count(),0);
+                const alignment=await page.evaluate(()=>{
+                  const title=document.querySelector('.melody-game-screen .episode-meta');
+                  const player=document.querySelector('.melody-game-layout');
+                  return Math.abs(title.getBoundingClientRect().left-player.getBoundingClientRect().left);
+                });
+                assert(alignment<25,'Music title should align with the playback panel');
                 assert.equal((await page.locator('#mobile-stage-select option[value="5"]').textContent()).includes('Продолжи песню'),true);
                 await page.evaluate(()=>{
                   const samples=24000,rate=8000;
@@ -213,7 +254,7 @@ jobs:
                 await page.locator('[data-action="melody-restart"]').click();
                 // Three in-person competitions are title screens: no demo answers,
                 // descriptions, image uploads or per-question controls.
-                for(const [index,title] of [[6,'Парный конкурс'],[7,'Салаты и закуски'],[8,'Загаданное слово']]){
+                for(const [index,title] of [[6,'Парный конкурс'],[7,'Конкурс «Салаты и закуски»'],[8,'Конкурс «Загаданное слово»']]){
                   if(viewport.width<=800)await page.locator('#mobile-stage-select').selectOption(String(index));
                   else await page.locator('.section-item[data-value="'+index+'"]').click();
                   await page.waitForFunction(expected=>
@@ -225,7 +266,7 @@ jobs:
                   assert.equal(await page.locator('.announcement-screen p').count(),0);
                   assert((await page.locator('.announcement-title').evaluate(el=>getComputedStyle(el).fontSize))!=='16px');
                 }
-                // Silhouette remains interactive (15 seconds / two rounds) but media
+                // Silhouette remains interactive (20 seconds / two rounds) but media
                 // upload and cloud notices must be absent from its show screen.
                 if(viewport.width<=800)await page.locator('#mobile-stage-select').selectOption('9');
                 else await page.locator('.section-item[data-value="9"]').click();
@@ -240,11 +281,36 @@ jobs:
                   window.WeddingCloud.fileURL=(key,fallback)=>key.startsWith('silhouette-')?picture:original(key,fallback);
                   document.dispatchEvent(new Event('wedding-cloud-updated'));
                 });
+                await page.clock.install();
+                assert((await page.locator('[data-action="silhouette-start"]').textContent()).includes('20 сек'));
+                assert.equal(await page.locator('[data-action="silhouette-answer"]').count(),0);
                 await page.locator('[data-action="silhouette-start"]').click();
                 await page.locator('.silhouette-image-board img').waitFor();
                 await page.locator('#timer-display').waitFor();
-                assert(await page.locator('#timer-display').textContent());
+                assert(parseFloat(await page.locator('#timer-display').textContent())<=20);
+                assert.equal(await page.locator('[data-action="silhouette-answer"]').count(),0,'Answers must be hidden during countdown');
                 assert.equal(await page.locator('.stage-content [data-file-key]').count(),0);
+                await page.clock.fastForward(20100);
+                await page.locator('.silhouette-covered').waitFor();
+                assert.equal(await page.locator('.silhouette-answers-board').count(),0,'Answers are hidden after the timer');
+                await page.locator('[data-action="silhouette-answer"]').click();
+                await page.locator('.silhouette-answers-board').waitFor();
+                const round1=await page.locator('.silhouette-answer-item').allTextContents();
+                assert.deepEqual(round1.map(x=>x.trim()),['12Кукуруза','10Бутылки','8Индюки','10Тыквы','4Яблоки']);
+                await page.locator('[data-action="silhouette-answer"]').click();
+                assert.equal(await page.locator('.silhouette-answers-board').count(),0,'Hide answers is available');
+                await page.locator('[data-action="silhouette-next"]').click();
+                await page.locator('.silhouette-covered strong').waitFor();
+                await page.waitForFunction(()=>document.querySelector('.silhouette-covered strong')?.textContent==='Раунд 2');
+                assert.equal(await page.locator('[data-action="silhouette-answer"]').count(),0,'Next round must not inherit answers');
+                await page.locator('[data-action="silhouette-start"]').click();
+                await page.locator('.silhouette-image-board img').waitFor();
+                await page.clock.fastForward(20100);
+                await page.locator('.silhouette-covered').waitFor();
+                await page.locator('[data-action="silhouette-answer"]').click();
+                await page.locator('.silhouette-answers-board').waitFor();
+                const round2=await page.locator('.silhouette-answer-item').allTextContents();
+                assert.deepEqual(round2.map(x=>x.trim()),['8Пятки','5Звоны','4Листья','5Кристаллы','5Приставки','4Обезьяны','9Усы']);
                 // Closing credits must be readable and the rolling film credits
                 // must pause/resume without starting over or re-rendering.
                 if(viewport.width<=800) await page.locator('#mobile-stage-select').selectOption('10');
